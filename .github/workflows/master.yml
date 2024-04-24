@@ -62,18 +62,7 @@ jobs:
         uses: fossa-contrib/fossa-action@v3
         with:
           fossa-api-key: 0c3bbcdf20e157bbd487dae173751b28
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-
-      - name: Build
-        run: go build
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -87,6 +76,7 @@ jobs:
         run: go test ./...
   dockcer-build-push-images:
     runs-on: ubuntu-latest
+    needs: unit-tests
 
     env:
       REGISTRY: docker.io
