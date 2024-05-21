@@ -110,3 +110,19 @@ jobs:
           DOCKER_TAG: master-latest
         run: |
           make docker-build
+
+      - name: Tag Docker image latest
+        run: |
+          docker tag 5gc-amf:0.0.2-dev ${{ env.DOCKER_REPOSITORY }}amf:master-latest
+
+      - name: Push Docker image latest to Docker Hub
+        run: |
+          docker push ${{ env.DOCKER_REPOSITORY }}amf:master-latest
+
+      - name: Tag Docker image "master-GIT_SHA"
+        run: |
+          docker tag 5gc-amf:0.0.2-dev ${{ env.DOCKER_REPOSITORY }}amf:master-${{ env.GIT_SHA_SHORT }}
+
+      - name: Push Docker image "master-GIT_SHA" to Docker Hub
+        run: |
+          docker push ${{ env.DOCKER_REPOSITORY }}amf:master-${{ env.GIT_SHA_SHORT }}
