@@ -2,7 +2,7 @@
 # Copyright 2023 Canonical Ltd.
 # Copyright 2024 Intel Corporation
 
-name: Master Workflow
+name: CDAC Master Workflow
 
 on:
   pull_request:
