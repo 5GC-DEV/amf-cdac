@@ -57,6 +57,7 @@ configuration:
     short: Aether
   networkFeatureSupport5GS: # 5gs Network Feature Support IE, refer to TS 24.501
     enable: true # append this IE in Registration accept or not
+    # Enabled IMS Voice over PS to fix PDU Session Establishment issues - By CDAC TVM
     imsVoPS: 1 # IMS voice over PS session indicator (uinteger, range: 0~1)
     emc: 0 # Emergency service support indicator for 3GPP access (uinteger, range: 0~3)
     emf: 0 # Emergency service fallback indicator for 3GPP access (uinteger, range: 0~3)
