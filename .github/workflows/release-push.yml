@@ -31,7 +31,8 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCRUSER }}
           password: ${{ secrets.GHCRPASS }}
-
+      - name: Clean Checksum
+        run: go mod tidy
       - name: Build Docker image
         env:
           DOCKER_TAG: master-latest
