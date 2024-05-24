@@ -35,14 +35,15 @@ jobs:
         run: go mod tidy
       - name: Build Docker image
         env:
-          DOCKER_TAG: master-latest
+          DOCKER_TAG: release-${{ env.RELEASE_VERSION }}
         run: |
             make docker-build
+            make docker-push
 
-      - name: Tag Docker image latest
-        run: |
-          docker tag ${{ env.DOCKER_REGISTRY}}${{ env.DOCKER_REPOSITORY}}5gc-amf:master-latest ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
-
-      - name: Push Docker image latest to Docker Hub
-        run: |
-          docker push ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
+#      - name: Tag Docker image latest
+#        run: |
+#          docker tag ${{ env.DOCKER_REGISTRY}}${{ env.DOCKER_REPOSITORY}}5gc-amf:master-latest ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
+#
+#      - name: Push Docker image latest to Docker Hub
+#        run: |
+#          docker push ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
