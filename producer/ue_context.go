@@ -596,11 +596,14 @@ func HandleRegistrationStatusUpdateRequest(request *httpwrapper.Request) *httpwr
 		ueRegStatusUpdateRspData = msg.RespData.(*models.UeRegStatusUpdateRspData)
 	}
 	// ueRegStatusUpdateRspData, problemDetails := RegistrationStatusUpdateProcedure(ueContextID, ueRegStatusUpdateReqData)
+
+	// nil pointer check for pd eventhough msg.ProblemDetails is not nil
+	// Fixes registration status update segmentation fault - By CDAC TVM
 	if msg.ProblemDetails != nil {
 		pd := msg.ProblemDetails.(*models.ProblemDetails)
-		logger.CommLog.Info("value of pd", pd)
+		logger.CommLog.Info("Registration status update problem details: ", pd)
 		if pd != nil {
-			logger.CommLog.Info(int(msg.ProblemDetails.(*models.ProblemDetails).Status))
+			logger.CommLog.Info("Registration status update status code: ", int(msg.ProblemDetails.(*models.ProblemDetails).Status))
 			return httpwrapper.NewResponse(int(msg.ProblemDetails.(*models.ProblemDetails).Status), nil, msg.ProblemDetails.(*models.ProblemDetails))
 		} else if msg.RespData != nil {
 			return httpwrapper.NewResponse(http.StatusOK, nil, ueRegStatusUpdateRspData)
