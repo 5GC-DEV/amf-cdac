@@ -2,7 +2,7 @@
 # Copyright 2023 Canonical Ltd.
 # Copyright 2024 Intel Corporation
 
-name: CDAC Push Image Workflow
+name: Release Push Image Workflow
 
 on:
   workflow_dispatch:
@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REGISTRY: docker.io
-      DOCKER_REGISTRY: docker.io/
-      DOCKER_REPOSITORY: cdac5gc/
+      REGISTRY: ghcr.io
+      DOCKER_REGISTRY: ghcr.io/
+      DOCKER_REPOSITORY: ios-mcn-core/
+      RELEASE_VERSION: 0.0.2
       
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +40,8 @@ jobs:
 
       - name: Tag Docker image latest
         run: |
-          docker tag 5gc-amf:0.0.2-dev ${{ env.DOCKER_REPOSITORY }}amf:master-latest
+          docker tag 5gc-amf:master-latest ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
 
       - name: Push Docker image latest to Docker Hub
         run: |
-          docker push ${{ env.DOCKER_REPOSITORY }}amf:master-latest
+          docker push ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
