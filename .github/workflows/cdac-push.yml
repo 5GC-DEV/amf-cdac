@@ -39,16 +39,8 @@ jobs:
 
       - name: Tag Docker image latest
         run: |
-          docker tag 5gc-pcf:master-latest ${{ env.DOCKER_REPOSITORY }}pcf:master-latest
+          docker tag 5gc-amf:0.0.2-dev ${{ env.DOCKER_REPOSITORY }}amf:master-latest
 
       - name: Push Docker image latest to Docker Hub
         run: |
-          docker push ${{ env.DOCKER_REPOSITORY }}pcf:master-latest
-
-      - name: Tag Docker image "master-GIT_SHA"
-        run: |
-          docker tag 5gc-pcf:0.0.1-dev ${{ env.DOCKER_REPOSITORY }}pcf:master-${{ env.GIT_SHA_SHORT }}
-
-      - name: Push Docker image "master-GIT_SHA" to Docker Hub
-        run: |
-          docker push ${{ env.DOCKER_REPOSITORY }}pcf:master-${{ env.GIT_SHA_SHORT }}
+          docker push ${{ env.DOCKER_REPOSITORY }}amf:master-latest
