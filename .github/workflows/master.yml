@@ -76,7 +76,7 @@ jobs:
           go-version-file: 'go.mod'
       
       - name: Clean Checksum
-        run: go mod tid
+        run: go mod tidy
 
       - name: Unit tests
         run: go test ./...
@@ -98,7 +98,7 @@ jobs:
           go-version-file: 'go.mod'
       
       - name: Clean Checksum
-        run: go mod tid
+        run: go mod tidy
 
       - run: echo GIT_SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
 
