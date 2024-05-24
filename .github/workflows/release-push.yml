@@ -44,5 +44,7 @@ jobs:
           docker tag ${{ env.DOCKER_REGISTRY}}${{ env.DOCKER_REPOSITORY}}5gc-amf:release-${{ env.RELEASE_VERSION }} ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
 
       - name: Push Docker image latest to Github
+        env:
+          DOCKER_TAG: release-${{ env.RELEASE_VERSION }} 
         run: |
           make docker-push ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
