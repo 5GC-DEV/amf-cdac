@@ -313,7 +313,7 @@ func SendUpdateSmContextXnHandover(
 	ue *amf_context.AmfUe, smContext *amf_context.SmContext, n2SmType models.N2SmInfoType, N2SmInfo []byte) (
 	*models.UpdateSmContextResponse, *models.UpdateSmContextErrorResponse, *models.ProblemDetails, error,
 ) {
-	// Check if smContext is nil to prevent nil pointer dereference - By CDAC TVM
+	// Check if the smContext is nil to prevent nil pointer dereference - By CDAC TVM
 	if smContext == nil {
 		return nil, nil, nil, fmt.Errorf("smContext is nil")
 	}
