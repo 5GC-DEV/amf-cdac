@@ -51,9 +51,7 @@ func Inplmnlist(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 }
 func Inslicelist(gnbslicelist []interface{}, amfslicelist []interface{}) bool {
 	return reflect.DeepEqual(gnbslicelist, amfslicelist)
-
 }
-
 // End of Modification
 
 func TacInAreas(targetTac string, areas []models.Area) bool {
