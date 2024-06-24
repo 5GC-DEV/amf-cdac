@@ -45,8 +45,13 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 }
 
 // Modified by CDAC TVM
+
+func Inplmnlist(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
+	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
+
 func Inslicelist(gnbslicelist []interface{}, amfslicelist []interface{}) bool {
 	return reflect.DeepEqual(gnbslicelist, amfslicelist)
+
 }
 
 // End of Modification
