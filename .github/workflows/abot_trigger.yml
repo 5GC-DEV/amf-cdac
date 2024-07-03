@@ -2,15 +2,15 @@
 # Copyright 2023 Canonical Ltd.
 # Copyright 2024 Intel Corporation.
 
-name: self-hosted workflow
+name: abot_automation
 
 on:
   pull_request:
     branches:
-      - iostest
+      - iosmcnmaster
   push:
     branches:
-      - iostest
+      - iosmcnmaster
 jobs:
     
   
