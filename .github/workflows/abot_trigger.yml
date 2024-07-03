@@ -11,7 +11,7 @@ jobs:
   
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: trigger single Job
       uses: appleboy/jenkins-action@master
