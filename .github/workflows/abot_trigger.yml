@@ -5,12 +5,7 @@
 name: abot_automation
 
 on:
-  pull_request:
-    branches:
-      - iosmcnmaster
-  push:
-    branches:
-      - iosmcnmaster
+  workflow_dispatch:
 jobs:
     
   
