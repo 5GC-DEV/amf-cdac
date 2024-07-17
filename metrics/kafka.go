@@ -23,6 +23,11 @@ type Writer struct {
 var StatWriter Writer
 
 func InitialiseKafkaStream(config *factory.Configuration) error {
+	if !*factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
+		logger.KafkaLog.Info("Kafka disabled")
+		return nil
+	}
+
 	brokerUrl := "sd-core-kafka-headless:9092"
 	topicName := "sdcore-data-source-amf"
 

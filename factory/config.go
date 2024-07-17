@@ -12,8 +12,8 @@ package factory
 import (
 	"time"
 
-	"github.com/omec-project/logger_util"
 	"github.com/omec-project/openapi/models"
+	"github.com/omec-project/util/logger"
 )
 
 const (
@@ -21,9 +21,9 @@ const (
 )
 
 type Config struct {
-	Info          *Info               `yaml:"info"`
-	Configuration *Configuration      `yaml:"configuration"`
-	Logger        *logger_util.Logger `yaml:"logger"`
+	Info          *Info          `yaml:"info"`
+	Configuration *Configuration `yaml:"configuration"`
+	Logger        *logger.Logger `yaml:"logger"`
 }
 
 type Info struct {
@@ -44,9 +44,10 @@ type Mongodb struct {
 }
 
 type KafkaInfo struct {
-	BrokerUri  string `yaml:"brokerUri,omitempty"`
-	BrokerPort int    `yaml:"brokerPort,omitempty"`
-	Topic      string `yaml:"topicName,omitempty"`
+	EnableKafka *bool  `yaml:"enableKafka,omitempty"`
+	BrokerUri   string `yaml:"brokerUri,omitempty"`
+	BrokerPort  int    `yaml:"brokerPort,omitempty"`
+	Topic       string `yaml:"topicName,omitempty"`
 }
 
 type Configuration struct {
