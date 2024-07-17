@@ -2481,7 +2481,8 @@ func BuildRanConfigurationUpdateFailure(
 	ie.Value.TimeToWait = new(ngapType.TimeToWait)
 
 	timeToWait := ie.Value.TimeToWait
-	timeToWait.Value = ngapType.TimeToWaitPresentV1s
+	// The TimeToWaitIE value was modified from 1 second to 5 second to fix the ran configuration update failure issue - by CDAC TVM
+	timeToWait.Value = ngapType.TimeToWaitPresentV5s
 
 	rANConfigurationUpdateFailureIEs.List = append(rANConfigurationUpdateFailureIEs.List, ie)
 
