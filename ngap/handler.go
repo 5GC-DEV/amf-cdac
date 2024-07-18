@@ -16,7 +16,6 @@ import (
 
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
-	"github.com/omec-project/amf/factory"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -500,23 +499,24 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 	return ranUe, aMFUENGAPID
 }
 
+// Modified HandleNGSetupRequest to make the core capable of accepting multiple Slice configurations from the gnb - by CDAC TVM
 func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var globalRANNodeID *ngapType.GlobalRANNodeID
 	var rANNodeName *ngapType.RANNodeName
 	var supportedTAList *ngapType.SupportedTAList
 	var pagingDRX *ngapType.PagingDRX
-
 	var cause ngapType.Cause
 
-	// Modified by CDAC TVM
-	var sdlistcore []byte
-	var intsstcore int32
+	var sdList []byte
+	var intOfSst int32
+	var sliceList []interface{}
+	var snssaiLength int
 
 	supportedTAI := context.NewSupportedTAI()
 
 	amfSelf := context.AMF_Self()
 	var pdu ngapType.NGAPPDU
-
+	// pdu.Present = ngapType.NGAPPDUPresentSuccessfulOutcome
 	pdu.SuccessfulOutcome = new(ngapType.SuccessfulOutcome)
 
 	successfulOutcome := pdu.SuccessfulOutcome
@@ -534,7 +534,6 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	ie.Value.PLMNSupportList = new(ngapType.PLMNSupportList)
 
 	pLMNSupportList := ie.Value.PLMNSupportList
-
 	for _, plmnItem := range amfSelf.PlmnSupportList {
 		pLMNSupportItem := ngapType.PLMNSupportItem{}
 		pLMNSupportItem.PLMNIdentity = ngapConvert.PlmnIdToNgap(plmnItem.PlmnId)
@@ -546,7 +545,6 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		pLMNSupportList.List = append(pLMNSupportList.List, pLMNSupportItem)
 	}
 	nGSetupResponseIEs.List = append(nGSetupResponseIEs.List, ie)
-	// End of Modification
 
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
@@ -642,7 +640,6 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
-
 	// Modified by CDAC TVM
 	if ie.Value.PLMNSupportList != nil {
 		for _, s_nssai_amf := range pLMNSupportList.List {
@@ -650,13 +647,15 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				slicesupplist_list_nssai := slice_supportlist_list.SNSSAI
 				snssai_sst_value := slicesupplist_list_nssai.SST
 				snssai_sd_value := slicesupplist_list_nssai.SD
-
+				// SD VALUE
 				sdvalue := snssai_sd_value.Value
-				sdlistcore = append(sdlistcore, sdvalue[0])
-				sdlistcore = append(sdlistcore, sdvalue[1])
-				sdlistcore = append(sdlistcore, sdvalue[2])
-				ran.Log.Info("sd value list from AMF: ", sdlistcore)
 
+				sdList = append(sdList, sdvalue[0])
+				sdList = append(sdList, sdvalue[1])
+				sdList = append(sdList, sdvalue[2])
+				ran.Log.Info("sd value list from AMF: ", sdList)
+
+				// SST VALUE
 				sstvalue := snssai_sst_value.Value
 
 				strsstvalue := fmt.Sprintf("%o", sstvalue[0])
@@ -665,92 +664,89 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				if err != nil {
 					ran.Log.Info("error in Parsing")
 				}
-				intsstcore = int32(intsstvalue)
-				ran.Log.Info("SST from AMF: ", intsstcore)
+				intOfSst = int32(intsstvalue)
+				ran.Log.Info("SST from AMF: ", intOfSst)
+				sliceList = append(sliceList, intOfSst, sdList)
 			}
 		}
+	}
+	ran.Log.Info("Slice Values in SNssaiList gnb: ", supportedTAI.SNssaiList)
 
-		for _, s_nssai := range supportedTAI.SNssaiList {
-			sstgnb := s_nssai.Sst
+	snssaiLength = len(supportedTAI.SNssaiList)
+	ran.Log.Info("length of snssai list: ", snssaiLength)
+	sliceTrue := true
+	for _, s_nssai := range supportedTAI.SNssaiList {
+		if snssaiLength > 1 {
+			var sliceRAN []interface{}
+			sliceRAN = append(sliceRAN, s_nssai.Sst, s_nssai.Sd)
+			ran.Log.Info("slice list from gnb: ", sliceRAN)
+			if s_nssai.Sd != "" {
+				sstSliceRAN := s_nssai.Sst
+				sdSliceRAN := context.ConvertHexToOctalbytes(s_nssai.Sd)
+				ran.Log.Info("sst from gnb slice: ", sstSliceRAN)
+				ran.Log.Info("sd from gnb slice: ", sdSliceRAN)
+				var mulSliceListRAN []interface{}
+				mulSliceListRAN = append(mulSliceListRAN, sstSliceRAN, sdSliceRAN)
+				if context.InSliceList(mulSliceListRAN, sliceList) {
+					ran.Log.Info("Slice values are equal ")
+					sliceTrue = true
+					break
+				} else {
+					ran.Log.Info("Slice values are not equal ")
+					sliceTrue = false
+				}
+			} else {
+				var sstTRUE bool
+
+				if s_nssai.Sst == intOfSst {
+					ran.Log.Info("sst values are EQUAL ")
+					sstTRUE = true
+				} else {
+					ran.Log.Info("sst values are NOTEQUAL ")
+					sstTRUE = false
+				}
+				if !sstTRUE {
+					ran.Log.Warn("NG-Setup failure: Wrong SST values ")
+					cause.Present = ngapType.CausePresentMisc
+					cause.Misc = &ngapType.CauseMisc{
+						Value: ngapType.CauseMiscPresentUnspecified,
+					}
+				}
+			}
+		} else {
+			sstRAN := s_nssai.Sst
 			sd := s_nssai.Sd
 
-			ran.Log.Info("Sst Value in SNssaiList gnb: ", sstgnb)
+			ran.Log.Info("Sst Value in SNssaiList gnb: ", sstRAN)
 			ran.Log.Info("Sd Value in SNssaiList gnb: ", sd)
+
 			if sd != "" {
-				firsttwohex := sd[:2]
-				intoffirsttwohex, err := strconv.ParseInt(firsttwohex, 16, 64)
-				if err != nil {
-					fmt.Println("error in parsing")
-				}
-				octalstring1 := strconv.FormatInt(intoffirsttwohex, 8)
-
-				integerValue1, err := strconv.ParseInt(octalstring1, 8, 64)
-				if err != nil {
-					fmt.Println("Error:", err)
-					return
-				}
-				byteofoctal1 := byte(integerValue1)
-
-				secondtwohex := sd[2:4]
-
-				intofsecondtwohex, err := strconv.ParseInt(secondtwohex, 16, 64)
-				if err != nil {
-					fmt.Println("error in parsing")
-				}
-				octalstring2 := strconv.FormatInt(intofsecondtwohex, 8)
-
-				integerValue2, err := strconv.ParseInt(octalstring2, 8, 64)
-				if err != nil {
-					fmt.Println("Error:", err)
-					return
-				}
-				byteofoctal2 := byte(integerValue2)
-
-				thirdtwohex := sd[4:6]
-				intofthirdtwohex, err := strconv.ParseInt(thirdtwohex, 16, 64)
-				if err != nil {
-					fmt.Println("error in parsing")
-				}
-				octalstring3 := strconv.FormatInt(intofthirdtwohex, 8)
-				integerValue3, err := strconv.ParseInt(octalstring3, 8, 64)
-				if err != nil {
-					fmt.Println("Error:", err)
-					return
-				}
-				byteofoctal3 := byte(integerValue3)
-
-				var sdlistgnb []byte
-				sdlistgnb = append(sdlistgnb, byteofoctal1)
-				sdlistgnb = append(sdlistgnb, byteofoctal2)
-				sdlistgnb = append(sdlistgnb, byteofoctal3)
-				ran.Log.Info("sd value list from gnb: ", sdlistgnb)
+				sdlistRAN := context.ConvertHexToOctalbytes(sd)
+				ran.Log.Info("sd value list from gnb: ", sdlistRAN)
 				ran.Log.Info("supported SNssailist from gnb: ", supportedTAI.SNssaiList)
-
-				if sstgnb == intsstcore {
+				if sstRAN == intOfSst {
 					ran.Log.Info("sst values are equal")
 				} else {
 					ran.Log.Info("sst values are not equal")
 				}
-				if reflect.DeepEqual(sdlistgnb, sdlistcore) {
+				if reflect.DeepEqual(sdlistRAN, sdList) {
 					ran.Log.Info("sd values are equal")
 				} else {
 					ran.Log.Info("sd values are not equal")
 				}
 
-				var gnbslicelist []interface{}
-				var amfslicelist []interface{}
+				var sliceListRAN []interface{}
 
-				gnbslicelist = append(gnbslicelist, sstgnb, sdlistgnb)
-				amfslicelist = append(amfslicelist, intsstcore, sdlistcore)
+				sliceListRAN = append(sliceListRAN, sstRAN, sdlistRAN)
 
-				var flags bool
-				if context.Inslicelist(gnbslicelist, amfslicelist) {
-					ran.Log.Info("Slice values are equal ")
-					flags = true
+				var sliceListTrue bool
+				if context.InSliceList(sliceListRAN, sliceList) {
+					ran.Log.Info("Slice lists are equal ")
+					sliceListTrue = true
 				} else {
-					ran.Log.Info("Slice values are not equal ")
+					ran.Log.Info("Slice lists are not equal ")
 				}
-				if !flags {
+				if !sliceListTrue {
 					ran.Log.Warn("NG-Setup failure: Wrong Slice values ")
 					cause.Present = ngapType.CausePresentMisc
 					cause.Misc = &ngapType.CauseMisc{
@@ -758,26 +754,16 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 					}
 				}
 			} else {
-				var flag1 bool
-				var flag2 bool
+				var sstTrue bool
 
-				if sstgnb == intsstcore {
+				if sstRAN == intOfSst {
 					ran.Log.Info("sst values are EQUAL ")
-					flag1 = false
-					flag2 = true
+					sstTrue = true
 				} else {
 					ran.Log.Info("sst values are NOTEQUAL ")
-					flag2 = false
-					flag1 = true
+					sstTrue = false
 				}
-				if !flag1 {
-					ran.Log.Warn("NG-Setup failure:SD value is nil ")
-					cause.Present = ngapType.CausePresentMisc
-					cause.Misc = &ngapType.CauseMisc{
-						Value: ngapType.CauseMiscPresentUnspecified,
-					}
-				}
-				if !flag2 {
+				if !sstTrue {
 					ran.Log.Warn("NG-Setup failure: Wrong SST values ")
 					cause.Present = ngapType.CausePresentMisc
 					cause.Misc = &ngapType.CauseMisc{
@@ -787,8 +773,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
-	// End of Modification
-
+	// End of modification
 	if len(ran.SupportedTAList) == 0 {
 		ran.Log.Warn("NG-Setup failure: No supported TA exist in NG-Setup request")
 		cause.Present = ngapType.CausePresentMisc
@@ -811,15 +796,22 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				break
 			}
 		}
+
 		if !found {
-			ran.Log.Warn("NG-Setup failure: Cannot find Served TAI in AMF")
+			ran.Log.Warn("NG-Setup failure: Cannot find Served TAI in AMF ")
+			cause.Present = ngapType.CausePresentMisc
+			cause.Misc = &ngapType.CauseMisc{
+				Value: ngapType.CauseMiscPresentUnknownPLMN,
+			}
+		}
+		if !sliceTrue {
+			ran.Log.Warn("NG-Setup failure: Wrong Slice values")
 			cause.Present = ngapType.CausePresentMisc
 			cause.Misc = &ngapType.CauseMisc{
 				Value: ngapType.CauseMiscPresentUnknownPLMN,
 			}
 		}
 	}
-
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
 		// send nf(gnb) status notification
@@ -830,10 +822,9 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				NfStatus: mi.NfStatusConnected, NfName: ran.GnbId,
 			},
 		}
-		if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-			if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-				ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
-			}
+
+		if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+			ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)

@@ -50,7 +50,7 @@ func Inplmnlist(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
 }
 
-func Inslicelist(gnbslicelist []interface{}, amfslicelist []interface{}) bool {
+func InSliceList(gnbslicelist []interface{}, amfslicelist []interface{}) bool {
 	return reflect.DeepEqual(gnbslicelist, amfslicelist)
 }
 
