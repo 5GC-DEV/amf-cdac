@@ -4070,7 +4070,7 @@ func HandleNasNonDeliveryIndication(ran *context.AmfRan, message *ngapType.NGAPP
 	nas.HandleNAS(ranUe, ngapType.ProcedureCodeNASNonDeliveryIndication, nASPDU.Value)
 }
 
-// To fix the RAN CONFIGURATION UPDATE FAILURE when RAN sends RAN Configuration Update message with MNC and MCC that are not supported by the core - by CDAC TVM
+// Modified HandleRanconfigurationupdate to make the core capable of accepting multiple TAC configurations - by CDAC TVM
 func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var rANNodeName *ngapType.RANNodeName
 	var supportedTAList *ngapType.SupportedTAList
@@ -4081,15 +4081,15 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 
 	supportedTAI := context.NewSupportedTAI()
 
-	var gnbplmnlist []interface{}
-	var coreplmnlist []interface{}
+	var gnbPlmnList []interface{}
+	var plmnList []interface{}
 
-	var mccgnb string
-	var mncgnb string
-	var mcccore string
-	var mnccore string
-	var tac_core string
-	var tac_gnb string
+	var mccRAN string
+	var mncRAN string
+	var mcc string
+	var mnc string
+
+	var tacRAN string
 
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
@@ -4157,13 +4157,13 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 					break
 				}
 			}
-			ran.Log.Info("values in supportedtai.snssailist: ", supportedTAI.SNssaiList)
 			ran.Log.Tracef("PLMN_ID[MCC:%s MNC:%s] TAC[%s]", plmnId.Mcc, plmnId.Mnc, tac)
-			// Modified by CDAC TVM
-			mccgnb = plmnId.Mcc
-			mncgnb = plmnId.Mnc
-			ran.Log.Info("mcc from gnb: ", mccgnb)
-			ran.Log.Info("mnc from gnb", mncgnb)
+			ran.Log.Infof("PLMN_ID[MCC:%s MNC:%s] TAC[%s]", plmnId.Mcc, plmnId.Mnc, tac)
+
+			mccRAN = plmnId.Mcc
+			mncRAN = plmnId.Mnc
+			ran.Log.Info("mcc from RAN: ", mccRAN)
+			ran.Log.Info("mnc from RAN: ", mncRAN)
 			if len(ran.SupportedTAList) < capOfSupportTai {
 				ran.SupportedTAList = append(ran.SupportedTAList, supportedTAI)
 			} else {
@@ -4171,22 +4171,21 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			}
 			for _, guami := range amfSelf.ServedGuamiList {
 				plmnid := guami.PlmnId
-				mcccore = plmnid.Mcc
-				mnccore = plmnid.Mnc
-				ran.Log.Info("mcc from core: ", mcccore)
-				ran.Log.Info("mnc from core: ", mnccore)
-				if mcccore == mccgnb {
+				mcc = plmnid.Mcc
+				mnc = plmnid.Mnc
+				ran.Log.Info("MCC: ", mcc)
+				ran.Log.Info("MNC: ", mnc)
+				if mcc == mccRAN {
 					ran.Log.Info("MCC values are equal")
 				} else {
 					ran.Log.Info("MCC values are Not equal")
 				}
-				if mnccore == mncgnb {
+				if mnc == mncRAN {
 					ran.Log.Info("MNC values are equal")
 				} else {
 					ran.Log.Info("MNC values are Not equal")
 				}
 			}
-			// End of Modification
 		}
 	}
 
@@ -4198,31 +4197,47 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 		}
 	} else {
 		var found bool
+		var tacList []string
 		taiList := make([]models.Tai, len(context.AMF_Self().SupportTaiLists))
 		copy(taiList, context.AMF_Self().SupportTaiLists)
 		for i := range taiList {
 			taiList[i].Tac = util.TACConfigToModels(taiList[i].Tac)
 			ran.Log.Infof("Supported Tai List in AMF Plmn: %v, Tac: %v", taiList[i].PlmnId, taiList[i].Tac)
-			tac_core = taiList[i].Tac
+			tacList = append(tacList, taiList[i].Tac)
+			ran.Log.Info("taclist: ", tacList)
 		}
 		for i, tai := range ran.SupportedTAList {
-			tac_gnb = tai.Tai.Tac
+			tacRAN = tai.Tai.Tac
 			if context.InTaiList(tai.Tai, taiList) {
 				ran.Log.Tracef("SERVED_TAI_INDEX[%d]", i)
 				found = true
 				break
 			}
 		}
-		// Modified by CDAC TVM
-		gnbplmnlist = append(gnbplmnlist, mccgnb, mncgnb, tac_gnb)
-		coreplmnlist = append(coreplmnlist, mcccore, mnccore, tac_core)
 
-		var flags bool
-		if context.Inplmnlist(gnbplmnlist, coreplmnlist) {
-			ran.Log.Info("mcc and mnc values are equal")
-			flags = true
+		gnbPlmnList = append(gnbPlmnList, mccRAN, mncRAN)
+		plmnList = append(plmnList, mcc, mnc)
+		ran.Log.Info("gnbplmnlist: ", gnbPlmnList)
+		ran.Log.Info("plmnlist: ", plmnList)
+		ran.Log.Info("tac from RAN: ", tacRAN)
+
+		tacFound := false
+		for _, tAC := range tacList {
+			if tAC == tacRAN {
+				tacFound = true
+			}
 		}
-		// End of Modification
+
+		if context.InPlmnList(gnbPlmnList, plmnList) {
+			ran.Log.Info("plmn lists are equal")
+			if tacFound {
+				ran.Log.Info("tac values are equal")
+			} else {
+				ran.Log.Info("tac values are not equal")
+			}
+		} else {
+			ran.Log.Info("plmn lists are not equal")
+		}
 
 		if !found {
 			ran.Log.Warn("RanConfigurationUpdate failure: Cannot find Served TAI in AMF")
@@ -4231,15 +4246,6 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				Value: ngapType.CauseMiscPresentUnknownPLMN,
 			}
 		}
-		// Modified by CDAC TVM
-		if !flags {
-			ran.Log.Warn("RanConfigurationUpdate failure: Wrong mcc mnc values")
-			cause.Present = ngapType.CausePresentMisc
-			cause.Misc = &ngapType.CauseMisc{
-				Value: ngapType.CauseMiscPresentUnknownPLMN,
-			}
-		}
-		// End of Modification
 	}
 
 	if cause.Present == ngapType.CausePresentNothing {
