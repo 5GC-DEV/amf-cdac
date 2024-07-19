@@ -3954,7 +3954,8 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				}
 			}
 			ran.Log.Tracef("PLMN_ID[MCC:%s MNC:%s] TAC[%s]", plmnId.Mcc, plmnId.Mnc, tac)
-			// Modified to get MNC,MCC values from RAN by CDAC TVM
+
+			// Modified by CDAC TVM to get the MNC,MCC values from the RAN
 			mccRAN = plmnId.Mcc
 			mncRAN = plmnId.Mnc
 			ran.Log.Debug("mcc from RAN: ", mccRAN)
@@ -3965,7 +3966,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			} else {
 				break
 			}
-			// Modified to check whether the MNC, MCC values configured in the RAN and CORE are equal
+			// Modified by CDAC TVM to check the MNC, MCC values from RAN are equal to the one configured in the CORE
 			for _, guami := range amfSelf.ServedGuamiList {
 				plmnid := guami.PlmnId
 				mcc = plmnid.Mcc
@@ -4012,9 +4013,9 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				break
 			}
 		}
-		// Modified BY CDAC TVM
-		// To check whether the TAC value configured in RAN are equal with the TAC values configured in CORE
-		// To compare the plmn list from the RAN and the CORE
+		// Modified By CDAC TVM
+		// To check the TAC values configured in the CORE is equal with the TAC configured in the RAN.
+		// For Comparing the plmn list from the RAN and the CORE.
 		gnbPlmnList = append(gnbPlmnList, mccRAN, mncRAN)
 		plmnList = append(plmnList, mcc, mnc)
 		ran.Log.Debug("gnbplmnlist: ", gnbPlmnList)
