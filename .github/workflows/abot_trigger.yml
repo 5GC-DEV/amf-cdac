@@ -9,14 +9,15 @@ on:
 jobs:
     
   
-  build:
-    name: Build
+  start-abotjenkins-testb:
     runs-on: self-hosted
     steps:
-    - name: trigger single Job
-      uses: appleboy/jenkins-action@master
-      with:
-        url: "http://10.176.27.188:8080/"
-        user: "admin"
-        token: ${{ secrets.JENKINS_PAT }}
-        job: "ABot-SDCORE-CI-Pipeline"
+      - name: Start AbotJenkins testing
+        uses: geokats7/jenkins_client@main
+        with:
+         jenkins_job_name: ABot-SDCORE-CI-Pipeline
+         jenkins_job_parameters: '{"Sanity_Test": "True","Smoke_Test": "True"}'
+         jenkins_base_url: 'http://10.176.27.188:8080/'
+         jenkins_user: ${{ secrets.JENKINS_USER }}
+         jenkins_password:  ${{ secrets.JENKINS_PAT }} 
+         wait_for_result: 'True'
