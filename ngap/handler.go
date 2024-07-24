@@ -4078,7 +4078,6 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 
 	supportedTAI := context.NewSupportedTAI()
 
-
 	var gnbPlmnList []interface{}
 	var plmnList []interface{}
 
@@ -4163,7 +4162,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			ran.Log.Debug("mcc from RAN: ", mccRAN)
 			ran.Log.Debug("mnc from RAN: ", mncRAN)
 			// End of Modification
-			
+
 			if len(ran.SupportedTAList) < capOfSupportTai {
 				ran.SupportedTAList = append(ran.SupportedTAList, supportedTAI)
 			} else {
@@ -4177,13 +4176,13 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				mnc = plmnid.Mnc
 				ran.Log.Debug("MCC: ", mcc)
 				ran.Log.Debug("MNC: ", mnc)
-				if mcc == mccRAN {	
-		  	ran.Log.Info("MCC values are equal")
+				if mcc == mccRAN {
+					ran.Log.Info("MCC values are equal")
 				} else {
 					ran.Log.Info("MCC values are Not equal")
 				}
 
-				if mnc == mncRAN {		
+				if mnc == mncRAN {
 					ran.Log.Info("MNC values are equal")
 				} else {
 					ran.Log.Info("MNC values are Not equal")
@@ -4254,7 +4253,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				Value: ngapType.CauseMiscPresentUnknownPLMN,
 			}
 		}
-		}
+	}
 
 	if cause.Present == ngapType.CausePresentNothing {
 		ran.Log.Info("Handle RanConfigurationUpdateAcknowledge")
