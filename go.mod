@@ -12,12 +12,12 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
-	github.com/omec-project/aper v1.1.1
-	github.com/omec-project/config5g v1.3.2
+	github.com/omec-project/aper v1.1.2
+	github.com/omec-project/config5g v1.3.3
 	github.com/omec-project/http2_util v1.2.0
 	github.com/omec-project/logger_util v1.2.0
 	github.com/omec-project/metricfunc v1.4.0
-	github.com/omec-project/nas v1.2.0
+	github.com/omec-project/nas v1.2.2
 	github.com/omec-project/ngap v1.2.0
 	github.com/omec-project/nrf v1.4.0
 	github.com/omec-project/openapi v1.2.0
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/urfave/cli v1.22.14
 	go.mongodb.org/mongo-driver v1.11.7
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -73,7 +73,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/montanaflynn/stats v0.6.6 // indirect
 	github.com/omec-project/logger_conf v1.1.1 // indirect
-	github.com/omec-project/util_3gpp v1.2.0 // indirect
+	github.com/omec-project/util_3gpp v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -108,7 +108,7 @@ require (
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.17.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2023 Canonical Ltd.
+# Copyright 2024 Intel Corporation.
+
+name: abot_automation
+
+on:
+  workflow_dispatch:
+jobs:
+    
+  
+  start-abotjenkins-testb:
+    runs-on: self-hosted
+    steps:
+      - name: Start AbotJenkins testing
+        uses: geokats7/jenkins_client@main
+        with:
+         jenkins_job_name: ABot-SDCORE-CI-Pipeline
+         jenkins_job_parameters: '{"Sanity_Test": "True","Smoke_Test": "True"}'
+         jenkins_base_url: 'http://10.176.27.188:8080/'
+         jenkins_user: ${{ secrets.JENKINS_USER }}
+         jenkins_password:  ${{ secrets.JENKINS_PAT }} 
+         wait_for_result: 'True'
