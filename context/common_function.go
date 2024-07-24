@@ -44,9 +44,8 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	return false
 }
 
-// Modified by CDAC TVM
-
-func Inplmnlist(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
+// Function for Comparing the plmn list from RAN and the CORE - Added by CDAC TVM on 25/06/2024 - done by ashithacdac
+func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
 }
 
