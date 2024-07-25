@@ -735,9 +735,14 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	} else {
 		ue.Non3gppDeregistrationTimerValue = amfSelf.Non3gppDeregistrationTimerValue
 	}
-
+	// Modified by cdac tvm- registration reject if non-matching slice comes from any GNB
 	if anType == models.AccessType__3_GPP_ACCESS {
-		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
+		if err := handleRequestedNssai(ue, anType); err != nil {
+			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
+			return err
+		} else {
+			gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
+		}
 	} else {
 		// TS 23.502 4.12.2.2 10a ~ 13: if non-3gpp, AMF should send initial context setup request to N3IWF first,
 		// and send registration accept after receiving initial context setup response
