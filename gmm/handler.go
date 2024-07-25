@@ -1237,7 +1237,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				break
 			}
 		}
-		ue.GmmLog.Infof("---needSliceSelection: ", needSliceSelection)
+		ue.GmmLog.Info("---needSliceSelection: ", needSliceSelection)
 		if needSliceSelection {
 			if ue.NssfUri == "" {
 				for {
