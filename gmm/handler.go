@@ -738,7 +738,8 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	// Modified by cdac tvm- registration reject if non-matching slice comes from any GNB
 	if anType == models.AccessType__3_GPP_ACCESS {
 		if err := handleRequestedNssai(ue, anType); err != nil {
-			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.CausePresentMisc, "")
+			ue.GmmLog.Info("---non-matching slice from gnb")
+			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			return err
 		} else {
 			gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
