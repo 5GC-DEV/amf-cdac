@@ -42,16 +42,16 @@ import (
 	aperLogger "github.com/omec-project/aper/logger"
 	gClient "github.com/omec-project/config5g/proto/client"
 	protos "github.com/omec-project/config5g/proto/sdcoreConfig"
-	"github.com/omec-project/http2_util"
-	"github.com/omec-project/logger_util"
 	nasLogger "github.com/omec-project/nas/logger"
 	ngapLogger "github.com/omec-project/ngap/logger"
 	nrf_cache "github.com/omec-project/nrf/nrfcache"
 	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/path_util"
-	pathUtilLogger "github.com/omec-project/path_util/logger"
 	"github.com/omec-project/util/fsm"
 	fsmLogger "github.com/omec-project/util/fsm/logger"
+	"github.com/omec-project/util/http2_util"
+	logger_util "github.com/omec-project/util/logger"
+	"github.com/omec-project/util/path_util"
+	pathUtilLogger "github.com/omec-project/util/path_util/logger"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
@@ -148,7 +148,7 @@ func (amf *AMF) Initialize(c *cli.Context) error {
 		factory.AmfConfig.Configuration.SupportTAIList = nil
 		factory.AmfConfig.Configuration.PlmnSupportList = nil
 		initLog.Infoln("Reading Amf related configuration from ROC")
-		client := gClient.ConnectToConfigServer("webui:9876")
+		client := gClient.ConnectToConfigServer(factory.AmfConfig.Configuration.WebuiUri)
 		configChannel := client.PublishOnConfigChange(true)
 		go amf.UpdateConfig(configChannel)
 	} else {
@@ -357,7 +357,9 @@ func (amf *AMF) Start() {
 		go StartGrpcServer(self.SctpGrpcPort)
 	}
 
-	go context.SetupAmfCollection()
+	if self.EnableDbStore {
+		go context.SetupAmfCollection()
+	}
 
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)

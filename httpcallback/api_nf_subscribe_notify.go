@@ -14,8 +14,8 @@ import (
 	"github.com/omec-project/openapi/models"
 
 	"github.com/omec-project/amf/producer"
-	"github.com/omec-project/http_wrapper"
 	"github.com/omec-project/openapi"
+	"github.com/omec-project/util/httpwrapper"
 )
 
 func HTTPNfSubscriptionStatusNotify(c *gin.Context) {
@@ -47,7 +47,7 @@ func HTTPNfSubscriptionStatusNotify(c *gin.Context) {
 		return
 	}
 
-	req := http_wrapper.NewRequest(c.Request, nfSubscriptionStatusNotification)
+	req := httpwrapper.NewRequest(c.Request, nfSubscriptionStatusNotification)
 
 	rsp := producer.HandleNfSubscriptionStatusNotify(req)
 

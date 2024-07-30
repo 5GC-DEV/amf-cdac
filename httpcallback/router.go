@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/logger_util"
+	logger_util "github.com/omec-project/util/logger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -108,5 +108,11 @@ var routes = Routes{
 		strings.ToUpper("Post"),
 		"/nf-status-notify",
 		HTTPNfSubscriptionStatusNotify,
+	},
+	{
+		"DeregistrationNotify",
+		strings.ToUpper("Post"),
+		":supi/deregistration-notify",
+		HTTPDeregistrationNotification,
 	},
 }
