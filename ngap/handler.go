@@ -9,6 +9,7 @@ package ngap
 
 import (
 	"encoding/hex"
+	"fmt"
 	"os"
 	"strconv"
 
@@ -497,6 +498,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 	return ranUe, aMFUENGAPID
 }
 
+// Modified by CDAC-TVM to make the core capable of accepting multiple slice configurations
 func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var globalRANNodeID *ngapType.GlobalRANNodeID
 	var rANNodeName *ngapType.RANNodeName
@@ -504,6 +506,46 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var pagingDRX *ngapType.PagingDRX
 
 	var cause ngapType.Cause
+
+	var sliceList [][]interface{}
+	var intOfSst int32
+	var snssaiLength int
+	var mulSliceListRAN [][]interface{}
+	sliceTrue := true
+	var sstTRUE bool
+	var sdTRUE bool
+
+	supportedTAI := context.NewSupportedTAI()
+
+	amfSelf := context.AMF_Self()
+	var pdu ngapType.NGAPPDU
+	// pdu.Present = ngapType.NGAPPDUPresentSuccessfulOutcome
+	pdu.SuccessfulOutcome = new(ngapType.SuccessfulOutcome)
+
+	successfulOutcome := pdu.SuccessfulOutcome
+	successfulOutcome.ProcedureCode.Value = ngapType.ProcedureCodeNGSetup
+	successfulOutcome.Criticality.Value = ngapType.CriticalityPresentReject
+	successfulOutcome.Value.Present = ngapType.SuccessfulOutcomePresentNGSetupResponse
+	successfulOutcome.Value.NGSetupResponse = new(ngapType.NGSetupResponse)
+	nGSetupResponse := successfulOutcome.Value.NGSetupResponse
+	nGSetupResponseIEs := &nGSetupResponse.ProtocolIEs
+	ie := ngapType.NGSetupResponseIEs{}
+	ie.Id.Value = ngapType.ProtocolIEIDPLMNSupportList
+	ie.Criticality.Value = ngapType.CriticalityPresentReject
+	ie.Value.Present = ngapType.NGSetupResponseIEsPresentPLMNSupportList
+	ie.Value.PLMNSupportList = new(ngapType.PLMNSupportList)
+	pLMNSupportList := ie.Value.PLMNSupportList
+	for _, plmnItem := range amfSelf.PlmnSupportList {
+		pLMNSupportItem := ngapType.PLMNSupportItem{}
+		pLMNSupportItem.PLMNIdentity = ngapConvert.PlmnIdToNgap(plmnItem.PlmnId)
+		for _, snssai := range plmnItem.SNssaiList {
+			sliceSupportItem := ngapType.SliceSupportItem{}
+			sliceSupportItem.SNSSAI = ngapConvert.SNssaiToNgap(snssai)
+			pLMNSupportItem.SliceSupportList.List = append(pLMNSupportItem.SliceSupportList.List, sliceSupportItem)
+		}
+		pLMNSupportList.List = append(pLMNSupportList.List, pLMNSupportItem)
+	}
+	nGSetupResponseIEs.List = append(nGSetupResponseIEs.List, ie)
 
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
@@ -600,7 +642,91 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
+	// Modified by CDAC TVM
+	if ie.Value.PLMNSupportList != nil {
+		for _, s_nssai_amf := range pLMNSupportList.List {
+			for _, slice_supportlist_list := range s_nssai_amf.SliceSupportList.List {
+				slicesupplist_list_nssai := slice_supportlist_list.SNSSAI
+				snssai_sst_value := slicesupplist_list_nssai.SST
+				snssai_sd_value := slicesupplist_list_nssai.SD
 
+				// SST VALUE
+				sstvalue := snssai_sst_value.Value
+
+				strsstvalue := fmt.Sprintf("%o", sstvalue[0])
+
+				intsstvalue, err := strconv.ParseInt(strsstvalue, 10, 32)
+				if err != nil {
+					ran.Log.Info("error in Parsing")
+				}
+				intOfSst = int32(intsstvalue)
+
+				// SD VALUE
+				sdvalue := []byte(snssai_sd_value.Value)
+
+				for i := 0; i < len(sdvalue); i += 3 {
+					if i+3 <= len(sdvalue) {
+						subSlice := []interface{}{intOfSst, sdvalue[i : i+3]}
+						sliceList = append(sliceList, subSlice)
+					}
+				}
+			}
+			ran.Log.Debug("SST from AMF: ", intOfSst)
+			ran.Log.Debug("Slice list from core: ", sliceList)
+		}
+	}
+	ran.Log.Info("Slice Values in SNssaiList gnb: ", supportedTAI.SNssaiList)
+
+	snssaiLength = len(supportedTAI.SNssaiList)
+	ran.Log.Debug("Length of snssai list: ", snssaiLength)
+
+	for _, s_nssai := range supportedTAI.SNssaiList {
+		if snssaiLength > 0 {
+			var sliceRAN []interface{}
+			sliceRAN = append(sliceRAN, s_nssai.Sst, s_nssai.Sd)
+			ran.Log.Debug("sliceRAN:", sliceRAN)
+			if s_nssai.Sd != "" {
+				sstSliceRAN := s_nssai.Sst
+				sdSliceRAN := context.ConvertHexToOctalbytes(s_nssai.Sd)
+				ran.Log.Debug("sst from gnb slice: ", sstSliceRAN)
+				ran.Log.Debug("sd from gnb slice: ", sdSliceRAN)
+
+				tempSlice := []interface{}{sstSliceRAN, sdSliceRAN}
+				mulSliceListRAN = append(mulSliceListRAN, tempSlice)
+
+				ran.Log.Debug("Slice list from RAN: ", mulSliceListRAN)
+				ran.Log.Debug("Slice list from AMF: ", sliceList)
+			} else {
+				sdTRUE = true
+
+				sstSliceRAN := s_nssai.Sst
+				sdSliceRAN := context.ConvertHexToOctalbytes(s_nssai.Sd)
+				ran.Log.Debug("sst from gnb slice: ", sstSliceRAN)
+				ran.Log.Debug("sd from gnb slice: ", sdSliceRAN)
+
+				tempSlice := []interface{}{sstSliceRAN, sdSliceRAN}
+				mulSliceListRAN = append(mulSliceListRAN, tempSlice)
+				ran.Log.Debug("Slice list from RAN ", mulSliceListRAN)
+				ran.Log.Debug("Slice list from AMF", sliceList)
+
+				if s_nssai.Sst == intOfSst {
+					ran.Log.Info("sst values are EQUAL ")
+					sstTRUE = true
+				} else {
+					ran.Log.Info("sst values are NOTEQUAL ")
+					sstTRUE = false
+				}
+				if !sstTRUE {
+					ran.Log.Warn("NG-Setup failure: Wrong SST values ")
+					cause.Present = ngapType.CausePresentMisc
+					cause.Misc = &ngapType.CauseMisc{
+						Value: ngapType.CauseMiscPresentUnspecified,
+					}
+				}
+			}
+		}
+	}
+	// End of modification
 	if len(ran.SupportedTAList) == 0 {
 		ran.Log.Warn("NG-Setup failure: No supported TA exist in NG-Setup request")
 		cause.Present = ngapType.CausePresentMisc
@@ -624,14 +750,31 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 		if !found {
-			ran.Log.Warn("NG-Setup failure: Cannot find Served TAI in AMF")
+			ran.Log.Warn("NG-Setup failure: Cannot find Served TAI in AMF ")
 			cause.Present = ngapType.CausePresentMisc
 			cause.Misc = &ngapType.CauseMisc{
 				Value: ngapType.CauseMiscPresentUnknownPLMN,
 			}
 		}
-	}
+		// Modified by CDAC TVM
+		if snssaiLength > 0 && !sdTRUE {
+			if context.InSliceList(mulSliceListRAN, sliceList) {
+				ran.Log.Info("Slice values are equal ")
+			} else {
+				ran.Log.Info("Slice values are not equal ")
+				sliceTrue = false
+			}
+		}
 
+		if !sliceTrue {
+			ran.Log.Warn("NG-Setup failure: Wrong Slice values")
+			cause.Present = ngapType.CausePresentMisc
+			cause.Misc = &ngapType.CauseMisc{
+				Value: ngapType.CauseMiscPresentUnknownPLMN,
+			}
+		}
+		// End of modification
+	}
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
 		// send nf(gnb) status notification

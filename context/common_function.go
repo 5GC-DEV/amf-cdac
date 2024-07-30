@@ -6,7 +6,9 @@
 package context
 
 import (
+	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/mohae/deepcopy"
 	"github.com/omec-project/amf/logger"
@@ -42,6 +44,61 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 		}
 	}
 	return false
+}
+
+// Function for Comparing the plmn list from RAN and the CORE - Added by CDAC TVM on 25/06/2024 - done by ashithacdac
+
+func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
+	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
+}
+
+// Function for Comparing the Slice list from RAN and the CORE - Added by CDAC TVM on 30/07/2024 - done by ashithacdac
+
+func InSliceList(gnbslicelist [][]interface{}, amfslicelist [][]interface{}) bool {
+	for _, gnbItem := range gnbslicelist {
+		for _, amfItem := range amfslicelist {
+			if reflect.DeepEqual(gnbItem, amfItem) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// End of Modification
+
+func ConvertHexToOctalbytes(hexstring string) []byte {
+	if len(hexstring)%2 != 0 {
+		fmt.Println("hexstring should have an even length")
+		return nil
+	}
+
+	var sdlistgnb []byte
+	for i := 0; i < len(hexstring); i += 2 {
+		hexPair := hexstring[i : i+2]
+
+		// Convert hex pair to an integer
+		intValue, err := strconv.ParseInt(hexPair, 16, 64)
+		if err != nil {
+			fmt.Println("error in parsing hex pair:", hexPair)
+			return nil
+		}
+
+		// Convert integer to octal string
+		octalString := strconv.FormatInt(intValue, 8)
+
+		// Convert octal string to integer
+		octalValue, err := strconv.ParseInt(octalString, 8, 64)
+		if err != nil {
+			fmt.Println("error in parsing octal string:", octalString)
+			return nil
+		}
+
+		// Append the byte value of octal to the list
+		sdlistgnb = append(sdlistgnb, byte(octalValue))
+	}
+
+	return sdlistgnb
 }
 
 func TacInAreas(targetTac string, areas []models.Area) bool {
