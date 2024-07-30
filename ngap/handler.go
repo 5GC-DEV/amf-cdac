@@ -15,6 +15,7 @@ import (
 
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/factory"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -506,6 +507,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var pagingDRX *ngapType.PagingDRX
 	var cause ngapType.Cause
 
+	// Modified by CDAC TVM
 	var sliceList [][]interface{}
 	var intOfSst int32
 	var snssaiLength int
@@ -547,7 +549,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		pLMNSupportList.List = append(pLMNSupportList.List, pLMNSupportItem)
 	}
 	nGSetupResponseIEs.List = append(nGSetupResponseIEs.List, ie)
-
+	// End of Modification
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
 		return
@@ -642,7 +644,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
-	// Modified by CDAC TVM
+	// Modified by CDAC TVM to get the SST,SD values configured in the core
 	if ie.Value.PLMNSupportList != nil {
 		for _, s_nssai_amf := range pLMNSupportList.List {
 			for _, slice_supportlist_list := range s_nssai_amf.SliceSupportList.List {
@@ -679,7 +681,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	snssaiLength = len(supportedTAI.SNssaiList)
 	ran.Log.Debug("Length of snssai list: ", snssaiLength)
-
+	// Modified by CDAC TVM to get the SST,SD values configured in gnb
 	for _, s_nssai := range supportedTAI.SNssaiList {
 		if snssaiLength > 0 {
 			var sliceRAN []interface{}
@@ -785,9 +787,10 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				NfStatus: mi.NfStatusConnected, NfName: ran.GnbId,
 			},
 		}
-
-		if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-			ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
+		if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
+			if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+				ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
+			}
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
