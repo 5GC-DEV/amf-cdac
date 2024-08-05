@@ -428,7 +428,10 @@ func (context *AMFContext) InSupportDnnList(targetDnn string) bool {
 
 func (context *AMFContext) InPlmnSupportList(snssai models.Snssai) bool {
 	for _, plmnSupportItem := range context.PlmnSupportList {
+		logger.ContextLog.Info("---plmnSupportItem: ", plmnSupportItem)
 		for _, supportSnssai := range plmnSupportItem.SNssaiList {
+			logger.ContextLog.Info("---supportSnssai: ", supportSnssai)
+			logger.ContextLog.Info("---snssai: ", snssai)
 			if reflect.DeepEqual(supportSnssai, snssai) {
 				return true
 			}

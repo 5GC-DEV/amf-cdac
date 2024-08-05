@@ -276,7 +276,8 @@ func SendRegistrationAccept(
 		ue.GmmLog.Error(err.Error())
 		return
 	}
-
+	ue.GmmLog.Info("---ue.RanUe[anType]: ", ue.RanUe[anType])
+	ue.GmmLog.Info("---ue.RanUe[anType].UeContextRequest: ", ue.RanUe[anType].UeContextRequest)
 	if ue.RanUe[anType].UeContextRequest {
 		ngap_message.SendInitialContextSetupRequest(ue, anType, nasMsg, pduSessionResourceSetupList, nil, nil, nil)
 	} else {
