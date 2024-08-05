@@ -1856,7 +1856,7 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 
 			for _, item := range pDUSessionResourceFailedToSetupList.List {
 				pduSessionID := int32(item.PDUSessionID.Value)
-				// nil check added by CDAC TVM for the bug fix of issue #29
+				// nil check added by CDAC TVM for the bug fix of issue #29 (AMF pod crash)
 				if pduSessionID != 0 {
 					transfer := item.PDUSessionResourceSetupUnsuccessfulTransfer
 					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
