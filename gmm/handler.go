@@ -1214,9 +1214,12 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		}
 
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
+		ue.GmmLog.Info("---RequestedNssai: ", requestedNssai[0])
 
 		needSliceSelection := false
 		for _, requestedSnssai := range requestedNssai {
+			ue.GmmLog.Info("---reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
+			ue.GmmLog.Info("---reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
@@ -1226,7 +1229,10 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
+				ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
+				ue.GmmLog.Info("---slices are identical")
 			} else {
+				ue.GmmLog.Info("---slices are not identical : needs slice selection")
 				needSliceSelection = true
 				break
 			}
@@ -1340,11 +1346,14 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	// then use ue subscribed snssai which is marked as default as allowed nssai
 	if len(ue.AllowedNssai[anType]) == 0 {
 		for _, snssai := range ue.SubscribedNssai {
+			ue.GmmLog.Info("---ue subscribed nssai-Sst: ", snssai.SubscribedSnssai.Sst)
+			ue.GmmLog.Info("---ue subscribed nssai-Sd: ", snssai.SubscribedSnssai.Sd)
 			if snssai.DefaultIndication {
 				if amfSelf.InPlmnSupportList(*snssai.SubscribedSnssai) {
 					allowedSnssai := models.AllowedSnssai{
 						AllowedSnssai: snssai.SubscribedSnssai,
 					}
+					ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
 					ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				}
 			}
