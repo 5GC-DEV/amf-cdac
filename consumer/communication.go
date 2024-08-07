@@ -247,6 +247,7 @@ func UEContextTransferRequest(
 func RegistrationStatusUpdate(ue *amf_context.AmfUe, request models.UeRegStatusUpdateReqData) (
 	regStatusTransferComplete bool, problemDetails *models.ProblemDetails, err error,
 ) {
+	logger.ConsumerLog.Info("---send RegistrationStatusUpdate")
 	configuration := Namf_Communication.NewConfiguration()
 	configuration.SetBasePath(ue.TargetAmfUri)
 	client := Namf_Communication.NewAPIClient(configuration)

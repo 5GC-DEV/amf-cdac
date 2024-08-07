@@ -93,6 +93,7 @@ func SendN1MessageNotify(ue *amf_context.AmfUe, n1class models.N1MessageClass, n
 func SendN1MessageNotifyAtAMFReAllocation(
 	ue *amf_context.AmfUe, n1Msg []byte, registerContext *models.RegistrationContextContainer,
 ) {
+	logger.ProducerLog.Info("---Send N1MessageNotifyAtAMFReAllocation")
 	configuration := Namf_Communication.NewConfiguration()
 	client := Namf_Communication.NewAPIClient(configuration)
 
