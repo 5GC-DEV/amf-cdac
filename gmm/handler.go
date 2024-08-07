@@ -627,6 +627,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	negotiateDRXParameters(ue, ue.RegistrationRequest.RequestedDRXParameters)
 
 	// TODO (step 10 optional): send Namf_Communication_RegistrationCompleteNotify to old AMF if need
+	ue.GmmLog.Info("---ue.ServingAmfChanged: ", ue.ServingAmfChanged)
 	if ue.ServingAmfChanged {
 		// If the AMF has changed the new AMF notifies the old AMF that the registration of the UE in the new AMF is completed
 		req := models.UeRegStatusUpdateReqData{
@@ -637,7 +638,8 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		if problemDetails != nil {
 			ue.GmmLog.Errorf("Registration Status Update Failed Problem[%+v]", problemDetails)
 		} else if err != nil {
-			ue.GmmLog.Errorf("Registration Status Update Error[%+v]", err)
+			// ue.GmmLog.Errorf("Registration Status Update Error[%+v]", err)
+			ue.GmmLog.Errorf("Registration Status Update Error-servingamfchanged[%+v]", err)
 		} else {
 			if regStatusTransferComplete {
 				ue.GmmLog.Infof("Registration Status Transfer complete")
@@ -1214,7 +1216,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		}
 
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
-		ue.GmmLog.Info("---RequestedNssai: ", requestedNssai[0])
 
 		needSliceSelection := false
 		for _, requestedSnssai := range requestedNssai {
@@ -1234,6 +1235,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			} else {
 				ue.GmmLog.Info("---slices are not identical : needs slice selection")
 				needSliceSelection = true
+				// gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 				break
 			}
 		}
@@ -1253,6 +1255,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 			// Step 4
 			problemDetails, err := consumer.NSSelectionGetForRegistration(ue, requestedNssai)
+			ue.GmmLog.Info("---ue.AllowedNssai: ", ue.AllowedNssai)
 			if problemDetails != nil {
 				ue.GmmLog.Errorf("NSSelection Get Failed Problem[%+v]", problemDetails)
 				gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
@@ -1271,7 +1274,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			if problemDetails != nil {
 				ue.GmmLog.Errorf("Registration Status Update Failed Problem[%+v]", problemDetails)
 			} else if err != nil {
-				ue.GmmLog.Errorf("Registration Status Update Error[%+v]", err)
+				// ue.GmmLog.Errorf("Registration Status Update Error[%+v]", err)
+				ue.GmmLog.Errorf("Registration Status Update Error-need slice selection[%+v]", err)
 			}
 
 			// Step 6
@@ -1344,6 +1348,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 	// if registration request has no requested nssai, or non of snssai in requested nssai is permitted by nssf
 	// then use ue subscribed snssai which is marked as default as allowed nssai
+	ue.GmmLog.Info("---ue.AllowedNssai: ", ue.AllowedNssai)
 	if len(ue.AllowedNssai[anType]) == 0 {
 		for _, snssai := range ue.SubscribedNssai {
 			ue.GmmLog.Info("---ue subscribed nssai-Sst: ", snssai.SubscribedSnssai.Sst)
