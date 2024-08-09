@@ -1236,7 +1236,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				break
 			} else {
 				ue.GmmLog.Info("---slices are not identical")
-				identicalSlice = false
+				// identicalSlice = false
 				// needSliceSelection = true
 				gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 				return fmt.Errorf("Slice mismatch in registration request")
