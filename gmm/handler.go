@@ -1208,7 +1208,7 @@ func getSubscribedNssai(ue *context.AmfUe) {
 // TS 23.502 4.2.2.2.3 Registration with AMF Re-allocation
 func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	amfSelf := context.AMF_Self()
-	identicalSlice := true
+	disableSliceSelection := true
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
 		if err != nil {
@@ -1232,17 +1232,19 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("---slices are identical")
-				identicalSlice = true
+				disableSliceSelection = true
+				needSliceSelection = false
 				break
 			} else {
 				ue.GmmLog.Info("---slices are not identical")
-				identicalSlice = false
-				// needSliceSelection = true
+				disableSliceSelection = false
+				needSliceSelection = true
 				// gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 				// return fmt.Errorf("Slice mismatch in registration request")
 			}
 		}
-		if !identicalSlice {
+		if !disableSliceSelection {
+			needSliceSelection = false
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			return fmt.Errorf("Slice mismatch in registration request")
 		}
