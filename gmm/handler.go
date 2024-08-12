@@ -1217,7 +1217,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
 
-		needSliceSelection := false
+		// needSliceSelection := false
+		var needSliceSelection bool
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Info("---requested nssai Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Info("---requested nssai Sd: ", requestedSnssai.ServingSnssai.Sd)
