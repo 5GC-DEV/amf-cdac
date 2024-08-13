@@ -71,6 +71,7 @@ func SendIdentityRequest(ue *context.RanUe, typeOfIdentity uint8) {
 }
 
 func SendAuthenticationRequest(ue *context.RanUe) {
+	logger.GmmLog.Info("---ue.AmfUe.NgKsi:send authentication request ", ue.AmfUe.NgKsi)
 	amfUe := ue.AmfUe
 	if amfUe == nil {
 		logger.GmmLog.Error("AmfUe is nil")
@@ -84,7 +85,9 @@ func SendAuthenticationRequest(ue *context.RanUe) {
 		return
 	}
 
+	logger.GmmLog.Info("---ue.AmfUe.NgKsi:send authentication request ", ue.AmfUe.NgKsi)
 	nasMsg, err := BuildAuthenticationRequest(amfUe)
+	logger.GmmLog.Info("---ue.AmfUe.NgKsi:send authentication request ", ue.AmfUe.NgKsi)
 	if err != nil {
 		amfUe.GmmLog.Error(err.Error())
 		return

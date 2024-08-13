@@ -117,7 +117,11 @@ func BuildAuthenticationRequest(ue *context.AmfUe) ([]byte, error) {
 	authenticationRequest.SpareHalfOctetAndSecurityHeaderType.SetSecurityHeaderType(nas.SecurityHeaderTypePlainNas)
 	authenticationRequest.SpareHalfOctetAndSecurityHeaderType.SetSpareHalfOctet(0)
 	authenticationRequest.AuthenticationRequestMessageIdentity.SetMessageType(nas.MsgTypeAuthenticationRequest)
+	logger.GmmLog.Info("---ue.NgKsi:build authentication request ", ue.NgKsi)
+	logger.GmmLog.Info("---ue.NgKsi.Ksi:build authentication request ", ue.NgKsi.Ksi)
 	authenticationRequest.SpareHalfOctetAndNgksi = nasConvert.SpareHalfOctetAndNgksiToNas(ue.NgKsi)
+	logger.GmmLog.Info("---ue.NgKsi:build authentication request ", ue.NgKsi)
+	logger.GmmLog.Info("---ue.NgKsi.Ksi:build authentication request ", ue.NgKsi.Ksi)
 	authenticationRequest.ABBA.SetLen(uint8(len(ue.ABBA)))
 	authenticationRequest.ABBA.SetABBAContents(ue.ABBA)
 

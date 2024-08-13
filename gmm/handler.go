@@ -1217,8 +1217,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
 
-		// needSliceSelection := false
-		var needSliceSelection bool
+		needSliceSelection := false
+		// var needSliceSelection bool
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Info("---requested nssai Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Info("---requested nssai Sd: ", requestedSnssai.ServingSnssai.Sd)
@@ -1234,18 +1234,18 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("---slices are identical")
 				disableSliceSelection = true
-				needSliceSelection = false
+				// needSliceSelection = false
 				break
 			} else {
 				ue.GmmLog.Info("---slices are not identical")
 				disableSliceSelection = false
-				needSliceSelection = true
+				// needSliceSelection = true
 				// gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 				// return fmt.Errorf("Slice mismatch in registration request")
 			}
 		}
 		if !disableSliceSelection {
-			needSliceSelection = false
+			// needSliceSelection = false
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			return fmt.Errorf("Slice mismatch in registration request")
 		}
@@ -1531,6 +1531,7 @@ func HandleConfigurationUpdateComplete(ue *context.AmfUe,
 
 func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (bool, error) {
 	ue.GmmLog.Info("Authentication procedure")
+	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 
 	// Check whether UE has SUCI and SUPI
 	if IdentityVerification(ue) {
@@ -1581,8 +1582,9 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	}
 	ue.AuthenticationCtx = response
 	ue.ABBA = []uint8{0x00, 0x00} // set ABBA value as described at TS 33.501 Annex A.7.1
-
+	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 	gmm_message.SendAuthenticationRequest(ue.RanUe[accessType])
+	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 	return false, nil
 }
 

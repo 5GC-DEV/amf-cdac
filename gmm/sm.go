@@ -168,7 +168,9 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.GmmLog.Debugln("AuthRestartEvent at GMM State[Authentication]")
 
+		logger.GmmLog.Info("---ue.ngksi authentication procedure: ", amfUe.NgKsi)
 		pass, err := AuthenticationProcedure(amfUe, accessType)
+		logger.GmmLog.Info("---ue.ngksi authentication procedure: ", amfUe.NgKsi)
 		if err != nil {
 			if err := GmmFSM.SendEvent(state, AuthErrorEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
