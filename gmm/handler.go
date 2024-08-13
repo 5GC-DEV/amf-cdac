@@ -1217,8 +1217,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
 
-		needSliceSelection := false
-		// var needSliceSelection bool
+		// needSliceSelection := false
+		var needSliceSelection bool
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Info("---requested nssai Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Info("---requested nssai Sd: ", requestedSnssai.ServingSnssai.Sd)
@@ -1234,18 +1234,18 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("---slices are identical")
 				disableSliceSelection = true
-				// needSliceSelection = false
+				needSliceSelection = false
 				break
 			} else {
 				ue.GmmLog.Info("---slices are not identical")
 				disableSliceSelection = false
-				// needSliceSelection = true
+				needSliceSelection = true
 				// gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 				// return fmt.Errorf("Slice mismatch in registration request")
 			}
 		}
 		if !disableSliceSelection {
-			// needSliceSelection = false
+			needSliceSelection = false
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			return fmt.Errorf("Slice mismatch in registration request")
 		}
