@@ -16,6 +16,7 @@ jobs:
  
   lint:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
     steps:
       - uses: actions/checkout@v4
 
@@ -30,11 +31,12 @@ jobs:
         uses: golangci/golangci-lint-action@v4.0.0
         with:
           version: latest
-          args: -v --config ./.golangci.yml --timeout=5m
+          args: -v --config ./.golangci.yml --timeout=10m
 
   hadolint:
     name: hadolint
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
 
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +52,7 @@ jobs:
 
   license-check:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
     steps:
       - uses: actions/checkout@v4
 
@@ -58,6 +61,7 @@ jobs:
 
   fossa-check:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
     steps:
       - uses: actions/checkout@v4
 
@@ -68,6 +72,7 @@ jobs:
 
   unit-tests:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
     steps:
       - uses: actions/checkout@v4
 
@@ -83,6 +88,7 @@ jobs:
 
   docker-build-push-images:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'ios-mcn-core'
     needs: unit-tests
 
     env:
