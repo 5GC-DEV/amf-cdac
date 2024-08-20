@@ -15,6 +15,8 @@ import (
 	"github.com/omec-project/amf/producer"
 	"github.com/omec-project/util/httpwrapper"
 
+	"github.com/omec-project/openapi/models"
+
 )
 
 func HTTPPurgeUEContext(c *gin.Context) {
