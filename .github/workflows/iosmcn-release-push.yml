@@ -1,8 +1,9 @@
+
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2023 Canonical Ltd.
 # Copyright 2024 Intel Corporation
 
-name: Release Push Image Workflow
+name: IOSMCN Release Workflow
 
 on:
   workflow_dispatch:
@@ -15,7 +16,7 @@ jobs:
       REGISTRY: ghcr.io
       DOCKER_REGISTRY: ghcr.io/
       DOCKER_REPOSITORY: ios-mcn-core/
-      RELEASE_VERSION: 0.0.4
+      RELEASE_VERSION: 0.0.1
       
     steps:
       - uses: actions/checkout@v4
@@ -38,11 +39,6 @@ jobs:
           DOCKER_TAG: release-${{ env.RELEASE_VERSION }}
         run: |
             make docker-build
-            
-#      - name: Tag Docker image latest
-#        run: |
-#          docker tag ${{ env.DOCKER_REGISTRY}}${{ env.DOCKER_REPOSITORY}}5gc-amf:release-${{ env.RELEASE_VERSION }} ${{ env.DOCKER_REPOSITORY }}5gc-amf:release-${{ env.RELEASE_VERSION }}
-#
       - name: Push Docker image latest to Github
         env:
           DOCKER_TAG: release-${{ env.RELEASE_VERSION }} 
