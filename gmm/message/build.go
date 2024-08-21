@@ -143,9 +143,12 @@ func BuildAuthenticationRequest(ue *context.AmfUe) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
+		logger.GmmLog.Info("---autn: ", autn)
 		authenticationRequest.AuthenticationParameterAUTN = nasType.NewAuthenticationParameterAUTN(nasMessage.AuthenticationRequestAuthenticationParameterAUTNType)
 		authenticationRequest.AuthenticationParameterAUTN.SetLen(uint8(len(autn)))
+		logger.GmmLog.Info("---autn[0:16]: ", autn[0:16])
 		copy(tmpArray[:], autn[0:16])
+		logger.GmmLog.Info("---tmparray: ", tmpArray)
 		authenticationRequest.AuthenticationParameterAUTN.SetAUTN(tmpArray)
 	case models.AuthType_EAP_AKA_PRIME:
 		eapMsg := ue.AuthenticationCtx.Var5gAuthData.(string)
