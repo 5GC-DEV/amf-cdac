@@ -91,7 +91,7 @@ func SearchUdmSdmInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType, re
 	ue.NudmSDMUri = sdmUri
 	if ue.NudmSDMUri == "" {
 		err := fmt.Errorf("AMF can not select an UDM by NRF")
-		logger.ConsumerLog.Errorf(err.Error())
+		logger.ConsumerLog.Errorln(err.Error())
 		return err
 	}
 	return nil
