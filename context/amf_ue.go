@@ -567,7 +567,6 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
 			return true
 		}
-
 	}
 	return false
 }
