@@ -558,7 +558,12 @@ func (ue *AmfUe) InAllowedNssai(targetSNssai models.Snssai, anType models.Access
 }
 
 func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
+	logger.ContextLog.Debug("ue.SubscribedNssai", ue.SubscribedNssai)
 	for _, sNssai := range ue.SubscribedNssai {
+		sst := sNssai.SubscribedSnssai.Sst
+		sd := sNssai.SubscribedSnssai.Sd
+		logger.ContextLog.Debug("sst: ", sst)
+		logger.ContextLog.Debug("sd: ", sd)
 		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
 			return true
 		}
