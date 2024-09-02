@@ -564,15 +564,10 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 		sd := sNssai.SubscribedSnssai.Sd
 		logger.ContextLog.Debug("sst: ", sst)
 		logger.ContextLog.Debug("sd: ", sd)
-		if targetSNssai.Sd != "" {
-			if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
-				return true
-			}
-		} else {
-			if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst {
-				return true
-			}
+		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
+			return true
 		}
+
 	}
 	return false
 }
