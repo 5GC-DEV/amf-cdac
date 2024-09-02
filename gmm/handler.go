@@ -1237,7 +1237,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Info("slices are not identical")
 				disableSliceSelection = false
 				// needSliceSelection = true
-
 			}
 		}
 		if !disableSliceSelection {
