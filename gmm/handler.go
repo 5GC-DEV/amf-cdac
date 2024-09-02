@@ -627,7 +627,6 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	negotiateDRXParameters(ue, ue.RegistrationRequest.RequestedDRXParameters)
 
 	// TODO (step 10 optional): send Namf_Communication_RegistrationCompleteNotify to old AMF if need
-	ue.GmmLog.Info("---ue.ServingAmfChanged: ", ue.ServingAmfChanged)
 	if ue.ServingAmfChanged {
 		// If the AMF has changed the new AMF notifies the old AMF that the registration of the UE in the new AMF is completed
 		req := models.UeRegStatusUpdateReqData{
@@ -1218,10 +1217,10 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
 
 		needSliceSelection := false
-		// var needSliceSelection bool
+
 		for _, requestedSnssai := range requestedNssai {
-			ue.GmmLog.Info("---requested nssai Sst: ", requestedSnssai.ServingSnssai.Sst)
-			ue.GmmLog.Info("---requested nssai Sd: ", requestedSnssai.ServingSnssai.Sd)
+			ue.GmmLog.Debug("requested nssai Sst: ", requestedSnssai.ServingSnssai.Sst)
+			ue.GmmLog.Debug("requested nssai Sd: ", requestedSnssai.ServingSnssai.Sd)
 			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
@@ -1231,21 +1230,16 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
-				ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
-				ue.GmmLog.Info("---slices are identical")
+				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
-				// needSliceSelection = false
 				break
 			} else {
-				ue.GmmLog.Info("---slices are not identical")
+				ue.GmmLog.Info("slices are not identical")
 				disableSliceSelection = false
 				// needSliceSelection = true
-				// gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
-				// return fmt.Errorf("Slice mismatch in registration request")
 			}
 		}
 		if !disableSliceSelection {
-			// needSliceSelection = false
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			return fmt.Errorf("Slice mismatch in registration request")
 		}
@@ -1265,7 +1259,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 			// Step 4
 			problemDetails, err := consumer.NSSelectionGetForRegistration(ue, requestedNssai)
-			ue.GmmLog.Info("---ue.AllowedNssai: ", ue.AllowedNssai)
 			if problemDetails != nil {
 				ue.GmmLog.Errorf("NSSelection Get Failed Problem[%+v]", problemDetails)
 				gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
@@ -1358,17 +1351,17 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 	// if registration request has no requested nssai, or non of snssai in requested nssai is permitted by nssf
 	// then use ue subscribed snssai which is marked as default as allowed nssai
-	ue.GmmLog.Info("---ue.AllowedNssai: ", ue.AllowedNssai)
+
 	if len(ue.AllowedNssai[anType]) == 0 {
 		for _, snssai := range ue.SubscribedNssai {
-			ue.GmmLog.Info("---ue subscribed nssai-Sst: ", snssai.SubscribedSnssai.Sst)
-			ue.GmmLog.Info("---ue subscribed nssai-Sd: ", snssai.SubscribedSnssai.Sd)
+			ue.GmmLog.Debug("ue subscribed nssai-Sst: ", snssai.SubscribedSnssai.Sst)
+			ue.GmmLog.Debug("ue subscribed nssai-Sd: ", snssai.SubscribedSnssai.Sd)
 			if snssai.DefaultIndication {
 				if amfSelf.InPlmnSupportList(*snssai.SubscribedSnssai) {
 					allowedSnssai := models.AllowedSnssai{
 						AllowedSnssai: snssai.SubscribedSnssai,
 					}
-					ue.GmmLog.Info("---allowedSnssai: ", allowedSnssai)
+					ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
 					ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				}
 			}
@@ -1531,7 +1524,6 @@ func HandleConfigurationUpdateComplete(ue *context.AmfUe,
 
 func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (bool, error) {
 	ue.GmmLog.Info("Authentication procedure")
-	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 
 	// Check whether UE has SUCI and SUPI
 	if IdentityVerification(ue) {
@@ -1582,9 +1574,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	}
 	ue.AuthenticationCtx = response
 	ue.ABBA = []uint8{0x00, 0x00} // set ABBA value as described at TS 33.501 Annex A.7.1
-	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 	gmm_message.SendAuthenticationRequest(ue.RanUe[accessType])
-	ue.GmmLog.Info("---ue.NgKsi:authenticationprocedure function ", ue.NgKsi)
 	return false, nil
 }
 
