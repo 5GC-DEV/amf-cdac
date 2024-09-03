@@ -56,6 +56,7 @@ func SendUEAuthenticationAuthenticateRequest(ue *amf_context.AmfUe,
 	defer cancel()
 
 	ueAuthenticationCtx, httpResponse, err := client.DefaultApi.UeAuthenticationsPost(ctx, authInfo)
+	ue.GmmLog.Info("---ueAuthenticationCtx.Var5gAuthData:", ueAuthenticationCtx.Var5gAuthData)
 	if err == nil {
 		return &ueAuthenticationCtx, nil, nil
 	} else if httpResponse != nil {
