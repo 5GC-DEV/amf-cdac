@@ -4163,6 +4163,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 		}
 	} else {
 		var found bool
+		var plmnTrue bool
 		var tacList []string
 		taiList := make([]models.Tai, len(context.AMF_Self().SupportTaiLists))
 		copy(taiList, context.AMF_Self().SupportTaiLists)
@@ -4199,6 +4200,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 
 		if context.InPlmnList(gnbPlmnList, plmnList) {
 			ran.Log.Info("plmn lists are equal")
+			plmnTrue = true
 			if tacFound {
 				ran.Log.Info("tac values are equal")
 			} else {
@@ -4206,6 +4208,15 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			}
 		} else {
 			ran.Log.Info("plmn lists are not equal")
+			plmnTrue = false
+		}
+
+		if !plmnTrue {
+			ran.Log.Warn("RanConfigurationUpdate failure: PLMN values are not equal")
+			cause.Present = ngapType.CausePresentMisc
+			cause.Misc = &ngapType.CauseMisc{
+				Value: ngapType.CauseMiscPresentUnknownPLMN,
+			}
 		}
 		// End of Modification
 
