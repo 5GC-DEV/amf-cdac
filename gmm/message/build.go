@@ -139,7 +139,6 @@ func BuildAuthenticationRequest(ue *context.AmfUe) ([]byte, error) {
 		authenticationRequest.AuthenticationParameterRAND = nasType.NewAuthenticationParameterRAND(nasMessage.AuthenticationRequestAuthenticationParameterRANDType)
 		copy(tmpArray[:], rand[0:16])
 		authenticationRequest.AuthenticationParameterRAND.SetRANDValue(tmpArray)
-		logger.GmmLog.Info("---rand value:", tmpArray)
 
 		autn, err := hex.DecodeString(av5gAka.Autn)
 		if err != nil {
@@ -151,7 +150,7 @@ func BuildAuthenticationRequest(ue *context.AmfUe) ([]byte, error) {
 		authenticationRequest.AuthenticationParameterAUTN.SetLen(uint8(len(autn)))
 		copy(tmpArray[:], autn[0:16])
 		authenticationRequest.AuthenticationParameterAUTN.SetAUTN(tmpArray)
-		logger.GmmLog.Info("---autn value: ", tmpArray)
+
 		logger.GmmLog.Info("---hxresstar: ", av5gAka.HxresStar)
 
 	case models.AuthType_EAP_AKA_PRIME:

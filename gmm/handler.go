@@ -1507,6 +1507,7 @@ func HandleConfigurationUpdateComplete(ue *context.AmfUe,
 
 func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (bool, error) {
 	ue.GmmLog.Info("Authentication procedure")
+	ue.GmmLog.Info("---ngksi value: ", ue.NgKsi.Ksi)
 
 	// Check whether UE has SUCI and SUPI
 	if IdentityVerification(ue) {
