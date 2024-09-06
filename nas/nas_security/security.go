@@ -281,7 +281,8 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 		if err != nil {
 			return nil, fmt.Errorf("MAC calcuate error: %+v", err)
 		}
-
+		ue.NASLog.Info("---mac32: ", mac32)
+		ue.NASLog.Info("---recievedmac32: ", receivedMac32)
 		if !reflect.DeepEqual(mac32, receivedMac32) {
 			ue.NASLog.Warnf("NAS MAC verification failed(received: 0x%08x, expected: 0x%08x)", receivedMac32, mac32)
 			ue.MacFailed = true
@@ -289,7 +290,7 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 			ue.NASLog.Tracef("cmac value: 0x%08x", mac32)
 			ue.MacFailed = false
 		}
-
+		ue.NASLog.Info("---ue.macfailed: ", ue.MacFailed)
 		if ciphered {
 			ue.NASLog.Debugf("Decrypt NAS message (algorithm: %+v, ULCount: 0x%0x)", ue.CipheringAlg, ue.ULCount.Get())
 			ue.NASLog.Tracef("NAS ciphering key: %0x", ue.KnasEnc)
