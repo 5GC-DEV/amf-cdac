@@ -15,6 +15,7 @@ import (
 
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/factory"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -786,8 +787,10 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				NfStatus: mi.NfStatusConnected, NfName: ran.GnbId,
 			},
 		}
-		if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-			ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
+		if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
+			if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+				ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
+			}
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
@@ -4160,6 +4163,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 		}
 	} else {
 		var found bool
+		var plmnTrue bool
 		var tacList []string
 		taiList := make([]models.Tai, len(context.AMF_Self().SupportTaiLists))
 		copy(taiList, context.AMF_Self().SupportTaiLists)
@@ -4196,6 +4200,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 
 		if context.InPlmnList(gnbPlmnList, plmnList) {
 			ran.Log.Info("plmn lists are equal")
+			plmnTrue = true
 			if tacFound {
 				ran.Log.Info("tac values are equal")
 			} else {
@@ -4203,6 +4208,15 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			}
 		} else {
 			ran.Log.Info("plmn lists are not equal")
+			plmnTrue = false
+		}
+
+		if !plmnTrue {
+			ran.Log.Warn("RanConfigurationUpdate failure: PLMN values are not equal")
+			cause.Present = ngapType.CausePresentMisc
+			cause.Misc = &ngapType.CauseMisc{
+				Value: ngapType.CauseMiscPresentUnknownPLMN,
+			}
 		}
 		// End of Modification
 
