@@ -740,7 +740,9 @@ func (ue *AmfUe) SelectSecurityAlg(intOrder, encOrder []uint8) {
 	ue.IntegrityAlg = security.AlgIntegrity128NIA0
 
 	ueSupported := uint8(0)
+	logger.ContextLog.Info("---intorder: ", intOrder)
 	for _, intAlg := range intOrder {
+		logger.ContextLog.Info("---intAlg: ", intAlg)
 		switch intAlg {
 		case security.AlgIntegrity128NIA0:
 			ueSupported = ue.UESecurityCapability.GetIA0_5G()
@@ -758,7 +760,9 @@ func (ue *AmfUe) SelectSecurityAlg(intOrder, encOrder []uint8) {
 	}
 
 	ueSupported = uint8(0)
+	logger.ContextLog.Info("---encOrder: ", encOrder)
 	for _, encAlg := range encOrder {
+		logger.ContextLog.Info("---encAlg: ", encAlg)
 		switch encAlg {
 		case security.AlgCiphering128NEA0:
 			ueSupported = ue.UESecurityCapability.GetEA0_5G()

@@ -274,6 +274,7 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			amfSelf := context.AMF_Self()
 			amfUe.SelectSecurityAlg(amfSelf.SecurityAlgorithm.IntegrityOrder, amfSelf.SecurityAlgorithm.CipheringOrder)
 			// Generate KnasEnc, KnasInt
+			amfUe.GmmLog.Info("---amfue.integrityalg: ", amfUe.IntegrityAlg)
 			amfUe.DerivateAlgKey()
 			if amfUe.CipheringAlg == security.AlgCiphering128NEA0 && amfUe.IntegrityAlg == security.AlgIntegrity128NIA0 {
 				err := GmmFSM.SendEvent(state, SecuritySkipEvent, fsm.ArgsType{
