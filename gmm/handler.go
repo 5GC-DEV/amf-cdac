@@ -1232,6 +1232,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
+				break
 			} else {
 				ue.GmmLog.Info("slices are not identical")
 				disableSliceSelection = false
