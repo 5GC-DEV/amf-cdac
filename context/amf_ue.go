@@ -560,12 +560,8 @@ func (ue *AmfUe) InAllowedNssai(targetSNssai models.Snssai, anType models.Access
 func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 	logger.ContextLog.Debug("ue.SubscribedNssai", ue.SubscribedNssai)
 	for _, sNssai := range ue.SubscribedNssai {
-		sstCore := sNssai.SubscribedSnssai.Sst
-		sdCore := sNssai.SubscribedSnssai.Sd
-		logger.ContextLog.Infof("sst: %v ,sd: %v in core", sstCore, sdCore)
-		sstGnb := targetSNssai.Sst
-		sdGnb := targetSNssai.Sd
-		logger.ContextLog.Infof("sst: %v ,sd: %v from gnb", sstGnb, sdGnb)
+		logger.ContextLog.Infof("sst: %v ,sd: %v in core", sNssai.SubscribedSnssai.Sst, sNssai.SubscribedSnssai.Sd)
+		logger.ContextLog.Infof("sst: %v ,sd: %v from gnb", targetSNssai.Sst, targetSNssai.Sd)
 		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
 			return true
 		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst {
