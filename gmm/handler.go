@@ -389,7 +389,12 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
+	// ulcount value check
 	ue.GmmLog.Info("---ue.ULCount: ", ue.ULCount)
+	ulcount := ue.ULCount
+	hexulcount := fmt.Sprintf("%x", ulcount)
+	ue.GmmLog.Info("---after converting int32 ulcount to hex: ", hexulcount)
+	//
 	ue.GmmLog.Info("---ue.AuthenticationCtx: ", ue.AuthenticationCtx)
 
 	ue.GmmLog.Info("Handle Registration Request")
