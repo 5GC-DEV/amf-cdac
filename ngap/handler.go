@@ -3954,7 +3954,6 @@ func HandleUplinkRanStatusTransfer(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	if rANStatusTransferTransparentContainer != nil {
-		ngap_message.SendDownlinkRanStatusTransfer(amfUe.RanUe[models.AccessType__3_GPP_ACCESS], *rANStatusTransferTransparentContainer)
 		ngap_message.SendDownlinkRanStatusTransfer(targetUe, *rANStatusTransferTransparentContainer)
 	} else {
 		ran.Log.Error("Cannot send downlink RAN status transfer: rANStatusTransferTransparentContainer is nil")
