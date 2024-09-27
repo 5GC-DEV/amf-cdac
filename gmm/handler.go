@@ -211,9 +211,13 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				// select a default snssai
 				if ulNasTransport.SNSSAI != nil {
 					snssai = nasConvert.SnssaiToModels(ulNasTransport.SNSSAI)
+					ue.GmmLog.Info("---sst of snssai from ulnastransport: ", snssai.Sst)
+					ue.GmmLog.Info("---sd of snssai from ulnastransport: ", snssai.Sd)
 				} else {
 					if allowedNssai, ok := ue.AllowedNssai[anType]; ok {
 						snssai = *allowedNssai[0].AllowedSnssai
+						ue.GmmLog.Info("---sst of snssai default: ", snssai.Sst)
+						ue.GmmLog.Info("---sd of snssai default: ", snssai.Sd)
 					} else {
 						return errors.New("Ue doesn't have allowedNssai")
 					}
@@ -221,6 +225,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 				if ulNasTransport.DNN != nil {
 					dnn = string(ulNasTransport.DNN.GetDNN())
+					ue.GmmLog.Info("---dnn from ultansport: ", dnn)
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
 					// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
@@ -232,6 +237,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 							for _, dnnInfo := range snssaiInfo.DnnInfos {
 								if dnnInfo.DefaultDnnIndicator {
 									dnn = dnnInfo.Dnn
+									ue.GmmLog.Info("---dnn default: ", dnn)
 								}
 							}
 						}
