@@ -502,24 +502,28 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
+	logger.ContextLog.Info("---Attachranue function")
 	logger.ContextLog.Info("---ue.RanUe[ranUe.Ran.AnType]: ", ue.RanUe[ranUe.Ran.AnType])
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
-	logger.ContextLog.Info("---oldranue.amfue: ", oldRanUe.AmfUe)
-	ue.RanUe[ranUe.Ran.AnType] = ranUe
-	ranUe.AmfUe = ue
+	// oldranue nilcheck
+	if oldRanUe != nil {
+		logger.ContextLog.Info("---oldranue.amfue: ", oldRanUe.AmfUe)
+		ue.RanUe[ranUe.Ran.AnType] = ranUe
+		ranUe.AmfUe = ue
 
-	go func() {
-		time.Sleep(time.Second * 2)
-		if oldRanUe != nil {
-			oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-			oldRanUe.AmfUe = nil
-		}
-	}()
+		go func() {
+			time.Sleep(time.Second * 2)
+			if oldRanUe != nil {
+				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
+				oldRanUe.AmfUe = nil
+			}
+		}()
 
-	// set log information
-	ue.NASLog = logger.NasLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
-	ue.GmmLog = logger.GmmLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
-	ue.TxLog = logger.GmmLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+		// set log information
+		ue.NASLog = logger.NasLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+		ue.GmmLog = logger.GmmLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+		ue.TxLog = logger.GmmLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	}
 }
 
 func (ue *AmfUe) GetAnType() models.AccessType {
