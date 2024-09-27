@@ -77,7 +77,6 @@ func SelectSmf(
 
 	nsiInformation := ue.GetNsiInformationFromSnssai(anType, snssai)
 	ue.GmmLog.Info("---nsiinformation: ", nsiInformation)
-	ue.GmmLog.Info("---nsiinformation.nsiid: ", nsiInformation.NsiId)
 	if nsiInformation == nil {
 		// TODO: Set a timeout of NSSF Selection or will starvation here
 		ue.GmmLog.Info("---nsi information is nil")
