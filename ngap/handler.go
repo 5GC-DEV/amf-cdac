@@ -2702,9 +2702,10 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 
 	ran.Log.Info("---ranue: ", ranUe)
 	ran.Log.Info("---ranue.amfue: ", ranUe.AmfUe)
-	ran.Log.Info("---ranue state: ", ranUe.AmfUe.State)
+	ran.Log.Info("---ranUe.AmfUe.State: ", ranUe.AmfUe.State)
 
 	amfUe := ranUe.AmfUe
+	ran.Log.Info("---amfue.state: ", amfUe.State)
 	if amfUe != nil {
 		causeAll := context.CauseAll{
 			NgapCause: &models.NgApCause{

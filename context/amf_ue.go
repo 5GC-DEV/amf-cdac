@@ -502,7 +502,9 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
+	logger.ContextLog.Info("---ue.RanUe[ranUe.Ran.AnType]: ", ue.RanUe[ranUe.Ran.AnType])
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
+	logger.ContextLog.Info("---oldranue.amfue: ", oldRanUe.AmfUe)
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
 	ranUe.AmfUe = ue
 
