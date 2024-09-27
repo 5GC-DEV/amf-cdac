@@ -580,6 +580,7 @@ func (ue *AmfUe) GetNsiInformationFromSnssai(anType models.AccessType, snssai mo
 		logger.ContextLog.Info("---snssai sst: ", snssai.Sd)
 		if reflect.DeepEqual(*allowedSnssai.AllowedSnssai, snssai) {
 			// TODO: select NsiInformation based on operator policy
+			logger.ContextLog.Info("---len of nsiinfolist: ", len(allowedSnssai.NsiInformationList))
 			if len(allowedSnssai.NsiInformationList) != 0 {
 				return &allowedSnssai.NsiInformationList[0]
 			}

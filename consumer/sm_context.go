@@ -76,7 +76,6 @@ func SelectSmf(
 	nrfUri := ue.ServingAMF.NrfUri // default NRF URI is pre-configured by AMF
 
 	nsiInformation := ue.GetNsiInformationFromSnssai(anType, snssai)
-	ue.GmmLog.Info("---nsiinformation: ", nsiInformation)
 	if nsiInformation == nil {
 		// TODO: Set a timeout of NSSF Selection or will starvation here
 		ue.GmmLog.Info("---nsi information is nil")
@@ -108,7 +107,6 @@ func SelectSmf(
 
 	if nsiInformation == nil {
 		ue.GmmLog.Warnf("nsiInformation is still nil, use default NRF[%s]", nrfUri)
-		ue.GmmLog.Infof("nsiInformation is still nil, use default NRF[%s]", nrfUri)
 	} else {
 		smContext.SetNsInstance(nsiInformation.NsiId)
 		nrfApiUri, err := url.Parse(nsiInformation.NrfId)
