@@ -574,8 +574,8 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 
 func (ue *AmfUe) GetNsiInformationFromSnssai(anType models.AccessType, snssai models.Snssai) *models.NsiInformation {
 	for _, allowedSnssai := range ue.AllowedNssai[anType] {
-		logger.ContextLog.Info("---*allowedSnssai.AllowedSnssai sst: ", *&allowedSnssai.AllowedSnssai.Sst)
-		logger.ContextLog.Info("---*allowedSnssai.AllowedSnssai sd: ", *&allowedSnssai.AllowedSnssai.Sd)
+		logger.ContextLog.Info("---*allowedSnssai.AllowedSnssai sst: ", allowedSnssai.AllowedSnssai.Sst)
+		logger.ContextLog.Info("---*allowedSnssai.AllowedSnssai sd: ", allowedSnssai.AllowedSnssai.Sd)
 		logger.ContextLog.Info("---snssai sst: ", snssai.Sst)
 		logger.ContextLog.Info("---snssai sst: ", snssai.Sd)
 		if reflect.DeepEqual(*allowedSnssai.AllowedSnssai, snssai) {
