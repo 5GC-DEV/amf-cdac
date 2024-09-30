@@ -2713,6 +2713,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 				Value: int32(causeValue),
 			},
 		}
+		// nilcheck of ue state
 		if amfUe.State[ran.AnType] != nil {
 			if amfUe.State[ran.AnType].Is(context.Registered) {
 				ranUe.Log.Info("Ue Context in GMM-Registered")
