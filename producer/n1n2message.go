@@ -72,6 +72,7 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 	msg := <-sbiMsg.Result
 	if msg.RespData != nil {
 		n1n2MessageTransferRspData = msg.RespData.(*models.N1N2MessageTransferRspData)
+		ue.ProducerLog.Info("---n1n2MessageTransferRspData: ", n1n2MessageTransferRspData)
 	}
 	locationHeader := msg.LocationHeader
 	if msg.ProblemDetails != nil {
@@ -92,11 +93,15 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 		case models.N1N2MessageTransferCause_N1_MSG_NOT_TRANSFERRED:
 			fallthrough
 		case models.N1N2MessageTransferCause_N1_N2_TRANSFER_INITIATED:
+			respstsok := httpwrapper.NewResponse(http.StatusOK, nil, n1n2MessageTransferRspData)
+			ue.ProducerLog.Info("---response status ok: ", respstsok)
 			return httpwrapper.NewResponse(http.StatusOK, nil, n1n2MessageTransferRspData)
 		case models.N1N2MessageTransferCause_ATTEMPTING_TO_REACH_UE:
 			headers := http.Header{
 				"Location": {locationHeader},
 			}
+			respreachue := httpwrapper.NewResponse(http.StatusAccepted, headers, n1n2MessageTransferRspData)
+			ue.ProducerLog.Info("---response reach ue: ", respreachue)
 			return httpwrapper.NewResponse(http.StatusAccepted, headers, n1n2MessageTransferRspData)
 		}
 	}
@@ -105,6 +110,8 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 		Status: http.StatusForbidden,
 		Cause:  "UNSPECIFIED",
 	}
+	respstsforbid := httpwrapper.NewResponse(http.StatusForbidden, nil, problemDetails)
+	ue.ProducerLog.Info("---response status forbidden: ", respstsforbid)
 	return httpwrapper.NewResponse(http.StatusForbidden, nil, problemDetails)
 }
 
