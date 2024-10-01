@@ -503,19 +503,20 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
-	// nilcheck oldranue
-	if oldRanUe != nil {
-		ue.RanUe[ranUe.Ran.AnType] = ranUe
-		ranUe.AmfUe = ue
 
-		go func() {
-			time.Sleep(time.Second * 2)
-			if oldRanUe != nil {
+	ue.RanUe[ranUe.Ran.AnType] = ranUe
+	ranUe.AmfUe = ue
+
+	go func() {
+		time.Sleep(time.Second * 2)
+		if oldRanUe != nil {
+			// nilcheck oldranue.log - cdac
+			if oldRanUe.Log != nil {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
 				oldRanUe.AmfUe = nil
 			}
-		}()
-	}
+		}
+	}()
 	// set log information
 	ue.NASLog = logger.NasLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.GmmLog = logger.GmmLog.WithField(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))

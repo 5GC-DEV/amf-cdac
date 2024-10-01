@@ -1099,6 +1099,8 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	}
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
+	ran.Log.Info("---ranue: ", ranUe)
+
 	if ranUe == nil {
 		ran.Log.Errorf("No RanUe Context[AmfUeNgapID: %d]", aMFUENGAPID.Value)
 		cause := ngapType.Cause{
@@ -1114,12 +1116,18 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	if userLocationInformation != nil {
 		ranUe.UpdateLocation(userLocationInformation)
 	}
+	ran.Log.Info("---ranue after updatelocation: ", ranUe)
+
 	if criticalityDiagnostics != nil {
 		printCriticalityDiagnostics(ran, criticalityDiagnostics)
 	}
 
 	ranUe.Ran = ran
+	ran.Log.Info("---ranue:  ", ranUe)
+
 	amfUe := ranUe.AmfUe
+	ran.Log.Info("---amfue: ", amfUe)
+
 	if amfUe == nil {
 		ran.Log.Infof("Release UE Context : RanUe[AmfUeNgapId: %d]", ranUe.AmfUeNgapId)
 		err := ranUe.Remove()
@@ -1186,6 +1194,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			cause = *tmp
 		}
 	}
+	ran.Log.Info("---ranue: ", ranUe)
+	ran.Log.Info("---amfue: ", amfUe)
+
 	if amfUe.State[ran.AnType].Is(context.Registered) {
 		ranUe.Log.Info("Rel Ue Context in GMM-Registered")
 		if pDUSessionResourceList != nil {
@@ -1219,8 +1230,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 
 	// Remove UE N2 Connection
 	amfUe.ReleaseCause[ran.AnType] = nil
+	ran.Log.Info("---ranue: ", ranUe)
+	ran.Log.Info("---amfue: ", amfUe)
+
 	switch ranUe.ReleaseAction {
 	case context.UeContextN2NormalRelease:
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 		ran.Log.Infof("Release UE[%s] Context : N2 Connection Release", amfUe.Supi)
 		// amfUe.DetachRanUe(ran.AnType)
 		err := ranUe.Remove()
@@ -1229,7 +1245,11 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 		amfUe.PublishUeCtxtInfo()
 		context.StoreContextInDB(amfUe)
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 	case context.UeContextReleaseUeContext:
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
 		err := ranUe.Remove()
 		if err != nil {
@@ -1245,8 +1265,12 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		} else {
 			amfUe.PublishUeCtxtInfo()
 			context.StoreContextInDB(amfUe)
+			ran.Log.Info("---ranue: ", ranUe)
+			ran.Log.Info("---amfue: ", amfUe)
 		}
 	case context.UeContextReleaseDueToNwInitiatedDeregistraion:
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 		ran.Log.Infof("Release UE[%s] Context Due to Nw Initiated: Release Ue Context", amfUe.Supi)
 		err := ranUe.Remove()
 		if err != nil {
@@ -1255,7 +1279,11 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		amfUe.PublishUeCtxtInfo()
 		amfUe.Remove()
 		context.DeleteContextFromDB(amfUe)
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 	case context.UeContextReleaseHandover:
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 		ran.Log.Infof("Release UE[%s] Context : Release for Handover", amfUe.Supi)
 		// TODO: it's a workaround, need to fix it.
 		targetRanUe := context.AMF_Self().RanUeFindByAmfUeNgapID(ranUe.TargetUe.AmfUeNgapId)
@@ -1268,6 +1296,8 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 		amfUe.AttachRanUe(targetRanUe)
 		amfUe.PublishUeCtxtInfo()
+		ran.Log.Info("---ranue: ", ranUe)
+		ran.Log.Info("---amfue: ", amfUe)
 		// Todo: remove indirect tunnel
 	default:
 		ran.Log.Errorf("Invalid Release Action[%d]", ranUe.ReleaseAction)
@@ -2676,6 +2706,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
+	ran.Log.Info("---ranue: ", ranUe)
 	if ranUe == nil {
 		ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	}
@@ -2692,7 +2723,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	ranUe.Ran = ran
+	ran.Log.Info("---ranue  : ", ranUe)
 	ran.Log.Tracef("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
+	ran.Log.Infof("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
 
 	causeGroup := ngapType.CausePresentRadioNetwork
 	causeValue := ngapType.CauseRadioNetworkPresentUnspecified
@@ -2701,10 +2734,12 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	ran.Log.Info("---ranue: ", ranUe)
-	ran.Log.Info("---ranue.amfue: ", ranUe.AmfUe)
+	ran.Log.Info("---ranue.Amfue: ", ranUe.AmfUe)
 	ran.Log.Info("---ranUe.AmfUe.State: ", ranUe.AmfUe.State)
 
 	amfUe := ranUe.AmfUe
+	ran.Log.Info("---amfue: ", amfUe)
+
 	ran.Log.Info("---amfue.state: ", amfUe.State)
 	if amfUe != nil {
 		causeAll := context.CauseAll{
@@ -2713,6 +2748,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 				Value: int32(causeValue),
 			},
 		}
+		ranUe.Log.Info("amfue state: ", amfUe.State[ran.AnType])
 		// nilcheck of ue state
 		if amfUe.State[ran.AnType] != nil {
 			if amfUe.State[ran.AnType].Is(context.Registered) {
@@ -2766,6 +2802,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 			}
 		}
 	}
+	ran.Log.Info("---ranue: ", ranUe)
+	ran.Log.Info("---amfue: ", amfUe)
+
 	ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextN2NormalRelease, causeGroup, causeValue)
 }
 
@@ -3138,6 +3177,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var pduSessionResourceFailedToSetupList *ngapType.PDUSessionResourceFailedToSetupListPSReq
 
 	var ranUe *context.RanUe
+	ran.Log.Info("---ranUe: ", ranUe)
+	ranUe.Log.Info("---ranUe: ", ranUe)
 
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
@@ -3199,16 +3240,23 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 	ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(sourceAMFUENGAPID.Value)
+	ranUe.Log.Info("---ranUe after RanUeFindByAmfUeNgapID: ", ranUe)
 	if ranUe == nil {
 		ran.Log.Errorf("Cannot find UE from sourceAMfUeNgapID[%d]", sourceAMFUENGAPID.Value)
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
 
-	ranUe.Ran = ran
+	// commented by cdac
+	// ranUe.Ran = ran
+
 	ran.Log.Tracef("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
+	ran.Log.Infof("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
 	amfUe := ranUe.AmfUe
+	ranUe.Log.Info("---amfUe : ", amfUe)
+	ranUe.Log.Info("---ranUe after declaring amfue : ", ranUe)
+
 	if amfUe == nil {
 		ranUe.Log.Error("AmfUe is nil")
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
@@ -3223,6 +3271,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+	ranUe.Log.Info("---amfUe after sec context valid : ", amfUe)
+	ranUe.Log.Info("---ranUe after sec context valid : ", ranUe)
 
 	if uESecurityCapabilities != nil {
 		amfUe.UESecurityCapability.SetEA1_128_5G((uESecurityCapabilities.NRencryptionAlgorithms.Value.Bytes[0] & 0x80) >> 7)
@@ -3234,11 +3284,14 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	if rANUENGAPID != nil {
-		ranUe.RanUeNgapId = rANUENGAPID.Value
-	}
+	// commented by cdac
+	// if rANUENGAPID != nil {
+	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
+	// }
 
 	ranUe.UpdateLocation(userLocationInformation)
+	ranUe.Log.Info("---amfUe after updatelocation : ", amfUe)
+	ranUe.Log.Info("---ranUe after updatelocation : ", ranUe)
 
 	var pduSessionResourceSwitchedList ngapType.PDUSessionResourceSwitchedList
 	var pduSessionResourceReleasedListPSAck ngapType.PDUSessionResourceReleasedListPSAck
@@ -3273,6 +3326,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	}
 
+	ranUe.Log.Info("---amfUe after session update : ", amfUe)
+	ranUe.Log.Info("---ranUe after session update : ", ranUe)
+
 	if pduSessionResourceFailedToSetupList != nil {
 		for _, item := range pduSessionResourceFailedToSetupList.List {
 			pduSessionID := int32(item.PDUSessionID.Value)
@@ -3303,6 +3359,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	}
 
+	ranUe.Log.Info("---amfUe after session update fail list : ", amfUe)
+	ranUe.Log.Info("---ranUe after session update fail list : ", ranUe)
+
 	// TS 23.502 4.9.1.2.2 step 7: send ack to Target NG-RAN. If none of the requested PDU Sessions have been switched
 	// successfully, the AMF shall send an N2 Path Switch Request Failure message to the Target NG-RAN
 	if len(pduSessionResourceSwitchedList.List) > 0 {
@@ -3313,6 +3372,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			return
 		}
 		context.StoreContextInDB(amfUe)
+		ranUe.Log.Info("---amfUe before sending ack : ", amfUe)
+		ranUe.Log.Info("---ranUe before sending ack : ", ranUe)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
