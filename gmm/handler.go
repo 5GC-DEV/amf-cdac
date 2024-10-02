@@ -211,9 +211,13 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				// select a default snssai
 				if ulNasTransport.SNSSAI != nil {
 					snssai = nasConvert.SnssaiToModels(ulNasTransport.SNSSAI)
+					ue.GmmLog.Info("sst from ulnasport SNSSAI: ", snssai.Sst)
+					ue.GmmLog.Info("sd from ulnasport SNSSAI: ", snssai.Sd)
 				} else {
 					if allowedNssai, ok := ue.AllowedNssai[anType]; ok {
 						snssai = *allowedNssai[0].AllowedSnssai
+						ue.GmmLog.Info("sst from AllowedNssai: ", snssai.Sst)
+						ue.GmmLog.Info("sd from AllowedNssai: ", snssai.Sd)
 					} else {
 						return errors.New("Ue doesn't have allowedNssai")
 					}
@@ -221,6 +225,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 				if ulNasTransport.DNN != nil {
 					dnn = string(ulNasTransport.DNN.GetDNN())
+					ue.GmmLog.Info("dnn ulnasport: ", dnn)
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
 					// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
@@ -232,6 +237,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 							for _, dnnInfo := range snssaiInfo.DnnInfos {
 								if dnnInfo.DefaultDnnIndicator {
 									dnn = dnnInfo.Dnn
+									ue.GmmLog.Info("dnn smfselectiondata: ", dnn)
 								}
 							}
 						}
@@ -1221,9 +1227,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 
-			if requestedSnssai.ServingSnssai.Sd == "" {
-
-			}
 			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
@@ -1233,7 +1236,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
 				if requestedSnssai.ServingSnssai.Sd == "" {
-					allowedSnssai.AllowedSnssai.Sd == 0
+					allowedSnssai.AllowedSnssai.Sd = "0"
 				}
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
