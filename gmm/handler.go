@@ -1236,7 +1236,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
 				if requestedSnssai.ServingSnssai.Sd == "" {
-					allowedSnssai.AllowedSnssai.Sd = "0x000000"
+					allowedSnssai.AllowedSnssai.Sd = "000000"
 				}
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
