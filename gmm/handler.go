@@ -1224,7 +1224,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
 						Sst: requestedSnssai.ServingSnssai.Sst,
-						Sd:  requestedSnssai.ServingSnssai.Sd,
 					},
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
