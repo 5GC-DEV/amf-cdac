@@ -1220,6 +1220,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	// ue.GmmLog.Info("---sst of SNSSAI CORE: ", sSt)
 	// ue.GmmLog.Info("---sd of SNSSAI CORE: ", sD)
 
+	// snssaiCore := ngapType.SNSSAI{}
+
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
 		if err != nil {
@@ -1230,10 +1232,10 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 		needSliceSelection := false
 		for _, requestedSnssai := range requestedNssai {
-			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
-			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
+			ue.GmmLog.Info("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
+			ue.GmmLog.Info("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 			// allsnssai := ngapType.SNSSAI{}
-			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
+			if ue.InSubscribedNssai(requestedSnssai.ServingSnssai) {
 				ue.GmmLog.Info("---sst after modification: ", requestedSnssai.ServingSnssai.Sst)
 				ue.GmmLog.Info("---sd after modification: ", requestedSnssai.ServingSnssai.Sd)
 				allowedSnssai := models.AllowedSnssai{
