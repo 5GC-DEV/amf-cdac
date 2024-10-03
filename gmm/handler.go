@@ -1234,6 +1234,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 			// allsnssai := ngapType.SNSSAI{}
 			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
+				ue.GmmLog.Info("---sst after modification: ", requestedSnssai.ServingSnssai.Sst)
+				ue.GmmLog.Info("---sd after modification: ", requestedSnssai.ServingSnssai.Sd)
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
 						Sst: requestedSnssai.ServingSnssai.Sst,
@@ -1241,10 +1243,12 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 					},
 					MappedHomeSnssai: requestedSnssai.HomeSnssai,
 				}
-				if requestedSnssai.ServingSnssai.Sd == "" {
-					allowedSnssai.AllowedSnssai.Sd = "000000"
-					// allowedSnssai.AllowedSnssai.Sd = string(snssaiCore.SD.Value)
-				}
+				// if requestedSnssai.ServingSnssai.Sd == "" {
+				// ue.GmmLog.Info()
+				// 	allowedSnssai.AllowedSnssai.Sd = "000000"
+				// 	// allowedSnssai.AllowedSnssai.Sd = string(snssaiCore.SD.Value)
+				// }
+
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("allowedSnssai sst: ", allowedSnssai.AllowedSnssai.Sst)
