@@ -1214,6 +1214,12 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	amfSelf := context.AMF_Self()
 	disableSliceSelection := true
 
+	var snssaiCore ngapType.SNSSAI
+	sSt := snssaiCore.SST.Value
+	sD := snssaiCore.SD.Value
+	ue.GmmLog.Info("---sst of SNSSAI CORE: ", sSt)
+	ue.GmmLog.Info("---sd of SNSSAI CORE: ", sD)
+
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
 		if err != nil {
@@ -1226,7 +1232,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
-
+			// allsnssai := ngapType.SNSSAI{}
 			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
@@ -1237,9 +1243,12 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				}
 				if requestedSnssai.ServingSnssai.Sd == "" {
 					allowedSnssai.AllowedSnssai.Sd = "000000"
+					// allowedSnssai.AllowedSnssai.Sd = string(snssaiCore.SD.Value)
 				}
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
+				ue.GmmLog.Info("allowedSnssai sst: ", allowedSnssai.AllowedSnssai.Sst)
+				ue.GmmLog.Info("allowedSnssai sd: ", allowedSnssai.AllowedSnssai.Sd)
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
 				break
