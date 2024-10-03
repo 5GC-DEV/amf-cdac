@@ -1253,8 +1253,8 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
-				ue.GmmLog.Info("allowedSnssai sst: ", allowedSnssai.AllowedSnssai.Sst)
-				ue.GmmLog.Info("allowedSnssai sd: ", allowedSnssai.AllowedSnssai.Sd)
+				ue.GmmLog.Info("---allowedSnssai sst: ", allowedSnssai.AllowedSnssai.Sst)
+				ue.GmmLog.Info("---allowedSnssai sd: ", allowedSnssai.AllowedSnssai.Sd)
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
 				break

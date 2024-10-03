@@ -503,14 +503,18 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
+
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
 	ranUe.AmfUe = ue
 
 	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil {
-			oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-			oldRanUe.AmfUe = nil
+			// nilcheck oldranue.log - cdac
+			if oldRanUe.Log != nil {
+				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
+				oldRanUe.AmfUe = nil
+			}
 		}
 	}()
 
