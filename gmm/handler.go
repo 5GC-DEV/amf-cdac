@@ -1214,11 +1214,11 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	amfSelf := context.AMF_Self()
 	disableSliceSelection := true
 
-	var snssaiCore ngapType.SNSSAI
-	sSt := snssaiCore.SST.Value
-	sD := snssaiCore.SD.Value
-	ue.GmmLog.Info("---sst of SNSSAI CORE: ", sSt)
-	ue.GmmLog.Info("---sd of SNSSAI CORE: ", sD)
+	// var snssaiCore ngapType.SNSSAI
+	// sSt := snssaiCore.SST.Value
+	// sD := snssaiCore.SD.Value
+	// ue.GmmLog.Info("---sst of SNSSAI CORE: ", sSt)
+	// ue.GmmLog.Info("---sd of SNSSAI CORE: ", sD)
 
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
