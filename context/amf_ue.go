@@ -562,7 +562,7 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai *models.Snssai) bool {
 	for _, sNssai := range ue.SubscribedNssai {
 		logger.ContextLog.Infof("sst: %v ,sd: %v in core", sNssai.SubscribedSnssai.Sst, sNssai.SubscribedSnssai.Sd)
 		logger.ContextLog.Infof("sst: %v ,sd: %v from gnb", targetSNssai.Sst, targetSNssai.Sd)
-		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
+		if reflect.DeepEqual(*sNssai.SubscribedSnssai, *targetSNssai) {
 			logger.ContextLog.Info("SST and SD value match")
 			targetSNssai.Sd = "ffffff"
 			targetsd := targetSNssai.Sd
