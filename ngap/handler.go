@@ -3197,8 +3197,12 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	ranUe.Ran = ran
+	// commented by cdac
+	// ranUe.Ran = ran
+	//
+
 	ran.Log.Tracef("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
+	ran.Log.Infof("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {
@@ -3226,9 +3230,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	if rANUENGAPID != nil {
-		ranUe.RanUeNgapId = rANUENGAPID.Value
-	}
+	// commented by cdac
+	// if rANUENGAPID != nil {
+	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
+	// }
+	//
 
 	ranUe.UpdateLocation(userLocationInformation)
 
