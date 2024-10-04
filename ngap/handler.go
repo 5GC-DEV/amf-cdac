@@ -3129,7 +3129,6 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 // TS 23.502 4.9.1
 func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
-
 	var rANUENGAPID *ngapType.RANUENGAPID
 	var sourceAMFUENGAPID *ngapType.AMFUENGAPID
 	var userLocationInformation *ngapType.UserLocationInformation
