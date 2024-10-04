@@ -3129,6 +3129,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 // TS 23.502 4.9.1
 func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
+
 	var rANUENGAPID *ngapType.RANUENGAPID
 	var sourceAMFUENGAPID *ngapType.AMFUENGAPID
 	var userLocationInformation *ngapType.UserLocationInformation
@@ -3203,6 +3204,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	ran.Log.Info("---amfue state: ", ranUe.AmfUe.State)
+	ran.Log.Info("---amfue state: ", ranUe.AmfUe.State[ran.AnType])
+	ran.Log.Info("---ranue log: ", ranUe.Log)
 
 	ran.Log.Info("---ranUe.Ran: ", ranUe.Ran)
 	ranUe.Ran = ran
@@ -3317,8 +3322,14 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			return
 		}
 		context.StoreContextInDB(amfUe)
+		ran.Log.Info("---amfue state: ", ranUe.AmfUe.State)
+		ran.Log.Info("---amfue state: ", ranUe.AmfUe.State[ran.AnType])
+		ran.Log.Info("---ranue log: ", ranUe.Log)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
+		ran.Log.Info("---amfue state: ", ranUe.AmfUe.State)
+		ran.Log.Info("---amfue state: ", ranUe.AmfUe.State[ran.AnType])
+		ran.Log.Info("---ranue log: ", ranUe.Log)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
