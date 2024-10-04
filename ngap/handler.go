@@ -1118,7 +1118,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		printCriticalityDiagnostics(ran, criticalityDiagnostics)
 	}
 
+	ran.Log.Info("---ranUe.Ran: ", ranUe.Ran)
 	ranUe.Ran = ran
+	ran.Log.Info("---ranUe.Ran after updating: ", ranUe.Ran)
+
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {
 		ran.Log.Infof("Release UE Context : RanUe[AmfUeNgapId: %d]", ranUe.AmfUeNgapId)
@@ -2691,8 +2694,12 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		return
 	}
 
+	ran.Log.Info("---ranUe.Ran: ", ranUe.Ran)
 	ranUe.Ran = ran
+	ran.Log.Info("---ranUe.Ran after updating: ", ranUe.Ran)
+
 	ran.Log.Tracef("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
+	ran.Log.Infof("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
 
 	causeGroup := ngapType.CausePresentRadioNetwork
 	causeValue := ngapType.CauseRadioNetworkPresentUnspecified
@@ -3197,8 +3204,12 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
+	ran.Log.Info("---ranUe.Ran: ", ranUe.Ran)
 	ranUe.Ran = ran
+	ran.Log.Info("---ranUe.Ran after updating: ", ranUe.Ran)
+
 	ran.Log.Tracef("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
+	ran.Log.Infof("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {
@@ -3225,10 +3236,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		amfUe.UESecurityCapability.SetIA3_128_5G((uESecurityCapabilities.NRintegrityProtectionAlgorithms.Value.Bytes[0] & 0x20) >> 5)
 		// not support any E-UTRA algorithms
 	}
-
+	ran.Log.Info("---ranUe.RanUeNgapId: ", ranUe.RanUeNgapId)
 	if rANUENGAPID != nil {
 		ranUe.RanUeNgapId = rANUENGAPID.Value
 	}
+	ran.Log.Info("---ranUe.RanUeNgapId after updating: ", ranUe.RanUeNgapId)
 
 	ranUe.UpdateLocation(userLocationInformation)
 
