@@ -93,6 +93,7 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 			return
 		} else {
 			ran.Log.Debugf("DispatchLb, amfNgapId: %v for this amf instance", ngapId.Value)
+			ran.Log.Infof("DispatchLb, amfNgapId: %v for this amf instance", ngapId.Value)
 		}
 	}
 
