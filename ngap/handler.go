@@ -2728,7 +2728,6 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 						} else if response == nil {
 							ranUe.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
 						}
-
 					}
 				} else {
 					ranUe.Log.Info("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
