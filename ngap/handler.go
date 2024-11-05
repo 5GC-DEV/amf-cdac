@@ -1889,7 +1889,6 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 				// } else if response == nil {
 				// TODO: error handling
 				// }
-
 			}
 		}
 
