@@ -1884,12 +1884,12 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 					ranUe.Log.Errorf("SendUpdateSmContextN2Info[PDUSessionResourceSetupUnsuccessfulTransfer] Error: %+v", err)
 				}
 
-					// if response != nil && response.BinaryDataN2SmInformation != nil {
-					// TODO: n2SmInfo send to RAN
-					// } else if response == nil {
-					// TODO: error handling
-					// }
-				}
+				// if response != nil && response.BinaryDataN2SmInformation != nil {
+				// TODO: n2SmInfo send to RAN
+				// } else if response == nil {
+				// TODO: error handling
+				// }
+
 			}
 		}
 
