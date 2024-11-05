@@ -1243,7 +1243,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		}
 		if !disableSliceSelection {
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
-			return fmt.Errorf("Slice mismatch in registration request")
+			return fmt.Errorf("slice mismatch in registration request")
 		}
 
 		if needSliceSelection {
