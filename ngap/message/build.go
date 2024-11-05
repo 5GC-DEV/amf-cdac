@@ -224,7 +224,7 @@ func BuildNGReset(
 ) ([]byte, error) {
 	var pdu ngapType.NGAPPDU
 
-	logger.NgapLog.Trace("Build NG Reset message")
+	logger.NgapLog.Debugln("build NG Reset message")
 
 	pdu.Present = ngapType.NGAPPDUPresentInitiatingMessage
 	pdu.InitiatingMessage = new(ngapType.InitiatingMessage)
@@ -312,13 +312,13 @@ func BuildNGResetAcknowledge(partOfNGInterface *ngapType.UEAssociatedLogicalNGCo
 			if item.AMFUENGAPID != nil {
 				uEAssociatedLogicalNGConnectionItem.AMFUENGAPID = new(ngapType.AMFUENGAPID)
 				uEAssociatedLogicalNGConnectionItem.AMFUENGAPID = item.AMFUENGAPID
-				logger.NgapLog.Tracef(
+				logger.NgapLog.Debugf(
 					"[Build NG Reset Ack] (pair %d) AmfUeNgapID[%d]", i, uEAssociatedLogicalNGConnectionItem.AMFUENGAPID)
 			}
 			if item.RANUENGAPID != nil {
 				uEAssociatedLogicalNGConnectionItem.RANUENGAPID = new(ngapType.RANUENGAPID)
 				uEAssociatedLogicalNGConnectionItem.RANUENGAPID = item.RANUENGAPID
-				logger.NgapLog.Tracef(
+				logger.NgapLog.Debugf(
 					"[Build NG Reset Ack] (pair %d) RanUeNgapID[%d]", i, uEAssociatedLogicalNGConnectionItem.RANUENGAPID)
 			}
 
@@ -487,7 +487,7 @@ func BuildUEContextReleaseCommand(
 	}
 	switch causePresent {
 	case ngapType.CausePresentNothing:
-		return nil, fmt.Errorf("Cause Present is Nothing")
+		return nil, fmt.Errorf("cause present is nothing")
 	case ngapType.CausePresentRadioNetwork:
 		ngapCause.RadioNetwork = new(ngapType.CauseRadioNetwork)
 		ngapCause.RadioNetwork.Value = cause
@@ -504,7 +504,7 @@ func BuildUEContextReleaseCommand(
 		ngapCause.Misc = new(ngapType.CauseMisc)
 		ngapCause.Misc.Value = cause
 	default:
-		return nil, fmt.Errorf("Cause Present is Unknown")
+		return nil, fmt.Errorf("cause present is unknown")
 	}
 	ie.Value.Cause = &ngapCause
 
@@ -2205,7 +2205,7 @@ func BuildPaging(
 
 	taiListForPaging := ie.Value.TAIListForPaging
 	if ue.RegistrationArea[models.AccessType__3_GPP_ACCESS] == nil {
-		err = fmt.Errorf("Registration Area of Ue[%s] is empty", ue.Supi)
+		err = fmt.Errorf("registration area of ue[%s] is empty", ue.Supi)
 		return nil, err
 	} else {
 		for _, tai := range ue.RegistrationArea[models.AccessType__3_GPP_ACCESS] {
@@ -2511,7 +2511,7 @@ func BuildRanConfigurationUpdateFailure(
 func BuildAMFStatusIndication(unavailableGUAMIList ngapType.UnavailableGUAMIList) ([]byte, error) {
 	var pdu ngapType.NGAPPDU
 
-	logger.NgapLog.Trace("Build AMF Status Indication message")
+	logger.NgapLog.Debugln("build AMF Status Indication message")
 
 	pdu.Present = ngapType.NGAPPDUPresentInitiatingMessage
 	pdu.InitiatingMessage = new(ngapType.InitiatingMessage)
@@ -2764,7 +2764,7 @@ func BuildDeactivateTrace(amfUe *context.AmfUe, anType models.AccessType) ([]byt
 		subStringSlice := strings.Split(traceData.TraceRef, "-")
 
 		if len(subStringSlice) != 2 {
-			logger.NgapLog.Warningln("TraceRef format is not correct")
+			logger.NgapLog.Warnln("traceRef format is not correct")
 		}
 
 		plmnID := models.PlmnId{}
