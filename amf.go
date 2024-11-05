@@ -12,13 +12,13 @@ import (
 
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/service"
-	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"go.uber.org/zap"
 )
 
 var AMF = &service.AMF{}
 
-var appLog *logrus.Entry
+var appLog *zap.SugaredLogger
 
 func init() {
 	appLog = logger.AppLog
@@ -40,7 +40,7 @@ func main() {
 func action(c *cli.Context) error {
 	if err := AMF.Initialize(c); err != nil {
 		logger.CfgLog.Errorf("%+v", err)
-		return fmt.Errorf("Failed to initialize !!")
+		return fmt.Errorf("failed to initialize")
 	}
 
 	AMF.WatchConfig()

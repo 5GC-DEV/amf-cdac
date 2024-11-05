@@ -18,7 +18,7 @@ import (
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/models"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type RelAction int
@@ -77,14 +77,14 @@ type RanUe struct {
 	RecvdInitialContextSetupResponse bool
 
 	/* logger */
-	Log *logrus.Entry `json:"-"`
+	Log *zap.SugaredLogger `json:"-"`
 
 	/* Sctplb Redirect Msg */
 	SctplbMsg []byte
 }
 
 func (ranUe *RanUe) Remove() error {
-	fmt.Printf("RanUe has been deleted")
+	logger.ContextLog.Infoln("RanUe has been deleted")
 	if ranUe == nil {
 		return fmt.Errorf("RanUe not found in RemoveRanUe")
 	}
@@ -93,7 +93,10 @@ func (ranUe *RanUe) Remove() error {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
 	if ranUe.AmfUe != nil {
-		ranUe.AmfUe.DetachRanUe(ran.AnType)
+		amfUe := ranUe.AmfUe
+		if amfUe.RanUe[ran.AnType] == ranUe {
+			ranUe.AmfUe.DetachRanUe(ran.AnType)
+		}
 		ranUe.DetachAmfUe()
 	}
 
@@ -105,9 +108,12 @@ func (ranUe *RanUe) Remove() error {
 	}
 	self := AMF_Self()
 	self.RanUePool.Delete(ranUe.AmfUeNgapId)
-	// amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
-	if err := self.Drsm.ReleaseInt32ID(int32(ranUe.AmfUeNgapId)); err != nil {
-		logger.ContextLog.Errorf("Error releasing UE: %v", err)
+	if self.EnableDbStore {
+		if err := self.Drsm.ReleaseInt32ID(int32(ranUe.AmfUeNgapId)); err != nil {
+			logger.ContextLog.Errorf("error releasing UE: %v", err)
+		}
+	} else {
+		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
 	}
 	return nil
 }
@@ -247,7 +253,7 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 		// TODO: define N3GPP TAI
 		tmp, err := strconv.ParseUint(amfSelf.SupportTaiLists[0].Tac, 10, 32)
 		if err != nil {
-			logger.ContextLog.Errorf("Error parsing TAC: %v", err)
+			logger.ContextLog.Errorf("error parsing TAC: %v", err)
 		}
 		tac := fmt.Sprintf("%06x", tmp)
 		ranUe.Location.N3gaLocation.N3gppTai = &models.Tai{

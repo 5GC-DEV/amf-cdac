@@ -13,16 +13,16 @@ import (
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/util"
-	nrf_cache "github.com/omec-project/nrf/nrfcache"
 	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
 	"github.com/omec-project/openapi/models"
+	nrfCache "github.com/omec-project/openapi/nrfcache"
 )
 
 func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfType,
 	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) (models.SearchResult, error) {
 	if amf_context.AMF_Self().EnableNrfCaching {
-		return nrf_cache.SearchNFInstances(nrfUri, targetNfType, requestNfType, param)
+		return nrfCache.SearchNFInstances(nrfUri, targetNfType, requestNfType, param)
 	} else {
 		return SendNfDiscoveryToNrf(nrfUri, targetNfType, requestNfType, param)
 	}
@@ -38,7 +38,7 @@ func SendNfDiscoveryToNrf(nrfUri string, targetNfType, requestNfType models.NfTy
 
 	result, res, err := client.NFInstancesStoreApi.SearchNFInstances(context.TODO(), targetNfType, requestNfType, param)
 	if res != nil && res.StatusCode == http.StatusTemporaryRedirect {
-		err = fmt.Errorf("Temporary Redirect For Non NRF Consumer")
+		err = fmt.Errorf("temporary Redirect For Non NRF Consumer")
 	}
 	defer func() {
 		if bodyCloseErr := res.Body.Close(); bodyCloseErr != nil {
