@@ -23,6 +23,7 @@ import (
 // AmfStats captures AMF level stats
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
+	ueReg             *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
 }
 
@@ -35,6 +36,11 @@ func initAmfStats() *AmfStats {
 			Help: "ngap interface counters",
 		}, []string{"amf_id", "msg_type", "direction", "result", "reason"}),
 
+		ueReg: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_ue_registrations_total",
+			Help: "Counter of total UE Registrations",
+		}, []string{"amf_id", "reg_type", "result"}),
+
 		gnbSessionProfile: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
@@ -46,6 +52,9 @@ func (ps *AmfStats) register() error {
 	prometheus.Unregister(ps.ngapMsg)
 
 	if err := prometheus.Register(ps.ngapMsg); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.ueReg); err != nil {
 		return err
 	}
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
@@ -73,6 +82,10 @@ func InitMetrics() {
 // IncrementNgapMsgStats increments message level stats
 func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
 	amfStats.ngapMsg.WithLabelValues(amfID, msgType, direction, result, reason).Inc()
+}
+
+func IncrementUeRegStats(amfID, regType, result string) {
+	amfStats.ueReg.WithLabelValues(amfID, regType, result).Inc()
 }
 
 // SetGnbSessProfileStats maintains Session profile info
