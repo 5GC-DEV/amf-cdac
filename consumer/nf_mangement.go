@@ -176,6 +176,7 @@ var SendUpdateNFInstance = func(patchItem []models.PatchItem) (nfProfile models.
 
 func SendCreateSubscription(nrfUri string, nrfSubscriptionData models.NrfSubscriptionData) (nrfSubData models.NrfSubscriptionData, problemDetails *models.ProblemDetails, err error) {
 	logger.ConsumerLog.Debugf("Send Create Subscription")
+	logger.ConsumerLog.Infof("*** Send Create Subscription")
 
 	// Set client and set url
 	configuration := Nnrf_NFManagement.NewConfiguration()
@@ -183,10 +184,14 @@ func SendCreateSubscription(nrfUri string, nrfSubscriptionData models.NrfSubscri
 	client := Nnrf_NFManagement.NewAPIClient(configuration)
 
 	var res *http.Response
+	logger.ConsumerLog.Infof("*** Sending subscription creation request to NRF...")
 	nrfSubData, res, err = client.SubscriptionsCollectionApi.CreateSubscription(context.TODO(), nrfSubscriptionData)
 	if err == nil {
+		logger.ConsumerLog.Infof("*** Subscription created successfully. Subscription ID: %s", nrfSubData.SubscriptionId)
 		return
 	} else if res != nil {
+		logger.ConsumerLog.Infof("*** Full subscription data: %+v", nrfSubData)
+		logger.ConsumerLog.Infof("*** Received response with status code: %d", res.StatusCode)
 		defer func() {
 			if resCloseErr := res.Body.Close(); resCloseErr != nil {
 				logger.ConsumerLog.Errorf("SendCreateSubscription response cannot close: %+v", resCloseErr)

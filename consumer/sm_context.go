@@ -113,11 +113,14 @@ func SelectSmf(
 	if nsiInformation == nil {
 		ue.GmmLog.Warnf("nsiInformation is still nil, use default NRF[%s]", nrfUri)
 	} else {
+		ue.GmmLog.Infof("Setting NsInstance with NsiId: %s", nsiInformation.NsiId)
 		smContext.SetNsInstance(nsiInformation.NsiId)
 		nrfApiUri, err := url.Parse(nsiInformation.NrfId)
 		if err != nil {
+			ue.GmmLog.Errorf("***  Parse NRF URI error, using default NRF[%s]: %+v", nrfUri, err)
 			ue.GmmLog.Errorf("Parse NRF URI error, use default NRF[%s]", nrfUri)
 		} else {
+			ue.GmmLog.Infof("*** Parsed NRF URI successfully: %s", nrfApiUri)
 			nrfUri = fmt.Sprintf("%s://%s", nrfApiUri.Scheme, nrfApiUri.Host)
 		}
 	}
@@ -132,13 +135,16 @@ func SelectSmf(
 	}
 
 	ue.GmmLog.Debugf("Search SMF from NRF[%s]", nrfUri)
-
+	ue.GmmLog.Infof("*** Preparing to search for SMF from NRF[%s] with parameters: DNN[%s], S-NSSAI[%+v], PLMN ID[%+v]",
+		nrfUri, dnn, snssai, ue.PlmnId)
 	result, err := SendSearchNFInstances(nrfUri, models.NfType_SMF, models.NfType_AMF, &param)
 	if err != nil {
+		ue.GmmLog.Errorf("*** Failed to search SMF from NRF[%s]: %+v", nrfUri, err)
 		return nil, nasMessage.Cause5GMMPayloadWasNotForwarded, err
 	}
-
+	ue.GmmLog.Infof("**** Received response from SMF search: Number of NF Instances found: %d", len(result.NfInstances))
 	if len(result.NfInstances) == 0 {
+		ue.GmmLog.Errorf("**** No SMF instances found: DNN[%s] is not supported or not subscribed in the slice [S-NSSAI: %+v]", dnn, snssai)
 		err = fmt.Errorf("DNN[%s] is not supported or not subscribed in the slice[Snssai: %+v]", dnn, snssai)
 		return nil, nasMessage.Cause5GMMDNNNotSupportedOrNotSubscribedInTheSlice, err
 	}

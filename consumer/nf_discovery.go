@@ -21,9 +21,13 @@ import (
 func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfType,
 	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) (models.SearchResult, error) {
+	logger.ConsumerLog.Infof("**** Initiating NF Instance search to NRF[%s] with target NF type: %s, request NF type: %s",
+		nrfUri, targetNfType, requestNfType)
 	if amf_context.AMF_Self().EnableNrfCaching {
+		logger.ConsumerLog.Infof("**** NRF caching is enabled. Searching NF instances using cache.")
 		return nrfCache.SearchNFInstances(nrfUri, targetNfType, requestNfType, param)
 	} else {
+		logger.ConsumerLog.Infof("**** NRF caching is disabled. Sending direct NF discovery request to NRF.")
 		return SendNfDiscoveryToNrf(nrfUri, targetNfType, requestNfType, param)
 	}
 }
@@ -31,28 +35,35 @@ func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfT
 func SendNfDiscoveryToNrf(nrfUri string, targetNfType, requestNfType models.NfType,
 	param *Nnrf_NFDiscovery.SearchNFInstancesParamOpts,
 ) (models.SearchResult, error) {
+	logger.ConsumerLog.Infof("*** Starting NF discovery to NRF URI: %s", nrfUri)
+	logger.ConsumerLog.Infof("*** Target NF Type: %s, Request NF Type: %s", targetNfType, requestNfType)
+	logger.ConsumerLog.Infof("*** Search parameters: %+v", param)
 	// Set client and set url
 	configuration := Nnrf_NFDiscovery.NewConfiguration()
 	configuration.SetBasePath(nrfUri)
 	client := Nnrf_NFDiscovery.NewAPIClient(configuration)
-
+	logger.ConsumerLog.Infof("*** Sending SearchNFInstances request to NRF...")
 	result, res, err := client.NFInstancesStoreApi.SearchNFInstances(context.TODO(), targetNfType, requestNfType, param)
 	if res != nil && res.StatusCode == http.StatusTemporaryRedirect {
+		logger.ConsumerLog.Infof("*** Received response with status code: %d", res.StatusCode)
 		err = fmt.Errorf("temporary Redirect For Non NRF Consumer")
 	}
 	defer func() {
 		if bodyCloseErr := res.Body.Close(); bodyCloseErr != nil {
 			err = fmt.Errorf("SearchNFInstances' response body cannot close: %+w", bodyCloseErr)
+			logger.ConsumerLog.Errorf("***  Error closing response body: %+v", bodyCloseErr)
 		}
 	}()
 
 	amfSelf := amf_context.AMF_Self()
-
+	logger.ConsumerLog.Infof("**** Checking if the AMF has active NF status subscriptions")
 	var nrfSubData models.NrfSubscriptionData
 	var problemDetails *models.ProblemDetails
 	for _, nfProfile := range result.NfInstances {
+		logger.ConsumerLog.Infof("*** Processing NF instance ID: %s", nfProfile.NfInstanceId)
 		// checking whether the AMF subscribed to this target nfinstanceid or not
 		if _, ok := amfSelf.NfStatusSubscriptions.Load(nfProfile.NfInstanceId); !ok {
+			logger.ConsumerLog.Infof("**** No active subscription found for NF instance ID: %s. Creating subscription...", nfProfile.NfInstanceId)
 			nrfSubscriptionData := models.NrfSubscriptionData{
 				NfStatusNotificationUri: fmt.Sprintf("%s/namf-callback/v1/nf-status-notify", amfSelf.GetIPv4Uri()),
 				SubscrCond:              &models.NfInstanceIdCond{NfInstanceId: nfProfile.NfInstanceId},
@@ -65,9 +76,11 @@ func SendNfDiscoveryToNrf(nrfUri string, targetNfType, requestNfType models.NfTy
 				logger.ConsumerLog.Errorf("SendCreateSubscription Error[%+v]", err)
 			}
 			amfSelf.NfStatusSubscriptions.Store(nfProfile.NfInstanceId, nrfSubData.SubscriptionId)
+		} else {
+			logger.ConsumerLog.Infof("**** Active subscription already exists for NF instance ID: %s", nfProfile.NfInstanceId)
 		}
 	}
-
+	logger.ConsumerLog.Infof("***  NF discovery completed. Returning results.")
 	return result, err
 }
 
