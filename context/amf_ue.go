@@ -580,14 +580,19 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 }
 
 func (ue *AmfUe) GetNsiInformationFromSnssai(anType models.AccessType, snssai models.Snssai) *models.NsiInformation {
+	ue.GmmLog.Infof("*****    Searching for NSI Information for Access Type[%+v] and SNSSAI[%+v]", anType, snssai)
 	for _, allowedSnssai := range ue.AllowedNssai[anType] {
+		ue.GmmLog.Infof("*****     Checking Allowed SNSSAI: %+v", *allowedSnssai.AllowedSnssai)
 		if reflect.DeepEqual(*allowedSnssai.AllowedSnssai, snssai) {
+			ue.GmmLog.Infof("*****     Match found for SNSSAI[%+v]", snssai)
 			// TODO: select NsiInformation based on operator policy
 			if len(allowedSnssai.NsiInformationList) != 0 {
+				ue.GmmLog.Infof("*****     Returning NSI Information: %+v", allowedSnssai.NsiInformationList[0])
 				return &allowedSnssai.NsiInformationList[0]
 			}
 		}
 	}
+	ue.GmmLog.Warnf("*****  No matching SNSSAI found for Access Type[%+v] and SNSSAI[%+v]", anType, snssai)
 	return nil
 }
 

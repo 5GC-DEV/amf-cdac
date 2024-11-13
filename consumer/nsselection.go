@@ -73,6 +73,7 @@ func NSSelectionGetForRegistration(ue *amf_context.AmfUe, requestedNssai []model
 func NSSelectionGetForPduSession(ue *amf_context.AmfUe, snssai models.Snssai) (
 	*models.AuthorizedNetworkSliceInfo, *models.ProblemDetails, error,
 ) {
+	ue.GmmLog.Infof("**** Starting NS Selection for PDU Session. SNSSAI: %+v", snssai)
 	configuration := Nnssf_NSSelection.NewConfiguration()
 	configuration.SetBasePath(ue.NssfUri)
 	client := Nnssf_NSSelection.NewAPIClient(configuration)
@@ -90,19 +91,25 @@ func NSSelectionGetForPduSession(ue *amf_context.AmfUe, snssai models.Snssai) (
 	paramOpt := Nnssf_NSSelection.NSSelectionGetParamOpts{
 		SliceInfoRequestForPduSession: optional.NewInterface(string(e)),
 	}
+	ue.GmmLog.Infof("****  Sending NSSelection request to NSSF: [%s]", ue.NssfUri)
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 	res, httpResp, localErr := client.NetworkSliceInformationDocumentApi.NSSelectionGet(ctx,
 		models.NfType_AMF, amfSelf.NfId, &paramOpt)
 	if localErr == nil {
+		ue.GmmLog.Infof("*** NS Selection succeeded. Received response: %+v", res)
 		return &res, nil, nil
 	} else if httpResp != nil {
+		ue.GmmLog.Errorf("****  NS Selection failed. HTTP Status: %s, Error: %+v", httpResp.Status, localErr)
 		if httpResp.Status != localErr.Error() {
+			ue.GmmLog.Warnf("*** HTTP status mismatch. Returning error without ProblemDetails.")
 			return nil, nil, localErr
 		}
 		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
+		ue.GmmLog.Errorf("**** ProblemDetails received: %+v", problem)
 		return nil, &problem, nil
 	} else {
+		ue.GmmLog.Errorf("****  NSSF did not respond. No HTTP response received.")
 		return nil, nil, openapi.ReportError("NSSF No Response")
 	}
 }
