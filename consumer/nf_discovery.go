@@ -7,6 +7,7 @@ package consumer
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -47,6 +48,12 @@ func SendNfDiscoveryToNrf(nrfUri string, targetNfType, requestNfType models.NfTy
 	if res != nil && res.StatusCode == http.StatusTemporaryRedirect {
 		logger.ConsumerLog.Infof("*** Received response with status code: %d", res.StatusCode)
 		err = fmt.Errorf("temporary Redirect For Non NRF Consumer")
+	}
+	resultJSON, jsonErr := json.MarshalIndent(result, "", "  ")
+	if jsonErr != nil {
+		logger.ConsumerLog.Warnln("*** Error marshalling result to JSON:", jsonErr)
+	} else {
+		logger.ConsumerLog.Infof("*** Result details: %s", resultJSON)
 	}
 	defer func() {
 		if bodyCloseErr := res.Body.Close(); bodyCloseErr != nil {
