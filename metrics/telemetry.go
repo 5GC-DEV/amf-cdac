@@ -53,12 +53,16 @@ func (ps *AmfStats) register() error {
 
 	if err := prometheus.Register(ps.ngapMsg); err != nil {
 		return err
+	} else {
+		fmt.Print("ngap_messages_total metric registered successfully")
 	}
 	if err := prometheus.Register(ps.ueReg); err != nil {
 		return err
 	}
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
 		return err
+	} else {
+		fmt.Print("gnb_session_profile metric registered successfully")
 	}
 	return nil
 }
