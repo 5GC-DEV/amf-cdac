@@ -572,7 +572,9 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
 			return true
 		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst {
 			logger.ContextLog.Info("SST values match, SD values differ")
-			targetSNssai.Sd = sNssai.SubscribedSnssai.Sd
+			targetSNssai.Sd = "ffffff"
+			tgtsd := targetSNssai.Sd
+			logger.ContextLog.Info("---targetsd: ", tgtsd)
 			return true
 		}
 	}
