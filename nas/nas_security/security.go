@@ -245,6 +245,7 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 		ue.NASLog.Traceln("securityHeader is ", securityHeader)
 		sequenceNumber := payload[6]
 		ue.NASLog.Traceln("sequenceNumber", sequenceNumber)
+		ue.NASLog.Infoln("---sequenceNumber", sequenceNumber)
 
 		receivedMac32 := securityHeader[2:]
 		// remove security Header except for sequece Number
