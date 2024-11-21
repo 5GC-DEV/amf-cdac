@@ -1220,7 +1220,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
-			if ue.InSubscribedNssai(*requestedSnssai.ServingSnssai) {
+			if ue.InSubscribedNssai(requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
 						Sst: requestedSnssai.ServingSnssai.Sst,
@@ -1240,6 +1240,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				disableSliceSelection = false
 				// needSliceSelection = true
 			}
+
 		}
 		if !disableSliceSelection {
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
