@@ -506,17 +506,24 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
-	ue.RanUe[ranUe.Ran.AnType] = ranUe
+
+	if ranUe != nil && ranUe.Ran != nil {
+		ue.RanUe[ranUe.Ran.AnType] = ranUe
+	} else {
+		logger.ContextLog.Warnf("Invalid RanUe or RanAnType: ranUe=%v", ranUe)
+	}
+
 	ranUe.AmfUe = ue
 
 	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil {
-			// nilcheck oldranue.log - cdac
-			if oldRanUe.Log != nil {
+			if oldRanUe.Log != nil { // Ensure Log is not nil before accessing
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-				oldRanUe.AmfUe = nil
+			} else {
+				logger.ContextLog.Warnf("OldRanUe.Log is nil for AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId)
 			}
+			oldRanUe.AmfUe = nil
 		}
 	}()
 
