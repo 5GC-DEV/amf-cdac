@@ -563,7 +563,7 @@ func (ue *AmfUe) InAllowedNssai(targetSNssai models.Snssai, anType models.Access
 	return false
 }
 
-func (ue *AmfUe) InSubscribedNssai(targetSNssai models.Snssai) bool {
+func (ue *AmfUe) InSubscribedNssai(targetSNssai *models.Snssai) bool {
 	logger.ContextLog.Debug("ue.SubscribedNssai", ue.SubscribedNssai)
 	for _, sNssai := range ue.SubscribedNssai {
 		logger.ContextLog.Infof("sst: %v ,sd: %v in core", sNssai.SubscribedSnssai.Sst, sNssai.SubscribedSnssai.Sd)
