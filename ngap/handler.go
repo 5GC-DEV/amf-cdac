@@ -1190,36 +1190,39 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			cause = *tmp
 		}
 	}
-	if amfUe.State[ran.AnType].Is(context.Registered) {
-		ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
-		if pDUSessionResourceList != nil {
-			for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-				pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-				smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-				if !ok {
-					ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-					// added continue cdac
-					continue
+	if amfUe.State[ran.AnType] != nil {
+		ranUe.Log.Infoln("amfue state: ", amfUe.State[ran.AnType])
+		if amfUe.State[ran.AnType].Is(context.Registered) {
+			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
+			if pDUSessionResourceList != nil {
+				for _, pduSessionReourceItem := range pDUSessionResourceList.List {
+					pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
+					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
+					if !ok {
+						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+						// added continue cdac
+						continue
+					}
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
 				}
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
+			} else {
+				ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+				amfUe.SmContextList.Range(func(key, value interface{}) bool {
+					smContext := value.(*context.SmContext)
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
+					return true
+				})
 			}
-		} else {
-			ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
-			amfUe.SmContextList.Range(func(key, value interface{}) bool {
-				smContext := value.(*context.SmContext)
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
-				return true
-			})
 		}
 	}
 
@@ -2722,54 +2725,57 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 				Value: int32(causeValue),
 			},
 		}
-		if amfUe.State[ran.AnType].Is(context.Registered) {
-			ranUe.Log.Infoln("Ue Context in GMM-Registered")
-			if pDUSessionResourceList != nil {
-				for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-					pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-					if !ok {
-						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-						continue
+		if amfUe.State[ran.AnType] != nil {
+			ranUe.Log.Infoln("amfue state: ", amfUe.State[ran.AnType])
+			if amfUe.State[ran.AnType].Is(context.Registered) {
+				ranUe.Log.Infoln("Ue Context in GMM-Registered")
+				if pDUSessionResourceList != nil {
+					for _, pduSessionReourceItem := range pDUSessionResourceList.List {
+						pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
+						smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
+						if !ok {
+							ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+							continue
+						}
+						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
+						if err != nil {
+							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+						} else if response == nil {
+							ranUe.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+						}
 					}
-					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
-					if err != nil {
-						ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-					} else if response == nil {
-						ranUe.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-					}
+				} else {
+					ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+					amfUe.SmContextList.Range(func(key, value interface{}) bool {
+						smContext := value.(*context.SmContext)
+						if !smContext.IsPduSessionActive() {
+							ranUe.Log.Infoln("Pdu Session is inactive so not sending deactivate to SMF")
+							return false
+						}
+						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
+						if err != nil {
+							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+						} else if response == nil {
+							ranUe.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+						}
+						return true
+					})
 				}
 			} else {
-				ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+				ranUe.Log.Infoln("Ue Context in Non GMM-Registered")
 				amfUe.SmContextList.Range(func(key, value interface{}) bool {
 					smContext := value.(*context.SmContext)
-					if !smContext.IsPduSessionActive() {
-						ranUe.Log.Infoln("Pdu Session is inactive so not sending deactivate to SMF")
-						return false
-					}
-					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
+					detail, err := consumer.SendReleaseSmContextRequest(amfUe, smContext, &causeAll, "", nil)
 					if err != nil {
-						ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-					} else if response == nil {
-						ranUe.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+						ranUe.Log.Errorf("Send ReleaseSmContextRequest Error[%s]", err.Error())
+					} else if detail != nil {
+						ranUe.Log.Errorf("Send ReleaseSmContextRequeste Error[%s]", detail.Cause)
 					}
 					return true
 				})
+				ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextReleaseUeContext, causeGroup, causeValue)
+				return
 			}
-		} else {
-			ranUe.Log.Infoln("Ue Context in Non GMM-Registered")
-			amfUe.SmContextList.Range(func(key, value interface{}) bool {
-				smContext := value.(*context.SmContext)
-				detail, err := consumer.SendReleaseSmContextRequest(amfUe, smContext, &causeAll, "", nil)
-				if err != nil {
-					ranUe.Log.Errorf("Send ReleaseSmContextRequest Error[%s]", err.Error())
-				} else if detail != nil {
-					ranUe.Log.Errorf("Send ReleaseSmContextRequeste Error[%s]", detail.Cause)
-				}
-				return true
-			})
-			ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextReleaseUeContext, causeGroup, causeValue)
-			return
 		}
 	}
 	ran.Log.Info("ranUe: ", ranUe)
