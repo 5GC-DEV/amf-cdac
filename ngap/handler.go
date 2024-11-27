@@ -1278,6 +1278,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	default:
 		ran.Log.Errorf("Invalid Release Action[%d]", ranUe.ReleaseAction)
 	}
+	ran.Log.Info("ranUe: ", ranUe)
+	ran.Log.Info("amfUe: ", amfUe)
+	ran.Log.Info("ran: ", ran)
 }
 
 func HandlePDUSessionResourceReleaseResponse(ran *context.AmfRan, message *ngapType.NGAPPDU) {
@@ -2769,6 +2772,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 			return
 		}
 	}
+	ran.Log.Info("ranUe: ", ranUe)
+	ran.Log.Info("amfUe: ", amfUe)
+	ran.Log.Info("ran: ", ran)
 	ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextN2NormalRelease, causeGroup, causeValue)
 }
 
