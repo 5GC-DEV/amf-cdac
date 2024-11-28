@@ -1190,36 +1190,39 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			cause = *tmp
 		}
 	}
-	if amfUe.State[ran.AnType].Is(context.Registered) {
-		ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
-		if pDUSessionResourceList != nil {
-			for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-				pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-				smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-				if !ok {
-					ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-					// added continue cdac
-					continue
+	if amfUe.State[ran.AnType] != nil {
+		ranUe.Log.Info("---amfue state: ", amfUe.State[ran.AnType])
+		if amfUe.State[ran.AnType].Is(context.Registered) {
+			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
+			if pDUSessionResourceList != nil {
+				for _, pduSessionReourceItem := range pDUSessionResourceList.List {
+					pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
+					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
+					if !ok {
+						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+						// added continue cdac
+						continue
+					}
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
 				}
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
+			} else {
+				ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+				amfUe.SmContextList.Range(func(key, value interface{}) bool {
+					smContext := value.(*context.SmContext)
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
+					return true
+				})
 			}
-		} else {
-			ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
-			amfUe.SmContextList.Range(func(key, value interface{}) bool {
-				smContext := value.(*context.SmContext)
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
-				return true
-			})
 		}
 	}
 
@@ -1278,6 +1281,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	default:
 		ran.Log.Errorf("Invalid Release Action[%d]", ranUe.ReleaseAction)
 	}
+	ran.Log.Info(" ranUe:", ranUe)
+	ran.Log.Info(" amfUe:", amfUe)
+	ran.Log.Info(" ran:", ran)
 }
 
 func HandlePDUSessionResourceReleaseResponse(ran *context.AmfRan, message *ngapType.NGAPPDU) {
@@ -2773,6 +2779,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		}
 	}
 	ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextN2NormalRelease, causeGroup, causeValue)
+	ran.Log.Info(" ranUe:", ranUe)
+	ran.Log.Info(" amfUe:", amfUe)
+	ran.Log.Info(" ran:", ran)
 }
 
 func HandleUEContextModificationResponse(ran *context.AmfRan, message *ngapType.NGAPPDU) {
