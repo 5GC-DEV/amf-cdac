@@ -3224,11 +3224,16 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	ran.Log.Debugf("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
 	amfUe := ranUe.AmfUe
+
 	if amfUe == nil {
 		ranUe.Log.Errorln("AmfUe is nil")
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	// state print amfue
+	amfueState := amfUe.State[ran.AnType]
+	ranUe.Log.Info("amfue state: ", amfueState)
 
 	if amfUe.SecurityContextIsValid() {
 		// Update NH
@@ -3330,6 +3335,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
+		// state print amfue
+		amfueStatea := amfUe.State[ran.AnType]
+		ranUe.Log.Info("amfue state: ", amfueStatea)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
