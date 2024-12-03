@@ -414,8 +414,17 @@ func (context *AMFContext) AmfRanFindByGnbId(gnbId string) (*AmfRan, bool) {
 func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (*AmfRan, bool) {
 	var ran *AmfRan
 	var ok bool
+
+	logger.ContextLog.Infof("Target RAN Node ID - GNbId: %v, MCC: %v, MNC: %v", ranNodeID.GNbId.GNBValue, ranNodeID.PlmnId.Mcc, ranNodeID.PlmnId.Mnc)
+
 	context.AmfRanPool.Range(func(key, value interface{}) bool {
 		amfRan := value.(*AmfRan)
+
+		if amfRan != nil {
+			logger.ContextLog.Infof("AMF gNB Id: %v & AMF name: %v", amfRan.GnbId, amfRan.Name)
+			logger.ContextLog.Infof("AmfRan in pool - GNbId: %v, MCC: %v, MNC: %v", amfRan.RanId.GNbId.GNBValue, amfRan.RanId.PlmnId.Mcc, amfRan.RanId.PlmnId.Mnc)
+		}
+
 		switch amfRan.RanPresent {
 		case RanPresentGNbId:
 			if amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue {
