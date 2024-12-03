@@ -3135,8 +3135,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	var ranUe *context.RanUe
 
-	amfueStatee := ranUe.AmfUe.State[ran.AnType]
-	ranUe.Log.Info("---amfue state1: ", amfueStatee)
+	// amfueStatee := ranUe.AmfUe.State[ran.AnType]
+	// ranUe.Log.Info("---amfue state1: ", amfueStatee)
 
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
