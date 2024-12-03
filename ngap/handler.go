@@ -3135,6 +3135,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	var ranUe *context.RanUe
 
+	amfueStatee := ranUe.AmfUe.State[ran.AnType]
+	ranUe.Log.Info("---amfue state1: ", amfueStatee)
+
 	if ran == nil {
 		logger.NgapLog.Error("ran is nil")
 		return
@@ -3201,7 +3204,13 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
+	amfueStatec := ranUe.AmfUe.State[ran.AnType]
+	ranUe.Log.Info("---amfue state2: ", amfueStatec)
+
 	ranUe.Ran = ran
+
+	amfueStated := ranUe.AmfUe.State[ran.AnType]
+	ranUe.Log.Info("---amfue state3: ", amfueStated)
 
 	ran.Log.Tracef("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 	ran.Log.Infof("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
@@ -3215,7 +3224,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	// state print amfue
 	amfueState := amfUe.State[ran.AnType]
-	ranUe.Log.Info("---amfue state: ", amfueState)
+	ranUe.Log.Info("---amfue state4: ", amfueState)
 
 	if amfUe.SecurityContextIsValid() {
 		// Update NH
@@ -3225,6 +3234,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	// state print amfue
+	amfueStatea := amfUe.State[ran.AnType]
+	ranUe.Log.Info("---amfue state after checking sec context valid: ", amfueStatea)
 
 	if uESecurityCapabilities != nil {
 		amfUe.UESecurityCapability.SetEA1_128_5G((uESecurityCapabilities.NRencryptionAlgorithms.Value.Bytes[0] & 0x80) >> 7)
@@ -3318,8 +3331,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
 		// state print amfue
-		amfueStatea := amfUe.State[ran.AnType]
-		ranUe.Log.Info("amfue state: ", amfueStatea)
+		amfueStateb := amfUe.State[ran.AnType]
+		ranUe.Log.Info("---amfue state5: ", amfueStateb)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
