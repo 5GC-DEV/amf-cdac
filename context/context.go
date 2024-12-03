@@ -389,23 +389,28 @@ func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (
 			if amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue {
 				ran = amfRan
 				ok = true
+				logger.ContextLog.Infof("amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue")
 				return false
 			}
 		case RanPresentNgeNbId:
 			if amfRan.RanId.NgeNbId == ranNodeID.NgeNbId {
 				ran = amfRan
 				ok = true
+				logger.ContextLog.Infof("amfRan.RanId.NgeNbId == ranNodeID.NgeNbId")
 				return false
 			}
 		case RanPresentN3IwfId:
 			if amfRan.RanId.N3IwfId == ranNodeID.N3IwfId {
 				ran = amfRan
 				ok = true
+				logger.ContextLog.Infof("amfRan.RanId.N3IwfId == ranNodeID.N3IwfId")
 				return false
 			}
 		}
+		logger.ContextLog.Infof("End of switch amfRan.RanPresent {}")
 		return true
 	})
+	logger.ContextLog.Infof("End of AmfRanFindByRanID()")
 	return ran, ok
 }
 

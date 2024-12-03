@@ -3721,12 +3721,20 @@ func HandleHandoverRequired(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendHandoverPreparationFailure(sourceUe, *cause, nil)
 		return
 	}
+
+	sourceUe.Log.Warnf("Handover required : Global RAN Node Id[%+v]", targetID.TargetRANNodeID.GlobalRANNodeID.GlobalGNBID.GNBID.GNBID)
 	aMFSelf := context.AMF_Self()
 	targetRanNodeId := ngapConvert.RanIdToModels(targetID.TargetRANNodeID.GlobalRANNodeID)
 	targetRan, ok := aMFSelf.AmfRanFindByRanID(targetRanNodeId)
 	if !ok {
 		// handover between different AMF
 		sourceUe.Log.Warnf("Handover required : cannot find target Ran Node Id[%+v] in this AMF", targetRanNodeId)
+		sourceUe.Log.Infof("Handover required : Gnb Id: %v & MCC: %v & MNC: %v", targetRanNodeId.GNbId.GNBValue, targetRanNodeId.PlmnId.Mcc, targetRanNodeId.PlmnId.Mnc)
+
+		if targetRan != nil {
+			sourceUe.Log.Infof("Handover required : Target RAN Gnb Id: %v & Target RAN GNB Id: %v", targetRan.GnbId, targetRan.RanId.GNbId.GNBValue)
+			sourceUe.Log.Infof("Handover required : Target RAN MCC: %v & Target RAN MNC: %v", targetRan.RanId.PlmnId.Mcc, targetRan.RanId.PlmnId.Mnc)
+		}
 		sourceUe.Log.Error("Handover between different AMF has not been implemented yet")
 		return
 		// TODO: Send to T-AMF
