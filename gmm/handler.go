@@ -2274,6 +2274,8 @@ func HandleRegistrationComplete(ue *context.AmfUe, accessType models.AccessType,
 	registrationComplete *nasMessage.RegistrationComplete,
 ) error {
 	ue.GmmLog.Info("Handle Registration Complete")
+	amfueState := ue.State[accessType]
+	ue.GmmLog.Info("---amfue state: ", amfueState)
 
 	if ue.T3550 != nil {
 		ue.T3550.Stop()
@@ -2295,6 +2297,9 @@ func HandleRegistrationComplete(ue *context.AmfUe, accessType models.AccessType,
 		ngap_message.SendUEContextReleaseCommand(ue.RanUe[accessType], context.UeContextN2NormalRelease,
 			ngapType.CausePresentNas, ngapType.CauseNasPresentNormalRelease)
 	}
+
+	amfueStatea := ue.State[accessType]
+	ue.GmmLog.Info("---amfue state: ", amfueStatea)
 
 	return GmmFSM.SendEvent(ue.State[accessType], ContextSetupSuccessEvent, fsm.ArgsType{
 		ArgAmfUe:      ue,
