@@ -3197,9 +3197,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	// commented by cdac
-	// ranUe.Ran = ran
-	//
+	ranUe.Ran = ran
 
 	ran.Log.Tracef("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 	ran.Log.Infof("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
@@ -3210,6 +3208,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	// state print amfue
+	amfueState := amfUe.State[ran.AnType]
+	ranUe.Log.Info("---amfue state: ", amfueState)
 
 	if amfUe.SecurityContextIsValid() {
 		// Update NH
@@ -3230,11 +3232,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	// commented by cdac
-	// if rANUENGAPID != nil {
-	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
-	// }
-	//
+	if rANUENGAPID != nil {
+		ranUe.RanUeNgapId = rANUENGAPID.Value
+	}
 
 	ranUe.UpdateLocation(userLocationInformation)
 
@@ -3313,6 +3313,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
+		// state print amfue
+		amfueStatea := amfUe.State[ran.AnType]
+		ranUe.Log.Info("amfue state: ", amfueStatea)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
