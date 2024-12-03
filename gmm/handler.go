@@ -93,6 +93,9 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 	ue.GmmLog.Info("Transport 5GSM Message to SMF")
 
+	amfuestate := ue.State[anType]
+	ue.GmmLog.Info("---amfue state: ", amfuestate)
+
 	smMessage := ulNasTransport.PayloadContainer.GetPayloadContainerContents()
 
 	if id := ulNasTransport.PduSessionID2Value; id != nil {
