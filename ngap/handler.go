@@ -3215,8 +3215,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	amfuestatee := ranUe.AmfUe.State[ran.AnType]
-	ran.Log.Info("---amfue state before assigning value to ranUe: ", amfuestatee)
+	// amfuestatee := ranUe.AmfUe.State[ran.AnType]
+	// ran.Log.Info("---amfue state before assigning value to ranUe: ", amfuestatee)
 
 	ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(sourceAMFUENGAPID.Value)
 
