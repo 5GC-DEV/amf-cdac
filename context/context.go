@@ -389,6 +389,7 @@ func (context *AMFContext) NewAmfRanAddr(remoteAddr string) *AmfRan {
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.GnbIp = remoteAddr
+	ran.RanPresent = 1
 	ran.Log = logger.NgapLog.With(logger.FieldRanAddr, remoteAddr)
 	context.AmfRanPool.Store(remoteAddr, &ran)
 	return &ran
@@ -398,6 +399,7 @@ func (context *AMFContext) NewAmfRanId(GnbId string) *AmfRan {
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.GnbId = GnbId
+	ran.RanPresent = 1
 	ran.Log = logger.NgapLog.With(logger.FieldRanId, GnbId)
 	context.AmfRanPool.Store(GnbId, &ran)
 	return &ran
@@ -419,6 +421,12 @@ func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (
 
 	context.AmfRanPool.Range(func(key, value interface{}) bool {
 		amfRan := value.(*AmfRan)
+
+		if amfRan == nil {
+			logger.ContextLog.Warnf("Found nil AmfRan in pool at key: %v", key)
+		} else {
+			logger.ContextLog.Infof("AmfRan details - Key: %v, RanId: %+v, RanPresent: %v", key, amfRan.RanId, amfRan.RanPresent)
+		}
 
 		if amfRan != nil {
 			logger.ContextLog.Infof("AMF gNB Id: %v & AMF name: %v", amfRan.GnbId, amfRan.Name)
