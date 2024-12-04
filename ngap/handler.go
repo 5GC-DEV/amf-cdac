@@ -3260,6 +3260,12 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
+	amfueplmnid := amfUe.PlmnId.Mcc
+	ran.Log.Info("---amfue plmnid: ", amfueplmnid)
+
+	amfuedlcount := amfUe.DLCount
+	ran.Log.Info("---amfue dlcount: ", amfuedlcount)
+
 	amfuestate := amfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
 	fmt.Printf("---amfue state pointer: %p", amfuestate)
