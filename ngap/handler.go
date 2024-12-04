@@ -3220,14 +3220,18 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(sourceAMFUENGAPID.Value)
 
-	amfuestated := ranUe.AmfUe.State[ran.AnType]
-	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
+	// amfuestated := ranUe.AmfUe.State[ran.AnType]
+	// ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
 
 	if ranUe == nil {
 		ran.Log.Errorf("Cannot find UE from sourceAMfUeNgapID[%d]", sourceAMFUENGAPID.Value)
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	amfuestated := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
+
 	amfuestatec := ranUe.AmfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
 
