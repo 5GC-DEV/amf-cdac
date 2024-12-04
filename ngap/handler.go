@@ -3232,8 +3232,13 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	amfuestated := ranUe.AmfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
 
-	amfuestatec := ranUe.AmfUe.State[ran.AnType]
-	ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
+	// gnbid check
+	if ranUe.Ran.GnbId == ran.GnbId {
+		amfuestatec := ranUe.AmfUe.State[ran.AnType]
+		ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
+	} else {
+		ran.Log.Info("gnbid not equal")
+	}
 
 	ranUe.Ran = ran
 
@@ -3244,8 +3249,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	amfuestatea := ranUe.AmfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state before initializing amfUe: ", amfuestatea)
-	ran.Log.Info("---amfue state pointer: %p", amfuestatea)
-	ran.Log.Info("---amfue state pointter: %p", &amfuestatea)
+	fmt.Printf("---amfue state pointer: %p", amfuestatea)
+	fmt.Printf("---amfue state pointter: %p", &amfuestatea)
 
 	amfUe := ranUe.AmfUe
 
@@ -3255,13 +3260,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	// check gnbid
-	if ranUe.Ran.GnbId == ran.GnbId {
-		amfuestate := amfUe.State[ran.AnType]
-		ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
-		ran.Log.Info("---amfue state pointer: %p", amfuestate)
-		ran.Log.Info("---amfue state pointter: %p", &amfuestate)
-	}
+	amfuestate := amfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
+	fmt.Printf("---amfue state pointer: %p", amfuestate)
+	fmt.Printf("---amfue state pointter: %p", &amfuestate)
 
 	if amfUe.SecurityContextIsValid() {
 		// Update NH
