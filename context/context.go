@@ -544,8 +544,10 @@ func (context *AMFContext) RanUeFindByAmfUeNgapIDLocal(amfUeNgapID int64) *RanUe
 func (context *AMFContext) RanUeFindByAmfUeNgapID(amfUeNgapID int64) *RanUe {
 	ranUe := context.RanUeFindByAmfUeNgapIDLocal(amfUeNgapID)
 	if ranUe != nil {
+		logger.ContextLog.Info("---fetched from localpool")
 		return ranUe
 	} else {
+		logger.ContextLog.Info("---fetching from db")
 		if context.EnableDbStore {
 			ranUe = DbFetchRanUeByAmfUeNgapID(amfUeNgapID)
 			if ranUe != nil {

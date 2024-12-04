@@ -2722,6 +2722,15 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	amfUe := ranUe.AmfUe
+
+	fmt.Printf("---amfue address: %p", &amfUe)
+
+	amfueplmnid := amfUe.PlmnId.Mcc
+	ran.Log.Info("---amfue plmnid: ", amfueplmnid)
+
+	amfuedlcount := amfUe.DLCount
+	ran.Log.Info("---amfue dlcount: ", amfuedlcount)
+
 	if amfUe != nil {
 		causeAll := context.CauseAll{
 			NgapCause: &models.NgApCause{
@@ -3259,6 +3268,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+
+	fmt.Printf("---amfue address: %p", &amfUe)
 
 	amfueplmnid := amfUe.PlmnId.Mcc
 	ran.Log.Info("---amfue plmnid: ", amfueplmnid)
