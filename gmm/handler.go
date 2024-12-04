@@ -93,6 +93,9 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 	ue.GmmLog.Info("Transport 5GSM Message to SMF")
 
+	amfuestate := ue.State[anType]
+	ue.GmmLog.Info("---amfue state while handling session establishment: ", amfuestate)
+
 	smMessage := ulNasTransport.PayloadContainer.GetPayloadContainerContents()
 
 	if id := ulNasTransport.PduSessionID2Value; id != nil {
@@ -2274,6 +2277,9 @@ func HandleRegistrationComplete(ue *context.AmfUe, accessType models.AccessType,
 	registrationComplete *nasMessage.RegistrationComplete,
 ) error {
 	ue.GmmLog.Info("Handle Registration Complete")
+
+	amfuestate := ue.State[accessType]
+	ue.GmmLog.Info("---amfuestate while handling registration complete: ", amfuestate)
 
 	if ue.T3550 != nil {
 		ue.T3550.Stop()

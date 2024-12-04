@@ -1190,36 +1190,38 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			cause = *tmp
 		}
 	}
-	if amfUe.State[ran.AnType].Is(context.Registered) {
-		ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
-		if pDUSessionResourceList != nil {
-			for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-				pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-				smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-				if !ok {
-					ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-					// added continue cdac
-					continue
+	if amfUe.State[ran.AnType] != nil {
+		if amfUe.State[ran.AnType].Is(context.Registered) {
+			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
+			if pDUSessionResourceList != nil {
+				for _, pduSessionReourceItem := range pDUSessionResourceList.List {
+					pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
+					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
+					if !ok {
+						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+						// added continue cdac
+						continue
+					}
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
 				}
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
+			} else {
+				ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+				amfUe.SmContextList.Range(func(key, value interface{}) bool {
+					smContext := value.(*context.SmContext)
+					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+					if err != nil {
+						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+					} else if response == nil {
+						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+					}
+					return true
+				})
 			}
-		} else {
-			ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
-			amfUe.SmContextList.Range(func(key, value interface{}) bool {
-				smContext := value.(*context.SmContext)
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
-				return true
-			})
 		}
 	}
 
@@ -2687,6 +2689,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
+
+	// checking gnbid - by cdac
+	// if ranUe.Ran.GnbId == ran.GnbId {
 	if ranUe == nil {
 		ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	}
@@ -2701,6 +2706,11 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
 		return
 	}
+	// }
+	// else {
+	// 	ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
+	// 	return
+	// }
 
 	ranUe.Ran = ran
 	ran.Log.Debugf("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
@@ -3204,21 +3214,49 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Errorln("SourceAmfUeNgapID is nil")
 		return
 	}
+
+	amfuestatee := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state before assigning value to ranUe: ", amfuestatee)
+
 	ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(sourceAMFUENGAPID.Value)
+
+	amfuestated := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
+
 	if ranUe == nil {
 		ran.Log.Errorf("Cannot find UE from sourceAMfUeNgapID[%d]", sourceAMFUENGAPID.Value)
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+	amfuestatec := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
 
 	ranUe.Ran = ran
+
+	amfuestateb := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state after updating ranUe.Ran: ", amfuestateb)
+
 	ran.Log.Debugf("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
+	amfuestatea := ranUe.AmfUe.State[ran.AnType]
+	ran.Log.Info("---amfue state before initializing amfUe: ", amfuestatea)
+	ran.Log.Info("---amfue state pointer: %p", amfuestatea)
+	ran.Log.Info("---amfue state pointter: %p", &amfuestatea)
+
 	amfUe := ranUe.AmfUe
+
 	if amfUe == nil {
 		ranUe.Log.Errorln("AmfUe is nil")
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
+	}
+
+	// check gnbid
+	if ranUe.Ran.GnbId == ran.GnbId {
+		amfuestate := amfUe.State[ran.AnType]
+		ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
+		ran.Log.Info("---amfue state pointer: %p", amfuestate)
+		ran.Log.Info("---amfue state pointter: %p", &amfuestate)
 	}
 
 	if amfUe.SecurityContextIsValid() {
@@ -3321,6 +3359,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
+		amfuestatef := amfUe.State[ran.AnType]
+		ran.Log.Info("---amfue state after path switch ack: ", amfuestatef)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
