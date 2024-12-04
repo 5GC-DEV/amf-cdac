@@ -422,8 +422,24 @@ func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (
 
 		if amfRan != nil {
 			logger.ContextLog.Infof("AMF gNB Id: %v & AMF name: %v", amfRan.GnbId, amfRan.Name)
-			logger.ContextLog.Infof("AmfRan in pool - GNbId: %v, MCC: %v, MNC: %v", amfRan.RanId.GNbId.GNBValue, amfRan.RanId.PlmnId.Mcc, amfRan.RanId.PlmnId.Mnc)
+			if amfRan.RanId != nil {
+				if amfRan.RanId.GNbId != nil {
+					logger.ContextLog.Infof("AmfRan in pool - GNbId: %v", amfRan.RanId.GNbId.GNBValue)
+				} else {
+					logger.ContextLog.Warnf("AmfRan in pool - GNbId is nil")
+				}
+
+				if amfRan.RanId.PlmnId != nil {
+					logger.ContextLog.Infof("AmfRan in pool - MCC: %v, MNC: %v", amfRan.RanId.PlmnId.Mcc, amfRan.RanId.PlmnId.Mnc)
+				} else {
+					logger.ContextLog.Warnf("AmfRan in pool - PlmnId is nil")
+				}
+			} else {
+				logger.ContextLog.Warnf("AmfRan in pool - RanId is nil")
+			}
 		}
+
+		logger.ContextLog.Infof("AMF gNB RanPresent: %v", amfRan.RanPresent)
 
 		switch amfRan.RanPresent {
 		case RanPresentGNbId:

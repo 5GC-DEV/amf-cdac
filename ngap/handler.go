@@ -3736,7 +3736,7 @@ func HandleHandoverRequired(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	sourceUe.Log.Infof("Handover required : Global RAN Node Id[%+v]", targetID.TargetRANNodeID.GlobalRANNodeID.GlobalGNBID.GNBID.GNBID)
+	sourceUe.Log.Infof("Handover required : Global RAN Node Id[%+v]", targetID.TargetRANNodeID.GlobalRANNodeID.GlobalGNBID.GNBID.GNBID.Bytes)
 	aMFSelf := context.AMF_Self()
 	targetRanNodeId := ngapConvert.RanIdToModels(targetID.TargetRANNodeID.GlobalRANNodeID)
 	targetRan, ok := aMFSelf.AmfRanFindByRanID(targetRanNodeId)
