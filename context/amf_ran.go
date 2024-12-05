@@ -148,11 +148,11 @@ func (ran *AmfRan) RanUeFindByRanUeNgapID(ranUeNgapID int64) *RanUe {
 }
 
 func (ran *AmfRan) SetRanId(ranNodeId *ngapType.GlobalRANNodeID) {
-	ran.Log.Infof("Setting Ran Id - Ran Present: %v", ranNodeId.Present)
+	ran.Log.Infof("SetRanId - Ran Present: %v", ranNodeId.Present)
 
 	ranId := ngapConvert.RanIdToModels(*ranNodeId)
 
-	ran.Log.Infof("Setting Ran Id - Ran Id: %v", ranId.GNbId)
+	ran.Log.Infof("SetRanId - Ran Id: %v", ranId.GNbId.GNBValue)
 
 	ran.RanPresent = ranNodeId.Present
 	ran.RanId = &ranId
@@ -169,6 +169,10 @@ func (ran *AmfRan) SetRanId(ranNodeId *ngapType.GlobalRANNodeID) {
 	if ranId.GNbId != nil {
 		ran.GnbId += ranId.GNbId.GNBValue
 	}
+
+	ran.Log.Infof("SetRanId - MCC: %v & MNC: %v", ranId.PlmnId.Mcc, ranId.PlmnId.Mnc)
+	ran.Log.Infof("SetRanId - gNB Id: %v", ranId.GNbId.GNBValue)
+	ran.Log.Infof("SetRanId - RAN Type: %v", ran.AnType)
 }
 
 func (ran *AmfRan) ConvertGnbIdToRanId(gnbId string) (ranNodeId *models.GlobalRanNodeId) {

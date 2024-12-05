@@ -607,8 +607,8 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	}
 
-	ran.Log.Info("NG Setup Request: RAN Preset: %v", ie.Value.Present)
-	// ran.RanPresent = ie.Value.Present
+	ran.Log.Info("NG Setup Request: RAN Preset: ", ie.Value.Present)
+	ran.RanPresent = ie.Value.Present
 
 	if globalRANNodeID != nil {
 		ran.SetRanId(globalRANNodeID)
