@@ -43,7 +43,7 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 		ran.Amf2RanMsgChan = Amf2RanMsgChan
 		ran.Log = logger.NgapLog.With(logger.FieldRanAddr, sctplbMsg.GnbIpAddr)
 		ran.GnbIp = sctplbMsg.GnbIpAddr
-		// ran = amfSelf.NewAmfRanAddr(sctplbMsg.GnbIpAddr)
+		ran = amfSelf.NewAmfRanAddr(sctplbMsg.GnbIpAddr)
 		logger.NgapLog.Infoln("dispatchLb, Create new Amf RAN with GnbIpAddress", sctplbMsg.GnbIpAddr)
 	}
 

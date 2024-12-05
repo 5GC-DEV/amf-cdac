@@ -389,9 +389,9 @@ func (context *AMFContext) NewAmfRanAddr(remoteAddr string) *AmfRan {
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.GnbIp = remoteAddr
-	ran.RanPresent = 1
 	ran.Log = logger.NgapLog.With(logger.FieldRanAddr, remoteAddr)
 	context.AmfRanPool.Store(remoteAddr, &ran)
+	logger.ContextLog.Infoln("New Amf Ran added with address: %v", remoteAddr)
 	return &ran
 }
 
@@ -399,9 +399,9 @@ func (context *AMFContext) NewAmfRanId(GnbId string) *AmfRan {
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.GnbId = GnbId
-	ran.RanPresent = 1
 	ran.Log = logger.NgapLog.With(logger.FieldRanId, GnbId)
 	context.AmfRanPool.Store(GnbId, &ran)
+	logger.ContextLog.Infoln("New Amf Ran added with GnbId: %v", GnbId)
 	return &ran
 }
 

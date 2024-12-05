@@ -606,6 +606,10 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
+
+	ran.Log.Info("NG Setup Request: RAN Preset: %v", ie.Value.Present)
+	// ran.RanPresent = ie.Value.Present
+
 	if globalRANNodeID != nil {
 		ran.SetRanId(globalRANNodeID)
 	}
@@ -3740,6 +3744,7 @@ func HandleHandoverRequired(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	aMFSelf := context.AMF_Self()
 	targetRanNodeId := ngapConvert.RanIdToModels(targetID.TargetRANNodeID.GlobalRANNodeID)
 	targetRan, ok := aMFSelf.AmfRanFindByRanID(targetRanNodeId)
+
 	if !ok {
 		// handover between different AMF
 		sourceUe.Log.Warnf("Handover required : cannot find target Ran Node Id[%+v] in this AMF", targetRanNodeId)
