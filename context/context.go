@@ -533,7 +533,23 @@ func (context *AMFContext) AmfUeFindByPolicyAssociationID(polAssoId string) (ue 
 	return
 }
 
+// printing all ranue from ranuepool
+func (context *AMFContext) PrintAllRanUe() {
+	context.RanUePool.Range(func(key, value interface{}) bool {
+		amfUeNgapID := key.(int64) // Type assert the key to int64
+		ranUe := value.(*RanUe)    // Type assert the value to *RanUe
+
+		// Print the details
+		fmt.Printf("---AMF Ue NGAP ID: %d, RanUe: %+v\n", amfUeNgapID, ranUe)
+		return true // Continue iterating
+	})
+}
+
+//
+
 func (context *AMFContext) RanUeFindByAmfUeNgapIDLocal(amfUeNgapID int64) *RanUe {
+	logger.ContextLog.Info("---amfuengapid: ", amfUeNgapID)
+	context.PrintAllRanUe()
 	if value, ok := context.RanUePool.Load(amfUeNgapID); ok {
 		return value.(*RanUe)
 	} else {
