@@ -458,6 +458,8 @@ func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (
 					logger.ContextLog.Infof("amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue")
 					return false
 				}
+			} else {
+				logger.ContextLog.Warnf("AmfRanFindByRanID - amfRan.RanId is nil")
 			}
 		case RanPresentNgeNbId:
 			if amfRan.RanId.NgeNbId == ranNodeID.NgeNbId {
@@ -474,6 +476,17 @@ func (context *AMFContext) AmfRanFindByRanID(ranNodeID models.GlobalRanNodeId) (
 				return false
 			}
 		}
+
+		logger.ContextLog.Infof("End of switch amfRan.RanPresent {} - No match in switch")
+		if amfRan.RanId != nil && amfRan.RanId.GNbId != nil {
+			if amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue {
+				ran = amfRan
+				ok = true
+				logger.ContextLog.Infof("Fallback match: amfRan.RanId.GNbId.GNBValue == ranNodeID.GNbId.GNBValue")
+				return false
+			}
+		}
+
 		logger.ContextLog.Infof("End of switch amfRan.RanPresent {}")
 		return true
 	})
