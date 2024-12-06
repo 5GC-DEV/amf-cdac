@@ -533,7 +533,7 @@ func (context *AMFContext) AmfUeFindByPolicyAssociationID(polAssoId string) (ue 
 	return
 }
 
-// printing all ranue from ranuepool
+// printing all ranue from ranuepool- by cdac
 func (context *AMFContext) PrintAllRanUe() {
 	context.RanUePool.Range(func(key, value interface{}) bool {
 		amfUeNgapID := key.(int64) // Type assert the key to int64
@@ -549,7 +549,7 @@ func (context *AMFContext) PrintAllRanUe() {
 
 func (context *AMFContext) RanUeFindByAmfUeNgapIDLocal(amfUeNgapID int64) *RanUe {
 	logger.ContextLog.Info("---amfuengapid: ", amfUeNgapID)
-	context.PrintAllRanUe()
+	context.PrintAllRanUe() // function call by cdac
 	if value, ok := context.RanUePool.Load(amfUeNgapID); ok {
 		return value.(*RanUe)
 	} else {
