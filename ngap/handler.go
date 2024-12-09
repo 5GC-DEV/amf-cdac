@@ -1103,6 +1103,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	}
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
+	ran.Log.Info("---amfue state after initializing ranue: ", ranUe.AmfUe.State[ran.AnType])
 	if ranUe == nil {
 		ran.Log.Errorf("No RanUe Context[AmfUeNgapID: %d]", aMFUENGAPID.Value)
 		cause := ngapType.Cause{
@@ -1123,7 +1124,11 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	}
 
 	ranUe.Ran = ran
+	ran.Log.Info("---amfue state after updating ranUe.Ran: ", ranUe.AmfUe.State[ran.AnType])
+
 	amfUe := ranUe.AmfUe
+	ran.Log.Info("---amfue state after initializing amfue: ", amfUe.State[ran.AnType])
+
 	if amfUe == nil {
 		ran.Log.Infof("Release UE Context : RanUe[AmfUeNgapId: %d]", ranUe.AmfUeNgapId)
 		err := ranUe.Remove()
@@ -1191,6 +1196,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 	}
 	if amfUe.State[ran.AnType] != nil {
+		ran.Log.Info("---amfue state : ", amfUe.State[ran.AnType])
 		if amfUe.State[ran.AnType].Is(context.Registered) {
 			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
 			if pDUSessionResourceList != nil {
@@ -2690,8 +2696,15 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 
+	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+
 	// checking gnbid - by cdac
-	// if ranUe.Ran.GnbId == ran.GnbId {
+	if ranUe.Ran.GnbId == ran.GnbId {
+		ran.Log.Info("gnbid equal")
+	} else {
+		ran.Log.Info("gnbid not equal")
+	}
+
 	if ranUe == nil {
 		ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	}
@@ -2713,6 +2726,8 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	// }
 
 	ranUe.Ran = ran
+	ran.Log.Info("---amfue state after updating ranUe.Ran: ", ranUe.AmfUe.State[ran.AnType])
+
 	ran.Log.Debugf("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
 
 	causeGroup := ngapType.CausePresentRadioNetwork
@@ -2722,6 +2737,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	amfUe := ranUe.AmfUe
+	ran.Log.Info("---amfue state after initializing amfUe: ", amfUe.State[ran.AnType])
 
 	fmt.Printf("---amfue address: %p", &amfUe)
 
@@ -2791,7 +2807,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 			}
 		}
 	}
+	ran.Log.Info("---amfue state before sending release command: ", amfUe.State[ran.AnType])
 	ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextN2NormalRelease, causeGroup, causeValue)
+	ran.Log.Info("---amfue state before after release command: ", amfUe.State[ran.AnType])
 }
 
 func HandleUEContextModificationResponse(ran *context.AmfRan, message *ngapType.NGAPPDU) {
