@@ -2700,13 +2700,6 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 
-	// checking gnbid - by cdac
-	if ranUe.Ran.GnbId == ran.GnbId {
-		ran.Log.Info("gnbid equal")
-	} else {
-		ran.Log.Info("gnbid not equal")
-	}
-
 	if ranUe == nil {
 		ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	}
@@ -2722,6 +2715,14 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		return
 	}
 	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+
+	// checking gnbid - by cdac
+
+	if ranUe.Ran.GnbId == ran.GnbId {
+		ran.Log.Info("gnbid equal")
+	} else {
+		ran.Log.Info("gnbid not equal")
+	}
 
 	// }
 	// else {
