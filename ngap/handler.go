@@ -1103,7 +1103,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	}
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
-	ran.Log.Info("---amfue state after initializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+
 	if ranUe == nil {
 		ran.Log.Errorf("No RanUe Context[AmfUeNgapID: %d]", aMFUENGAPID.Value)
 		cause := ngapType.Cause{
@@ -1116,6 +1116,8 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		return
 	}
 
+	ran.Log.Info("---amfue state after initializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+
 	if userLocationInformation != nil {
 		ranUe.UpdateLocation(userLocationInformation)
 	}
@@ -1127,7 +1129,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	ran.Log.Info("---amfue state after updating ranUe.Ran: ", ranUe.AmfUe.State[ran.AnType])
 
 	amfUe := ranUe.AmfUe
-	ran.Log.Info("---amfue state after initializing amfue: ", amfUe.State[ran.AnType])
 
 	if amfUe == nil {
 		ran.Log.Infof("Release UE Context : RanUe[AmfUeNgapId: %d]", ranUe.AmfUeNgapId)
@@ -1137,6 +1138,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 		return
 	}
+
+	ran.Log.Info("---amfue state after initializing amfue: ", amfUe.State[ran.AnType])
+
 	// TODO: AMF shall, if supported, store it and may use it for subsequent paging
 	if infoOnRecommendedCellsAndRANNodesForPaging != nil {
 		amfUe.InfoOnRecommendedCellsAndRanNodesForPaging = new(context.InfoOnRecommendedCellsAndRanNodesForPaging)
@@ -2696,8 +2700,6 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 
-	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
-
 	// checking gnbid - by cdac
 	if ranUe.Ran.GnbId == ran.GnbId {
 		ran.Log.Info("gnbid equal")
@@ -2719,6 +2721,8 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
 		return
 	}
+	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+
 	// }
 	// else {
 	// 	ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
