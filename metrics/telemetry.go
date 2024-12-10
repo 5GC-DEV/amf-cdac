@@ -12,6 +12,7 @@
 package metrics
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/omec-project/amf/logger"
@@ -23,6 +24,7 @@ import (
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
+	ueReg             *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -38,6 +40,11 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
 		}, []string{"id", "ip", "state", "tac"}),
+
+		ueReg: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_ue_registrations_total",
+			Help: "Counter of total UE Registrations",
+		}, []string{"amf_id", "reg_type", "result"}),
 	}
 }
 
@@ -46,9 +53,20 @@ func (ps *AmfStats) register() error {
 
 	if err := prometheus.Register(ps.ngapMsg); err != nil {
 		return err
+	} else {
+		fmt.Print("---ngap_messages_total metric registered successfully")
 	}
+
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
 		return err
+	} else {
+		fmt.Print("---gnb_session_profile metric registered successfully")
+	}
+
+	if err := prometheus.Register(ps.ueReg); err != nil {
+		return err
+	} else {
+		fmt.Print("---amf_ue_registrations_total metric registered successfully")
 	}
 	return nil
 }
@@ -77,4 +95,9 @@ func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
 // SetGnbSessProfileStats maintains Session profile info
 func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
+}
+
+// IncrementUeRegStats increments registration level stats
+func IncrementUeRegStats(amfID, regType, result string) {
+	amfStats.ueReg.WithLabelValues(amfID, regType, result).Inc()
 }
