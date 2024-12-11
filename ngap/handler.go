@@ -3302,8 +3302,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	amfuestate := amfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
-	fmt.Printf("---amfue state pointer: %p", amfuestate)
-	fmt.Printf("---amfue state pointter: %p", &amfuestate)
+	// fmt.Printf("---amfue state pointer: %p", amfuestate)
+	fmt.Printf("---amfue state pointer: %p", &amfuestate)
 
 	if amfUe.SecurityContextIsValid() {
 		// Update NH

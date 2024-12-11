@@ -126,24 +126,24 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 	if ranUe == nil {
 		return fmt.Errorf("ranUe is nil")
 	}
-	logger.ContextLog.Info("---ranUe globalrannodeid: ", ranUe.Ran.RanId.GNbId)
-	logger.ContextLog.Info("---ranUe gnbid: ", ranUe.Ran.GnbId)
-	logger.ContextLog.Info("---ranUe gnbip: ", ranUe.Ran.GnbIp)
+	// logger.ContextLog.Info("---ranUe globalrannodeid: ", ranUe.Ran.RanId.GNbId)
+	// logger.ContextLog.Info("---ranUe gnbid: ", ranUe.Ran.GnbId)
+	// logger.ContextLog.Info("---ranUe gnbip: ", ranUe.Ran.GnbIp)
 
 	if newRan == nil {
 		return fmt.Errorf("newRan is nil")
 	}
-	logger.ContextLog.Info("---newRan globalrannodeid: ", newRan.RanId.GNbId)
-	logger.ContextLog.Info("---newRan globalrannodeid gnbvalue: ", newRan.RanId.GNbId.GNBValue)
-	logger.ContextLog.Info("---newRan gnbid: ", newRan.GnbId)
-	logger.ContextLog.Info("---newRan gnbip: ", newRan.GnbIp)
+	// logger.ContextLog.Info("---newRan globalrannodeid: ", newRan.RanId.GNbId)
+	// logger.ContextLog.Info("---newRan globalrannodeid gnbvalue: ", newRan.RanId.GNbId.GNBValue)
+	// logger.ContextLog.Info("---newRan gnbid: ", newRan.GnbId)
+	// logger.ContextLog.Info("---newRan gnbip: ", newRan.GnbIp)
 
 	oldRan := ranUe.Ran
 
-	logger.ContextLog.Info("---oldRan globalrannodeid: ", oldRan.RanId.GNbId)
-	logger.ContextLog.Info("---oldRan globalrannodeid gnbvalue: ", oldRan.RanId.GNbId.GNBValue)
-	logger.ContextLog.Info("---oldRan gnbid: ", oldRan.GnbId)
-	logger.ContextLog.Info("---oldRan gnbip: ", oldRan.GnbIp)
+	// logger.ContextLog.Info("---oldRan globalrannodeid: ", oldRan.RanId.GNbId)
+	// logger.ContextLog.Info("---oldRan globalrannodeid gnbvalue: ", oldRan.RanId.GNbId.GNBValue)
+	// logger.ContextLog.Info("---oldRan gnbid: ", oldRan.GnbId)
+	// logger.ContextLog.Info("---oldRan gnbip: ", oldRan.GnbIp)
 
 	// remove ranUe from oldRan
 	for index, ranUe1 := range oldRan.RanUeList {
@@ -153,18 +153,18 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 		}
 	}
 
-	logger.ContextLog.Info("---ranUe globalrannodeid before adding to newRan: ", ranUe.Ran.RanId.GNbId)
-	logger.ContextLog.Info("---ranUe gnbid before adding to newRan: ", ranUe.Ran.GnbId)
-	logger.ContextLog.Info("---ranUe gnbip before adding to newRan: ", ranUe.Ran.GnbIp)
+	// logger.ContextLog.Info("---ranUe globalrannodeid before adding to newRan: ", ranUe.Ran.RanId.GNbId)
+	// logger.ContextLog.Info("---ranUe gnbid before adding to newRan: ", ranUe.Ran.GnbId)
+	// logger.ContextLog.Info("---ranUe gnbip before adding to newRan: ", ranUe.Ran.GnbIp)
 	// add ranUe to newRan
 	newRan.RanUeList = append(newRan.RanUeList, ranUe)
 
 	// switch to newRan
 	ranUe.Ran = newRan
 	ranUe.RanUeNgapId = ranUeNgapId
-	logger.ContextLog.Info("---ranUe globalrannodeid after switch to newran: ", ranUe.Ran.RanId.GNbId)
-	logger.ContextLog.Info("---ranUe gnbid after switch to newran: ", ranUe.Ran.GnbId)
-	logger.ContextLog.Info("---ranUe gnbip after switch to newran: ", ranUe.Ran.GnbIp)
+	// logger.ContextLog.Info("---ranUe globalrannodeid after switch to newran: ", ranUe.Ran.RanId.GNbId)
+	// logger.ContextLog.Info("---ranUe gnbid after switch to newran: ", ranUe.Ran.GnbId)
+	// logger.ContextLog.Info("---ranUe gnbip after switch to newran: ", ranUe.Ran.GnbIp)
 
 	logger.ContextLog.Infof("RanUe[RanUeNgapID: %d] Switch to new Ran[Name: %s]", ranUe.RanUeNgapId, ranUe.Ran.Name)
 	return nil
