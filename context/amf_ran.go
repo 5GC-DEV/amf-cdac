@@ -118,6 +118,7 @@ func (ran *AmfRan) RemoveAllUeInRan() {
 }
 
 func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
+	ran.Log.Info("Finding Ranue by RanUeNgapIDLocal")
 	// TODO - need fix..Make this map so search is fast
 	for _, ranUe := range ran.RanUeList {
 		if ranUe.RanUeNgapId == ranUeNgapID {
@@ -129,6 +130,7 @@ func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
 }
 
 func (ran *AmfRan) RanUeFindByRanUeNgapID(ranUeNgapID int64) *RanUe {
+	ran.Log.Info("Finding Ranue by RanUeNgapID")
 	ranUe := ran.RanUeFindByRanUeNgapIDLocal(ranUeNgapID)
 
 	if ranUe != nil {

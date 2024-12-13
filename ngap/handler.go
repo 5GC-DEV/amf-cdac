@@ -3261,6 +3261,14 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
+	// gnb id check
+
+	if ranUe.Ran.GnbId == ran.GnbId {
+		ran.Log.Info("gnbid equal")
+	} else {
+		ran.Log.Info("gnbid not equal")
+	}
+	//
 	amfuestated := ranUe.AmfUe.State[ran.AnType]
 	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
 
