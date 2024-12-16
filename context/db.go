@@ -190,7 +190,6 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 }
 
 func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
-
 	filter := bson.M{}
 	filter["customFieldsAmfUe.ranUeNgapId"] = ranUeNgapID
 	filter["customFieldsAmfUe.ranId"] = ran.GnbId
