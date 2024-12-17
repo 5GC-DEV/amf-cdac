@@ -3275,7 +3275,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	// gnbid check
 	if ranUe.Ran.GnbId == ran.GnbId {
-		amfuestatec := ranUe.AmfUe.State[ran.AnType]
+		amfuestatec := ranUe.AmfUe.State[ranUe.Ran.AnType]
 		ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
 	} else {
 		ran.Log.Info("---gnbid not equal")
@@ -3283,12 +3283,12 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	ranUe.Ran = ran
 
-	amfuestateb := ranUe.AmfUe.State[ran.AnType]
+	amfuestateb := ranUe.AmfUe.State[ranUe.Ran.AnType]
 	ran.Log.Info("---amfue state after updating ranUe.Ran: ", amfuestateb)
 
 	ran.Log.Debugf("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
-	amfuestatea := ranUe.AmfUe.State[ran.AnType]
+	amfuestatea := ranUe.AmfUe.State[ranUe.Ran.AnType]
 	ran.Log.Info("---amfue state before initializing amfUe: ", amfuestatea)
 	fmt.Printf("---amfue state pointer: %p", amfuestatea)
 	fmt.Printf("---amfue state pointter: %p", &amfuestatea)
@@ -3309,7 +3309,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	amfuedlcount := amfUe.DLCount
 	ran.Log.Info("---amfue dlcount: ", amfuedlcount)
 
-	amfuestate := amfUe.State[ran.AnType]
+	amfuestate := amfUe.State[ranUe.Ran.AnType]
 	ran.Log.Info("---amfue state after initializing amfUe: ", amfuestate)
 	// fmt.Printf("---amfue state pointer: %p", amfuestate)
 	fmt.Printf("---amfue state pointer: %p", &amfuestate)
@@ -3414,7 +3414,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
-		amfuestatef := amfUe.State[ran.AnType]
+		amfuestatef := amfUe.State[ranUe.Ran.AnType]
 		ran.Log.Info("---amfue state after path switch ack: ", amfuestatef)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
