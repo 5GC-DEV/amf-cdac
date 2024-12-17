@@ -1218,8 +1218,6 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 
 		needSliceSelection := false
 		for _, requestedSnssai := range requestedNssai {
-			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
-			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 			if ue.InSubscribedNssai(requestedSnssai.ServingSnssai) {
 				allowedSnssai := models.AllowedSnssai{
 					AllowedSnssai: &models.Snssai{
@@ -1570,16 +1568,12 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	ue.AuthenticationCtx = response
 	ue.ABBA = []uint8{0x00, 0x00} // set ABBA value as described at TS 33.501 Annex A.7.1
 
-	if ue.NgKsi.Tsc == models.ScType_NATIVE && ue.NgKsi.Ksi != 7 {
-		// Modification by CDAC TVM as per the Specification 24.501 - 5.4.1.3.2 Authentication initiation by the network
-
-		if ue.NgKsi.Ksi < 6 { // ksi is range from 0 to 6
-			ue.NgKsi.Ksi += 1
-		} else {
-			ue.NgKsi.Ksi = 0
-		}
+	// As per the Specification 33.501 - 6.2.3.2 Key identification
+	if ue.NgKsi.Tsc == models.ScType_NATIVE {
+		ue.NgKsi.Ksi = (ue.NgKsi.Ksi + 1) % 7
 	}
-	ue.GmmLog.Info("ngKSI after 5G-AKA: ", ue.NgKsi.Ksi)
+	ue.GmmLog.Infoln("ngKSI after 5G-AKA:", ue.NgKsi.Ksi)
+
 	gmm_message.SendAuthenticationRequest(ue.RanUe[accessType])
 	return false, nil
 }

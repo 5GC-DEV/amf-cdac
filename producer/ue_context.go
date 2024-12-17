@@ -564,11 +564,18 @@ func AssignEbiDataProcedure(ueContextID string, assignEbiData models.AssignEbiDa
 	}
 }
 
-// TS 29.518 5.2.2.2.2
+// HandleRegistrationStatusUpdateRequest TS 29.518 5.2.2.2.2
 func HandleRegistrationStatusUpdateRequest(request *httpwrapper.Request) *httpwrapper.Response {
 	logger.CommLog.Info("Handle Registration Status Update Request")
 
-	ueRegStatusUpdateReqData := request.Body.(models.UeRegStatusUpdateReqData)
+	ueRegStatusUpdateReqData, ok := request.Body.(models.UeRegStatusUpdateReqData)
+	if !ok {
+		problemDetails := &models.ProblemDetails{
+			Status: http.StatusBadRequest,
+			Cause:  "INVALID_BODY_FORMAT",
+		}
+		return httpwrapper.NewResponse(http.StatusBadRequest, nil, problemDetails)
+	}
 	ueContextID := request.Params["ueContextId"]
 	logger.CommLog.Infof("The Context ID for registration status update %s", ueContextID)
 
@@ -580,7 +587,7 @@ func HandleRegistrationStatusUpdateRequest(request *httpwrapper.Request) *httpwr
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
 		}
-		return httpwrapper.NewResponse(http.StatusForbidden, nil, problemDetails)
+		return httpwrapper.NewResponse(http.StatusNotFound, nil, problemDetails)
 	}
 	sbiMsg := context.SbiMsg{
 		UeContextId: ueContextID,
@@ -591,9 +598,13 @@ func HandleRegistrationStatusUpdateRequest(request *httpwrapper.Request) *httpwr
 	var ueRegStatusUpdateRspData *models.UeRegStatusUpdateRspData
 	ue.EventChannel.UpdateSbiHandler(UeContextHandler)
 	ue.EventChannel.SubmitMessage(sbiMsg)
-	msg := <-sbiMsg.Result
-	if msg.RespData != nil {
-		ueRegStatusUpdateRspData = msg.RespData.(*models.UeRegStatusUpdateRspData)
+	msg, read := <-sbiMsg.Result
+	if !read {
+		problemDetails := &models.ProblemDetails{
+			Status: http.StatusNoContent,
+			Cause:  "MESSAGE_NOT_RECEIVED",
+		}
+		return httpwrapper.NewResponse(http.StatusNoContent, nil, problemDetails)
 	}
 	// ueRegStatusUpdateRspData, problemDetails := RegistrationStatusUpdateProcedure(ueContextID, ueRegStatusUpdateReqData)
 
@@ -616,6 +627,7 @@ func HandleRegistrationStatusUpdateRequest(request *httpwrapper.Request) *httpwr
 	} else {
 		return httpwrapper.NewResponse(http.StatusOK, nil, ueRegStatusUpdateRspData)
 	}
+	return httpwrapper.NewResponse(http.StatusOK, nil, ueRegStatusUpdateRspData)
 }
 
 func RegistrationStatusUpdateProcedure(ueContextID string, ueRegStatusUpdateReqData models.UeRegStatusUpdateReqData) (
