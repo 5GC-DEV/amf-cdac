@@ -193,6 +193,10 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		}
 	}
 
+	ue.ProducerLog.Infof("N1N2 Message Transfer - UE AN Type: %v", anType)
+	ue.ProducerLog.Infof("N1N2 Message Transfer - UE State (CM-CONNECTED?): %v", ue.CmConnect(anType))
+	ue.ProducerLog.Infof("N1N2 Message Transfer - On Going Procedure: %v", ue.GetOnGoing(anType).Procedure)
+
 	onGoing := ue.GetOnGoing(anType)
 	// 4xx response cases
 	// TODO: Error Status 307, 403 in TS29.518 Table 6.1.3.5.3.1-3

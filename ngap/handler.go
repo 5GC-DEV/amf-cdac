@@ -3125,10 +3125,34 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				ran.Log.Errorf("Send UpdateSmContextN2HandoverComplete Error[%s]", err.Error())
 			}
 		}
+
+		if sourceUe != nil && sourceUe.AmfUe != nil {
+			sourceUe.Log.Infof("Source UE on going procedure before source UE release: %v", sourceUe.AmfUe.GetOnGoing(sourceUe.AmfUe.GetAnType()).Procedure)
+		}
+		if targetUe != nil && targetUe.AmfUe != nil {
+			targetUe.Log.Infof("Target UE on going procedure before source UE release: %v", targetUe.AmfUe.GetOnGoing(targetUe.AmfUe.GetAnType()).Procedure)
+		}
+
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
 			ngapType.CauseNasPresentNormalRelease)
+
+		if sourceUe != nil && sourceUe.AmfUe != nil {
+			sourceUe.Log.Infof("Source UE on going procedure after source UE release: %v", sourceUe.AmfUe.GetOnGoing(sourceUe.AmfUe.GetAnType()).Procedure)
+		}
+		if targetUe != nil && targetUe.AmfUe != nil {
+			targetUe.Log.Infof("Target UE on going procedure after source UE release: %v", targetUe.AmfUe.GetOnGoing(targetUe.AmfUe.GetAnType()).Procedure)
+		}
+
+		if targetUe != nil && targetUe.AmfUe != nil && amfUe != nil {
+			if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure == context.OnGoingProcedureN2Handover {
+				targetUe.Log.Infof("Setting target UE on going procedure to nothing")
+				amfUe.SetOnGoing(amfUe.GetAnType(), &context.OnGoingProcedureWithPrio{
+					Procedure: context.OnGoingProcedureNothing,
+				})
+			}
+		}
 	}
 
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.
