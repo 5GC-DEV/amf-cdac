@@ -3281,7 +3281,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Info("---gnbid not equal")
 	}
 
-	ranUe.Ran = ran
+	// commented by cdac
+	// ranUe.Ran = ran
+	//
 
 	amfuestateb := ranUe.AmfUe.State[ranUe.Ran.AnType]
 	ran.Log.Info("---amfue state after updating ranUe.Ran: ", amfuestateb)
@@ -3333,9 +3335,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	if rANUENGAPID != nil {
-		ranUe.RanUeNgapId = rANUENGAPID.Value
-	}
+	// commented by cdac
+	// if rANUENGAPID != nil {
+	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
+	// }
+	//
 
 	ranUe.UpdateLocation(userLocationInformation)
 
