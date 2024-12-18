@@ -3287,16 +3287,16 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 	//
 	// amfuestated := ranUe.AmfUe.State[ran.AnType]
-	amfuestated := ranUe.AmfUe.State[ranUe.Ran.AnType]
-	ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
+	// amfuestated := ranUe.AmfUe.State[ranUe.Ran.AnType]
+	// ran.Log.Info("---amfue state after assigning value to ranUe: ", amfuestated)
 
 	// gnbid check
-	if ranUe.Ran.GnbId == ran.GnbId {
-		amfuestatec := ranUe.AmfUe.State[ranUe.Ran.AnType]
-		ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
-	} else {
-		ran.Log.Info("---gnbid not equal")
-	}
+	// if ranUe.Ran.GnbId == ran.GnbId {
+	// 	amfuestatec := ranUe.AmfUe.State[ranUe.Ran.AnType]
+	// 	ran.Log.Info("---amfue state before updating ranUe.Ran: ", amfuestatec)
+	// } else {
+	// 	ran.Log.Info("---gnbid not equal")
+	// }
 
 	// commented by cdac
 	// ranUe.Ran = ran
