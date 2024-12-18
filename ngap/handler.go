@@ -2714,6 +2714,23 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
 		return
 	}
+
+	// gnbid check for releasing UE - by cdac tvm
+	if ranUe.Ran.GnbId == ran.GnbId {
+		ran.Log.Info("Gnbid matches")
+	} else {
+		ran.Log.Errorf("Gnbid mismatch")
+		cause = &ngapType.Cause{
+			Present: ngapType.CausePresentRadioNetwork,
+			RadioNetwork: &ngapType.CauseRadioNetwork{
+				Value: ngapType.CauseRadioNetworkPresentRadioConnectionWithUeLost,
+			},
+		}
+		ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
+		return
+	}
+	//
+
 	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
 
 	// checking gnbid - by cdac
