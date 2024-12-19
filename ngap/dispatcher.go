@@ -39,6 +39,7 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 	} else if sctplbMsg.GnbIpAddr != "" {
 		logger.NgapLog.Infoln("GnbIpAddress received but no GnbId")
 		ran = &context.AmfRan{}
+		ran = amfSelf.NewAmfRanAddr(sctplbMsg.GnbIpAddr)
 		ran.SupportedTAList = context.NewSupportedTAIList()
 		ran.Amf2RanMsgChan = Amf2RanMsgChan
 		ran.Log = logger.NgapLog.With(logger.FieldRanAddr, sctplbMsg.GnbIpAddr)
