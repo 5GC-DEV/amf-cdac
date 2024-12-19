@@ -767,8 +767,32 @@ func BuildPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 	ie.Criticality.Value = ngapType.CriticalityPresentIgnore
 	ie.Value.Present = ngapType.PDUSessionResourceSetupRequestIEsPresentUEAggregateMaximumBitRate
 	ie.Value.UEAggregateMaximumBitRate = new(ngapType.UEAggregateMaximumBitRate)
-	ueAmbrUL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
-	ueAmbrDL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
+
+	// ueAmbrUL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
+	// ueAmbrDL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
+
+	var ueAmbrUL, ueAmbrDL int64
+
+	if ue == nil {
+		logger.NgapLog.Warn("UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
+		ueAmbrUL, ueAmbrDL = 1000, 1000
+	} else if ue.AmfUe == nil {
+		logger.NgapLog.Warn("AMF UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
+		ueAmbrUL, ueAmbrDL = 1000, 1000
+	} else if ue.AmfUe.AccessAndMobilitySubscriptionData == nil {
+		logger.NgapLog.Warn("Access and Mobility Subscription Data is nil; using default AMBR values (1000 UL, 1000 DL)")
+		ueAmbrUL, ueAmbrDL = 1000, 1000
+	} else if ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr == nil {
+		logger.NgapLog.Warn("Subscribed UE AMBR is nil; using default AMBR values (1000 UL, 1000 DL)")
+		ueAmbrUL, ueAmbrDL = 1000, 1000
+	} else {
+		uplink := ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink
+		downlink := ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink
+
+		ueAmbrUL = ngapConvert.UEAmbrToInt64(uplink)
+		ueAmbrDL = ngapConvert.UEAmbrToInt64(downlink)
+	}
+
 	ie.Value.UEAggregateMaximumBitRate.UEAggregateMaximumBitRateUL.Value = ueAmbrUL
 	ie.Value.UEAggregateMaximumBitRate.UEAggregateMaximumBitRateDL.Value = ueAmbrDL
 	pDUSessionResourceSetupRequestIEs.List = append(pDUSessionResourceSetupRequestIEs.List, ie)
