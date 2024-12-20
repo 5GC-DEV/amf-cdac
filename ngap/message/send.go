@@ -35,6 +35,13 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 		return
 	}
 
+	if ran.Conn.RemoteAddr() != nil {
+		ran.Log.Infoln("Ran addr: %v", ran.Conn.RemoteAddr().String())
+	}
+
+	ran.Log.Infoln("Ran id: %v", ran.GnbId)
+	ran.Log.Infoln("Ran ip: %v", ran.GnbIp)
+
 	if context.AMF_Self().EnableSctpLb {
 		msg := &sdcoreAmfServer.AmfMessage{VerboseMsg: "Message from AMF"}
 		msg.Msg = packet

@@ -144,6 +144,8 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		return nil, "", problemDetails, nil
 	}
 
+	ue.ProducerLog.Infof("N1N2 transfer UE Context ID: %v", ueContextID)
+
 	if requestData.N1MessageContainer != nil {
 		switch requestData.N1MessageContainer.N1MessageClass {
 		case models.N1MessageClass_SM:
@@ -262,10 +264,12 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 			case models.NgapIeType_PDU_RES_SETUP_REQ:
 				ue.ProducerLog.Debugln("AMF Transfer NGAP PDU Session Resource Setup Request from SMF")
 				if ue.RanUe[anType].SentInitialContextSetupRequest {
+					ue.ProducerLog.Debugln("ue.RanUe[anType].SentInitialContextSetupRequest")
 					list := ngapType.PDUSessionResourceSetupListSUReq{}
 					ngap_message.AppendPDUSessionResourceSetupListSUReq(&list, smInfo.PduSessionId, *smInfo.SNssai, nasPdu, n2Info)
 					ngap_message.SendPDUSessionResourceSetupRequest(ue.RanUe[anType], nil, list)
 				} else {
+					ue.ProducerLog.Debugln("else ue.RanUe[anType].SentInitialContextSetupRequest")
 					list := ngapType.PDUSessionResourceSetupListCxtReq{}
 					ngap_message.AppendPDUSessionResourceSetupListCxtReq(&list, smInfo.PduSessionId, *smInfo.SNssai, nasPdu, n2Info)
 					ngap_message.SendInitialContextSetupRequest(ue, anType, nil, &list, nil, nil, nil)

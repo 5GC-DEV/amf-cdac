@@ -3144,10 +3144,20 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			sourceUe.Log.Warnf("Before release sourceUe.AmfUe.AccessAndMobilitySubscriptionData is nil")
 		}
 
+		if sourceUe.Ran != nil {
+			sourceUe.Log.Infof("Source UE RAN gNB ID: %v", sourceUe.Ran.GnbId)
+			sourceUe.Log.Infof("Source UE RAN gNB IP: %v", sourceUe.Ran.GnbIp)
+		}
+
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
 			ngapType.CauseNasPresentNormalRelease)
+
+		if targetUe.Ran != nil {
+			targetUe.Log.Infof("Target UE RAN gNB ID: %v", targetUe.Ran.GnbId)
+			targetUe.Log.Infof("Target UE RAN gNB IP: %v", targetUe.Ran.GnbIp)
+		}
 
 		if sourceUe != nil && sourceUe.AmfUe != nil {
 			sourceUe.Log.Infof("Source UE on going procedure after source UE release: %v", sourceUe.AmfUe.GetOnGoing(sourceUe.AmfUe.GetAnType()).Procedure)

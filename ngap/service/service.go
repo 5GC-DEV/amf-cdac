@@ -162,7 +162,6 @@ func Stop() {
 
 func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) {
 	defer func() {
-		// if AMF call Stop(), then conn.Close() will return EBADF because conn has been closed inside Stop()
 		if err := conn.Close(); err != nil && err != syscall.EBADF {
 			logger.NgapLog.Errorf("close connection error: %+v", err)
 		}
@@ -190,8 +189,15 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			}
 		}
 
+		logger.NgapLog.Debugf("SCTPRead returned n=%d, info=%+v, notification=%+v", n, info, notification)
+
 		if notification != nil {
 			if handler.HandleNotification != nil {
+				defer func() {
+					if r := recover(); r != nil {
+						logger.NgapLog.Errorf("Recovered from panic in HandleNotification: %+v", r)
+					}
+				}()
 				handler.HandleNotification(conn, notification)
 			} else {
 				logger.NgapLog.Warnf("received sctp notification[type 0x%x] but not handled", notification.Type())
@@ -205,8 +211,14 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			logger.NgapLog.Debugf("Read %d bytes", n)
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
-			// TODO: concurrent on per-UE message
-			handler.HandleMessage(conn, buf[:n])
+			go func(data []byte) {
+				defer func() {
+					if r := recover(); r != nil {
+						logger.NgapLog.Errorf("Recovered in concurrent HandleMessage: %+v", r)
+					}
+				}()
+				handler.HandleMessage(conn, data)
+			}(buf[:n])
 		}
 	}
 }

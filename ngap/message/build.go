@@ -775,16 +775,16 @@ func BuildPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 
 	if ue == nil {
 		logger.NgapLog.Warn("UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
-		ueAmbrUL, ueAmbrDL = 1000, 1000
+		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe == nil {
 		logger.NgapLog.Warn("AMF UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
-		ueAmbrUL, ueAmbrDL = 1000, 1000
+		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe.AccessAndMobilitySubscriptionData == nil {
 		logger.NgapLog.Warn("Access and Mobility Subscription Data is nil; using default AMBR values (1000 UL, 1000 DL)")
-		ueAmbrUL, ueAmbrDL = 1000, 1000
+		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr == nil {
 		logger.NgapLog.Warn("Subscribed UE AMBR is nil; using default AMBR values (1000 UL, 1000 DL)")
-		ueAmbrUL, ueAmbrDL = 1000, 1000
+		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else {
 		uplink := ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink
 		downlink := ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink
