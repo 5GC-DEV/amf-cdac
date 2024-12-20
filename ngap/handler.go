@@ -3230,7 +3230,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	ranUe.Ran = ran
+	// Commented to avoid updating target RAN as the Source RAN- by cdac tvm
+	// ranUe.Ran = ran
+	//
+
 	ran.Log.Debugf("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 
 	amfUe := ranUe.AmfUe
@@ -3259,9 +3262,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	if rANUENGAPID != nil {
-		ranUe.RanUeNgapId = rANUENGAPID.Value
-	}
+	// Commented to avoid updating target RAN RANUENGAPID as the Source RAN RANUENGAPID - by cdac tvm
+	// if rANUENGAPID != nil {
+	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
+	// }
+	//
 
 	ranUe.UpdateLocation(userLocationInformation)
 
