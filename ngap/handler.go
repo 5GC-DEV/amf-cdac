@@ -3133,6 +3133,17 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			targetUe.Log.Infof("Target UE on going procedure before source UE release: %v", targetUe.AmfUe.GetOnGoing(targetUe.AmfUe.GetAnType()).Procedure)
 		}
 
+		if sourceUe.AmfUe.AccessAndMobilitySubscriptionData != nil {
+			if sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr != nil {
+				sourceUe.Log.Infof("Before release Source UE SubscribedUeAmbr UL: %v", sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
+				sourceUe.Log.Infof("Before release Source UE SubscribedUeAmbr DL: %v", sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
+			} else {
+				sourceUe.Log.Warnf("Before release sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr is nil")
+			}
+		} else {
+			sourceUe.Log.Warnf("Before release sourceUe.AmfUe.AccessAndMobilitySubscriptionData is nil")
+		}
+
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
@@ -3152,6 +3163,32 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 					Procedure: context.OnGoingProcedureNothing,
 				})
 			}
+		}
+	}
+
+	if sourceUe.AmfUe.AccessAndMobilitySubscriptionData != nil {
+		if sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr != nil {
+			sourceUe.Log.Infof("Source UE SubscribedUeAmbr UL: %v", sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
+			sourceUe.Log.Infof("Source UE SubscribedUeAmbr DL: %v", sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
+		} else {
+			sourceUe.Log.Warnf("sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr is nil")
+		}
+	} else {
+		sourceUe.Log.Warnf("sourceUe.AmfUe.AccessAndMobilitySubscriptionData is nil")
+	}
+
+	if targetUe.AmfUe.AccessAndMobilitySubscriptionData != nil {
+		if targetUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr != nil {
+			targetUe.Log.Infof("Target UE SubscribedUeAmbr UL: %v", targetUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
+			targetUe.Log.Infof("Target UE SubscribedUeAmbr DL: %v", targetUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
+		} else {
+			targetUe.Log.Warnf("targetUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr is nil")
+		}
+	} else {
+		targetUe.Log.Warnf("targetUe.AmfUe.AccessAndMobilitySubscriptionData is nil")
+		if sourceUe.AmfUe.AccessAndMobilitySubscriptionData != nil && sourceUe.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr != nil {
+			targetUe.Log.Infof("Setting AccessAndMobilitySubscriptionData of targetUE with sourceUE")
+			targetUe.AmfUe.AccessAndMobilitySubscriptionData = sourceUe.AmfUe.AccessAndMobilitySubscriptionData
 		}
 	}
 
