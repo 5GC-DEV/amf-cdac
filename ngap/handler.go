@@ -2731,7 +2731,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 	//
 
-	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ran.AnType])
+	ran.Log.Info("---amfue state after intializing ranue: ", ranUe.AmfUe.State[ranUe.Ran.AnType])
 
 	// checking gnbid - by cdac
 
@@ -2748,7 +2748,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	// }
 
 	ranUe.Ran = ran
-	ran.Log.Info("---amfue state after updating ranUe.Ran: ", ranUe.AmfUe.State[ran.AnType])
+	ran.Log.Info("---amfue state after updating ranUe.Ran: ", ranUe.AmfUe.State[ranUe.Ran.AnType])
 
 	ran.Log.Debugf("RanUeNgapID[%d] AmfUeNgapID[%d]", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
 
