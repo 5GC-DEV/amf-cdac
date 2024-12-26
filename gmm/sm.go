@@ -443,11 +443,13 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
+			amfUe.GmmLog.Info("calling SendEvent function")
 			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
 			err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
 			})
+			amfUe.GmmLog.Info("resetting state to Deregistered")
 			if err != nil {
 				logger.GmmLog.Errorln(err)
 			}
