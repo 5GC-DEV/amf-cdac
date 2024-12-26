@@ -774,16 +774,16 @@ func BuildPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 	var ueAmbrUL, ueAmbrDL int64
 
 	if ue == nil {
-		logger.NgapLog.Warn("UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
+		logger.NgapLog.Warn("UE context is nil; using default AMBR values (1000000000 UL, 1000000000 DL)")
 		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe == nil {
-		logger.NgapLog.Warn("AMF UE context is nil; using default AMBR values (1000 UL, 1000 DL)")
+		logger.NgapLog.Warn("AMF UE context is nil; using default AMBR values (1000000000 UL, 1000000000 DL)")
 		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe.AccessAndMobilitySubscriptionData == nil {
-		logger.NgapLog.Warn("Access and Mobility Subscription Data is nil; using default AMBR values (1000 UL, 1000 DL)")
+		logger.NgapLog.Warn("Access and Mobility Subscription Data is nil; using default AMBR values (1000000000 UL, 1000000000 DL)")
 		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else if ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr == nil {
-		logger.NgapLog.Warn("Subscribed UE AMBR is nil; using default AMBR values (1000 UL, 1000 DL)")
+		logger.NgapLog.Warn("Subscribed UE AMBR is nil; using default AMBR values (1000000000 UL, 1000000000 DL)")
 		ueAmbrUL, ueAmbrDL = 1000000000, 1000000000
 	} else {
 		uplink := ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink

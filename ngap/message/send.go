@@ -36,11 +36,11 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 	}
 
 	if ran.Conn.RemoteAddr() != nil {
-		ran.Log.Infoln("Ran addr: %v", ran.Conn.RemoteAddr().String())
+		ran.Log.Infof("Ran addr: %v", ran.Conn.RemoteAddr().String())
 	}
 
-	ran.Log.Infoln("Ran id: %v", ran.GnbId)
-	ran.Log.Infoln("Ran ip: %v", ran.GnbIp)
+	ran.Log.Infof("Ran id: %v", ran.GnbId)
+	ran.Log.Infof("Ran ip: %v", ran.GnbIp)
 
 	if context.AMF_Self().EnableSctpLb {
 		msg := &sdcoreAmfServer.AmfMessage{VerboseMsg: "Message from AMF"}
@@ -540,7 +540,7 @@ func SendHandoverRequest(sourceUe *context.RanUe, targetRan *context.AmfRan, cau
 	}
 
 	sourceUe.Log.Debugf("source: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", sourceUe.AmfUeNgapId, sourceUe.RanUeNgapId)
-	sourceUe.Log.Debugf("target: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[Unknown]", targetUe.AmfUeNgapId)
+	sourceUe.Log.Debugf("target: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", targetUe.AmfUeNgapId, targetUe.RanUeNgapId)
 	context.AttachSourceUeTargetUe(sourceUe, targetUe)
 
 	pkt, err := BuildHandoverRequest(targetUe, cause, pduSessionResourceSetupListHOReq,

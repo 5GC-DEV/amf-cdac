@@ -106,9 +106,14 @@ func (ranUe *RanUe) Remove() error {
 			break
 		}
 	}
+
+	logger.ContextLog.Infoln("Removing ranUE with AmfUeNgapId: %v", ranUe.AmfUeNgapId)
+
 	self := AMF_Self()
 	self.RanUePool.Delete(ranUe.AmfUeNgapId)
+
 	if self.EnableDbStore {
+		logger.ContextLog.Infoln("ReleaseInt32ID AmfUeNgapId: %v", ranUe.AmfUeNgapId)
 		if err := self.Drsm.ReleaseInt32ID(int32(ranUe.AmfUeNgapId)); err != nil {
 			logger.ContextLog.Errorf("error releasing UE: %v", err)
 		}
@@ -119,6 +124,7 @@ func (ranUe *RanUe) Remove() error {
 }
 
 func (ranUe *RanUe) DetachAmfUe() {
+	logger.ContextLog.Infoln("DetachAmfUe: %v", ranUe.AmfUe.Supi)
 	ranUe.AmfUe = nil
 }
 

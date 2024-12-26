@@ -500,10 +500,12 @@ func (ue *AmfUe) Remove() {
 }
 
 func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
+	logger.ContextLog.Infof("DetachRanUe: %v", ue.RanUe)
 	delete(ue.RanUe, anType)
 }
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
+	logger.ContextLog.Infof("AttachRanUe: %v", ranUe.AmfUeNgapId)
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
 	ue.RanUe[ranUe.Ran.AnType] = ranUe

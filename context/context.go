@@ -314,6 +314,7 @@ func (context *AMFContext) AmfUeFindBySupi(supi string) (ue *AmfUe, ok bool) {
 	if value, loadOk := context.UePool.Load(supi); loadOk {
 		ue = value.(*AmfUe)
 		ok = loadOk
+		logger.ContextLog.Infoln("Ue with supi found in UE pool : ", supi)
 	} else if context.EnableDbStore {
 		ue, ok = DbFetchUeBySupi(supi)
 		if ue != nil && ok {

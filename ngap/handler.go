@@ -1264,15 +1264,28 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	case context.UeContextReleaseHandover:
 		ran.Log.Infof("Release UE[%s] Context : Release for Handover", amfUe.Supi)
 		// TODO: it's a workaround, need to fix it.
+		ran.Log.Infof("ranUe.TargetUe.AmfUeNgapId: %v", ranUe.TargetUe.AmfUeNgapId)
 		targetRanUe := context.AMF_Self().RanUeFindByAmfUeNgapID(ranUe.TargetUe.AmfUeNgapId)
+
+		if targetRanUe == nil {
+			ran.Log.Errorf("TargetRanUe not found for AmfUeNgapID: %d", ranUe.TargetUe.AmfUeNgapId)
+			break
+		}
+
+		ran.Log.Infof("targetRanUe.AmfUeNgapId: %v", targetRanUe.AmfUeNgapId)
+		ran.Log.Infof("targetRanUe.RanUeNgapId: %v", targetRanUe.RanUeNgapId)
 
 		targetRanUe.Ran = ran
 		context.DetachSourceUeTargetUe(ranUe)
 		err := ranUe.Remove()
 		if err != nil {
+			ran.Log.Errorf("Failed to remove SourceRanUe[%s]: %v", ranUe.RanUeNgapId, err)
 			ran.Log.Errorln(err.Error())
 		}
+
+		amfUe.PublishUeCtxtInfo()
 		amfUe.AttachRanUe(targetRanUe)
+		context.StoreContextInDB(amfUe)
 		amfUe.PublishUeCtxtInfo()
 		// Todo: remove indirect tunnel
 	default:
@@ -3114,7 +3127,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// Desciibed in (23.502 4.9.1.3.3) [conditional] 6a.Namf_Communication_N2InfoNotify.
 		ran.Log.Errorln("N2 Handover between AMF has not been implemented yet")
 	} else {
-		ran.Log.Infoln("handle Handover notification Finshed")
+		ran.Log.Infoln("handle Handover notification Finished")
 		for _, pduSessionid := range targetUe.SuccessPduSessionId {
 			smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionid)
 			if !ok {
@@ -3149,6 +3162,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			sourceUe.Log.Infof("Source UE RAN gNB IP: %v", sourceUe.Ran.GnbIp)
 		}
 
+		// Attach after release?
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
