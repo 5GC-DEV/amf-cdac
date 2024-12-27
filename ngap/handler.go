@@ -2720,7 +2720,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 			},
 		}
 		if amfUe.State[ran.AnType] != nil {
-			ranUe.Log.Info("---amfue state: ", amfUe.State[ran.AnType])
+			ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
 			if amfUe.State[ran.AnType].Is(context.Registered) {
 				ranUe.Log.Infoln("Ue Context in GMM-Registered")
 				if pDUSessionResourceList != nil {
