@@ -1102,6 +1102,8 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 	}
 
+	ran.Log.Infof("AmfUeNgapID: %d", aMFUENGAPID.Value)
+	ran.Log.Infof("AmfUeNgapID: %d", rANUENGAPID.Value)
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 	if ranUe == nil {
 		ran.Log.Errorf("No RanUe Context[AmfUeNgapID: %d]", aMFUENGAPID.Value)
@@ -1274,19 +1276,35 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 
 		ran.Log.Infof("targetRanUe.AmfUeNgapId: %v", targetRanUe.AmfUeNgapId)
 		ran.Log.Infof("targetRanUe.RanUeNgapId: %v", targetRanUe.RanUeNgapId)
+		ran.Log.Infof("RAN Id: %v", ran.GnbId)
+		ran.Log.Infof("RAN Conn: %v", ran.Conn.RemoteAddr().String())
 
-		targetRanUe.Ran = ran
+		if targetRanUe.Ran != nil {
+			targetRanUe.Ran.Log.Infof("targetRanUe Ran: %v", targetRanUe.Ran)
+			targetRanUe.Ran.Log.Infof("targetRanUe Ran ID: %v", targetRanUe.Ran.GnbId)
+			if targetRanUe.Ran.Conn != nil {
+				targetRanUe.Ran.Log.Infof("targetRanUe Connection: %v", targetRanUe.Ran.Conn.RemoteAddr().String())
+			}
+		} else {
+			ran.Log.Warnf("targetRanUe RAN value is nil - Setting source RAN")
+			targetRanUe.Ran = ran
+		}
+
 		context.DetachSourceUeTargetUe(ranUe)
+
+		if targetRanUe.Ran.Conn != nil {
+			targetRanUe.Ran.Log.Infof("After detach targetRanUe Connection: %v", targetRanUe.Ran.Conn.RemoteAddr().String())
+		}
+
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorf("Failed to remove SourceRanUe[%s]: %v", ranUe.RanUeNgapId, err)
 			ran.Log.Errorln(err.Error())
 		}
 
-		amfUe.PublishUeCtxtInfo()
 		amfUe.AttachRanUe(targetRanUe)
-		context.StoreContextInDB(amfUe)
 		amfUe.PublishUeCtxtInfo()
+
 		// Todo: remove indirect tunnel
 	default:
 		ran.Log.Errorf("Invalid Release Action[%d]", ranUe.ReleaseAction)
@@ -2699,6 +2717,8 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		}
 	}
 
+	ran.Log.Infof("AMF UE NGAP Id: %v", aMFUENGAPID.Value)
+	ran.Log.Infof("RAN UE NGAP Id: %v", rANUENGAPID.Value)
 	ranUe := context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 	if ranUe == nil {
 		ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
@@ -3121,7 +3141,12 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Errorln("AmfUe is nil")
 		return
 	}
+
 	sourceUe := targetUe.SourceUe
+
+	ran.Log.Infof("Target UE AMF UE NGAP ID: %v", targetUe.AmfUeNgapId)
+	ran.Log.Infof("Source UE AMF UE NGAP ID: %v", sourceUe.AmfUeNgapId)
+
 	if sourceUe == nil {
 		// TODO: Send to S-AMF
 		// Desciibed in (23.502 4.9.1.3.3) [conditional] 6a.Namf_Communication_N2InfoNotify.
@@ -3214,6 +3239,12 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			targetUe.Log.Infof("Setting AccessAndMobilitySubscriptionData of targetUE with sourceUE")
 			targetUe.AmfUe.AccessAndMobilitySubscriptionData = sourceUe.AmfUe.AccessAndMobilitySubscriptionData
 		}
+	}
+
+	if targetUe.Ran.Conn != nil {
+		targetUe.Log.Infof("Target UE RAN Remote: %v", targetUe.Ran.Conn.RemoteAddr().String())
+	} else {
+		targetUe.Log.Warnf("Target UE RAN Remote is nil")
 	}
 
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.

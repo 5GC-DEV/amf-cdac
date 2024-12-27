@@ -61,6 +61,8 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 			return
 		}
 
+		ran.Log.Debugln("RAN remote address: %v", ran.Conn.RemoteAddr().String())
+
 		ran.Log.Debugln("send NGAP message To Ran")
 
 		if n, err := ran.Conn.Write(packet); err != nil {
@@ -395,6 +397,8 @@ func SendInitialContextSetupRequest(
 		return
 	}
 	amfUe.RanUe[anType].SentInitialContextSetupRequest = true
+	amfUe.RanUe[anType].Log.Infof("GNB ID: ", amfUe.RanUe[anType].Ran.RanId.GNbId)
+	amfUe.RanUe[anType].Log.Infof("GNB IP: ", amfUe.RanUe[anType].Ran.GnbIp)
 	NasSendToRan(amfUe, anType, pkt)
 }
 
@@ -539,9 +543,32 @@ func SendHandoverRequest(sourceUe *context.RanUe, targetRan *context.AmfRan, cau
 		targetUe = targetUeTmp
 	}
 
-	sourceUe.Log.Debugf("source: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", sourceUe.AmfUeNgapId, sourceUe.RanUeNgapId)
-	sourceUe.Log.Debugf("target: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", targetUe.AmfUeNgapId, targetUe.RanUeNgapId)
+	sourceUe.Log.Infof("source: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", sourceUe.AmfUeNgapId, sourceUe.RanUeNgapId)
+	targetUe.Log.Infof("target: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", targetUe.AmfUeNgapId, targetUe.RanUeNgapId)
+
+	if targetUe.Ran != nil {
+		if targetUe.Ran.Conn != nil {
+			targetUe.Log.Infof("Target UE RAN Remote: %v", targetUe.Ran.Conn.RemoteAddr().String())
+		} else {
+			targetUe.Log.Warnf("Target UE RAN Remote is nil")
+		}
+	} else {
+		targetUe.Log.Warnf("Target UE RAN is nil")
+		targetUe.Ran = targetRan
+		if targetUe.Ran.Conn != nil {
+			targetUe.Log.Infof("Target UE RAN Remote: %v", targetUe.Ran.Conn.RemoteAddr().String())
+		} else {
+			targetUe.Log.Warnf("Target UE RAN Remote is nil")
+		}
+	}
+
 	context.AttachSourceUeTargetUe(sourceUe, targetUe)
+
+	if targetUe.Ran.Conn != nil {
+		targetUe.Log.Infof("After attach Target UE RAN Remote: %v", targetUe.Ran.Conn.RemoteAddr().String())
+	} else {
+		targetUe.Log.Warnf("After attach Target UE RAN Remote is nil")
+	}
 
 	pkt, err := BuildHandoverRequest(targetUe, cause, pduSessionResourceSetupListHOReq,
 		sourceToTargetTransparentContainer, nsci)

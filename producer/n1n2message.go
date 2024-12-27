@@ -144,8 +144,8 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		return nil, "", problemDetails, nil
 	}
 
-	ue.ProducerLog.Infof("N1N2 transfer UE Context ID: %v", ueContextID)
-	ue.ProducerLog.Infof("N1N2 transfer UE RanUe: %v", ue.RanUe)
+	ue.ProducerLog.Infof("UE Context ID: %v", ueContextID)
+	ue.ProducerLog.Infof("UE RanUe: %v", ue.RanUe)
 
 	if requestData.N1MessageContainer != nil {
 		switch requestData.N1MessageContainer.N1MessageClass {
@@ -196,9 +196,9 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		}
 	}
 
-	ue.ProducerLog.Infof("N1N2 Message Transfer - UE AN Type: %v", anType)
-	ue.ProducerLog.Infof("N1N2 Message Transfer - UE State (CM-CONNECTED?): %v", ue.CmConnect(anType))
-	ue.ProducerLog.Infof("N1N2 Message Transfer - On Going Procedure: %v", ue.GetOnGoing(anType).Procedure)
+	ue.ProducerLog.Infof("UE AN Type: %v", anType)
+	ue.ProducerLog.Infof("UE State (CM-CONNECTED?): %v", ue.CmConnect(anType))
+	ue.ProducerLog.Infof("On Going Procedure: %v", ue.GetOnGoing(anType).Procedure)
 
 	onGoing := ue.GetOnGoing(anType)
 	// 4xx response cases
