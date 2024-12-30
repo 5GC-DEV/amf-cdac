@@ -3150,6 +3150,15 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			ngapType.CauseNasPresentNormalRelease)
 	}
 
+	// Setting target UE ongoing procedure to nothing after N2 Handover is finished - By CDAC TVM
+	if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure == context.OnGoingProcedureN2Handover {
+		targetUe.Log.Infof("Setting target UE on going procedure to nothing after N2 Handover")
+		amfUe.SetOnGoing(amfUe.GetAnType(), &context.OnGoingProcedureWithPrio{
+			Procedure: context.OnGoingProcedureNothing,
+		})
+	}
+	// End of modification - By CDAC TVM
+
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.
 }
 
