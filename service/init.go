@@ -257,6 +257,7 @@ func (amf *AMF) setLogLevel() {
 			openapiLogger.SetLogLevel(zap.InfoLevel)
 		}
 	}
+	utilLogger.SetLogLevel(zap.WarnLevel)
 }
 
 func (amf *AMF) FilterCli(c *cli.Context) (args []string) {
