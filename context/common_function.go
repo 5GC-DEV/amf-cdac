@@ -123,7 +123,13 @@ func AttachSourceUeTargetUe(sourceUe, targetUe *RanUe) {
 		logger.ContextLog.Error("AmfUe is Nil")
 		return
 	}
+
+	if targetUe.AmfUe != nil {
+		logger.ContextLog.Infof("Target AMF UE SentInitialContextSetupRequest? ", targetUe.AmfUe.RanUe[models.AccessType__3_GPP_ACCESS].SentInitialContextSetupRequest)
+	}
+
 	targetUe.AmfUe = amfUe
+	logger.ContextLog.Infof("Source AMF UE SentInitialContextSetupRequest? ", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].SentInitialContextSetupRequest)
 	targetUe.SourceUe = sourceUe
 	sourceUe.TargetUe = targetUe
 }

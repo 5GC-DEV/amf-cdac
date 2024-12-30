@@ -1305,6 +1305,11 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		amfUe.AttachRanUe(targetRanUe)
 		amfUe.PublishUeCtxtInfo()
 
+		if !targetRanUe.AmfUe.RanUe[models.AccessType__3_GPP_ACCESS].SentInitialContextSetupRequest {
+			ran.Log.Warnf("Setting SentInitialContextSetupRequest to true for target UE")
+			targetRanUe.AmfUe.RanUe[models.AccessType__3_GPP_ACCESS].SentInitialContextSetupRequest = true
+		}
+
 		// Todo: remove indirect tunnel
 	default:
 		ran.Log.Errorf("Invalid Release Action[%d]", ranUe.ReleaseAction)
@@ -3137,6 +3142,8 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		targetUe.UpdateLocation(userLocationInformation)
 	}
 	amfUe := targetUe.AmfUe
+	ran.Log.Infof("Target UE SentInitialContextSetupRequest? ", amfUe.RanUe[models.AccessType_NON_3_GPP_ACCESS].SentInitialContextSetupRequest)
+
 	if amfUe == nil {
 		ran.Log.Errorln("AmfUe is nil")
 		return
