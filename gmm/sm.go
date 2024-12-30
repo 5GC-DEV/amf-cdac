@@ -216,6 +216,17 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			logger.GmmLog.Errorf("UE state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
+			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			err := GmmFSM.SendEvent(state, AuthFailEvent, fsm.ArgsType{
+				ArgAmfUe:      amfUe,
+				ArgAccessType: accessType,
+			})
+			if err != nil {
+				logger.GmmLog.Errorln(err)
+			} else {
+				amfUe.GmmLog.Info("state reset to Deregistered")
+			}
+			//
 		}
 	case AuthSuccessEvent:
 		logger.GmmLog.Debugln(event)
@@ -337,6 +348,17 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
+			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			err := GmmFSM.SendEvent(state, SecurityModeFailEvent, fsm.ArgsType{
+				ArgAmfUe:      amfUe,
+				ArgAccessType: accessType,
+			})
+			if err != nil {
+				logger.GmmLog.Errorln(err)
+			} else {
+				amfUe.GmmLog.Info("state reset to Deregistered")
+			}
+			//
 		}
 	case SecurityModeAbortEvent:
 		logger.GmmLog.Debugln(event)
@@ -443,6 +465,20 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
+			msgType := gmmMessage.GetMessageType()
+			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			if msgType == nas.MsgTypeRegistrationRequest {
+				err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
+					ArgAmfUe:      amfUe,
+					ArgAccessType: accessType,
+				})
+				if err != nil {
+					logger.GmmLog.Errorln(err)
+				} else {
+					amfUe.GmmLog.Info("state reset to Deregistered")
+				}
+			}
+			//
 		}
 	case ContextSetupSuccessEvent:
 		logger.GmmLog.Debugln(event)
@@ -495,6 +531,17 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
+			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			err := GmmFSM.SendEvent(state, DeregistrationAcceptEvent, fsm.ArgsType{
+				ArgAmfUe:      amfUe,
+				ArgAccessType: accessType,
+			})
+			if err != nil {
+				logger.GmmLog.Errorln(err)
+			} else {
+				amfUe.GmmLog.Info("state reset to Deregistered")
+			}
+			//
 		}
 	case DeregistrationAcceptEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
