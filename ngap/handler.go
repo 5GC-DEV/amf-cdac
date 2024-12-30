@@ -1266,7 +1266,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		// TODO: it's a workaround, need to fix it.
 		targetRanUe := context.AMF_Self().RanUeFindByAmfUeNgapID(ranUe.TargetUe.AmfUeNgapId)
 
-		targetRanUe.Ran = ran
+		// If target UE RAN is nil, set it to current RAN - By CDAC TVM
+		if targetRanUe.Ran == nil {
+			ran.Log.Warnf("targetRanUe RAN is nil - Setting current RAN for target UE with AmfUeNgapId: %v", ranUe.TargetUe.AmfUeNgapId)
+			targetRanUe.Ran = ran
+		}
+		// End of modification - By CDAC TVM
+
 		context.DetachSourceUeTargetUe(ranUe)
 		err := ranUe.Remove()
 		if err != nil {
