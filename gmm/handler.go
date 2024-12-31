@@ -97,6 +97,8 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 	if id := ulNasTransport.PduSessionID2Value; id != nil {
 		pduSessionID = int32(id.GetPduSessionID2Value())
+		ue.GmmLog.Info("---pdusessionID in transport 5gsm: ", pduSessionID)
+
 	} else {
 		return errors.New("PDU Session ID is nil")
 	}
