@@ -349,6 +349,7 @@ func forward5GSMMessageToSMF(
 		n2SmInfo := response.BinaryDataN2SmInformation
 		if response.BinaryDataN1SmMessage != nil {
 			ue.GmmLog.Debug("Receive N1 SM Message from SMF")
+			ue.GmmLog.Info("---Receive N1 SM Message from SMF")
 			n1Msg, err = gmm_message.BuildDLNASTransport(ue, nasMessage.PayloadContainerTypeN1SMInfo,
 				response.BinaryDataN1SmMessage, uint8(pduSessionID), nil, nil, 0)
 			if err != nil {
@@ -358,6 +359,7 @@ func forward5GSMMessageToSMF(
 
 		if response.BinaryDataN2SmInformation != nil {
 			ue.GmmLog.Debugf("Receive N2 SM Information[%s] from SMF", responseData.N2SmInfoType)
+			ue.GmmLog.Infof("---Receive N2 SM Information[%s] from SMF", responseData.N2SmInfoType)
 			switch responseData.N2SmInfoType {
 			case models.N2SmInfoType_PDU_RES_MOD_REQ:
 				list := ngapType.PDUSessionResourceModifyListModReq{}
@@ -372,6 +374,7 @@ func forward5GSMMessageToSMF(
 			}
 		} else if n1Msg != nil {
 			ue.GmmLog.Debugf("AMF forward Only N1 SM Message to UE")
+			ue.GmmLog.Infof("AMF forward Only N1 SM Message to UE")
 			ngap_message.SendDownlinkNasTransport(ue.RanUe[accessType], n1Msg, nil)
 		}
 	}
