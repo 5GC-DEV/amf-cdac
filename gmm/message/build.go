@@ -45,6 +45,7 @@ func BuildDLNASTransport(ue *context.AmfUe, payloadContainerType uint8, nasPdu [
 	if pduSessionId != 0 {
 		dLNASTransport.PduSessionID2Value = new(nasType.PduSessionID2Value)
 		dLNASTransport.PduSessionID2Value.SetIei(nasMessage.DLNASTransportPduSessionID2ValueType)
+		logger.GmmLog.Info("---pdusessionID: ", int32(pduSessionId))
 		dLNASTransport.PduSessionID2Value.SetPduSessionID2Value(pduSessionId)
 	}
 	if cause != nil {

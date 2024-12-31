@@ -350,6 +350,7 @@ func forward5GSMMessageToSMF(
 		if response.BinaryDataN1SmMessage != nil {
 			ue.GmmLog.Debug("Receive N1 SM Message from SMF")
 			ue.GmmLog.Info("---Receive N1 SM Message from SMF")
+			ue.GmmLog.Info("---pdusessionID: ", pduSessionID)
 			n1Msg, err = gmm_message.BuildDLNASTransport(ue, nasMessage.PayloadContainerTypeN1SMInfo,
 				response.BinaryDataN1SmMessage, uint8(pduSessionID), nil, nil, 0)
 			if err != nil {
