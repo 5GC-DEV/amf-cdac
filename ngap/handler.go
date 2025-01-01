@@ -3148,7 +3148,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		targetUe.UpdateLocation(userLocationInformation)
 	}
 	amfUe := targetUe.AmfUe
-	ran.Log.Infof("Target UE SentInitialContextSetupRequest? ", amfUe.RanUe[models.AccessType_NON_3_GPP_ACCESS].SentInitialContextSetupRequest)
+	// ran.Log.Infof("Target UE SentInitialContextSetupRequest? ", amfUe.RanUe[models.AccessType_NON_3_GPP_ACCESS].SentInitialContextSetupRequest)
 
 	if amfUe == nil {
 		ran.Log.Errorln("AmfUe is nil")
