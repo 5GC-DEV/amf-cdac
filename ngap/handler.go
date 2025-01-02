@@ -1193,7 +1193,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 	}
 
-	/*if ranUe.ReleaseAction != context.UeContextReleaseHandover {
+	if ranUe.ReleaseAction != context.UeContextReleaseHandover {
 		ranUe.Log.Infoln("Deactivating user plane connection state")
 		if amfUe.State[ran.AnType].Is(context.Registered) {
 			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
@@ -1229,39 +1229,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 	} else {
 		ranUe.Log.Infoln("Not deactivating user plane connection state, since the release action is handover")
-	}*/
-
-	if amfUe.State[ran.AnType].Is(context.Registered) {
-		ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
-		if pDUSessionResourceList != nil {
-			for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-				pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-				smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-				if !ok {
-					ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-					// added continue cdac
-					continue
-				}
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
-			}
-		} else {
-			ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
-			amfUe.SmContextList.Range(func(key, value interface{}) bool {
-				smContext := value.(*context.SmContext)
-				response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-				if err != nil {
-					ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-				} else if response == nil {
-					ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-				}
-				return true
-			})
-		}
 	}
 
 	// Remove UE N2 Connection
@@ -3593,6 +3560,7 @@ func HandleHandoverRequestAcknowledge(ran *context.AmfRan, message *ngapType.NGA
 			pduSessionID := item.PDUSessionID.Value
 			transfer := item.HandoverRequestAcknowledgeTransfer
 			pduSessionId := int32(pduSessionID)
+			targetUe.Log.Info("Target UE pDUSessionResourceAdmittedList: %v", transfer)
 			if smContext, exist := amfUe.SmContextFindByPDUSessionID(pduSessionId); exist {
 				response, errResponse, problemDetails, err := consumer.SendUpdateSmContextN2HandoverPrepared(amfUe,
 					smContext, models.N2SmInfoType_HANDOVER_REQ_ACK, transfer)
