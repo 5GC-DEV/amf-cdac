@@ -142,6 +142,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 		if smContextExist {
 			// case i) Request type IE is either not included
 			if requestType == nil {
+				ue.GmmLog.Info("---smcontext exist and requesttype nil")
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 
@@ -185,6 +186,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 			// case ii) AMF has a PDU session routing context, and Request type is "existing PDU session"
 			case nasMessage.ULNASTransportRequestTypeExistingPduSession:
 				if ue.InAllowedNssai(smContext.Snssai(), anType) {
+					ue.GmmLog.Info("---req type existing pdusession")
 					return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 				} else {
 					ue.GmmLog.Errorf("S-NSSAI[%v] is not allowed for access type[%s] (PDU Session ID: %d)",
@@ -195,6 +197,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 			// other requestType: AMF forward the 5GSM message, and the PDU session ID IE towards the SMF identified
 			// by the SMF ID of the PDU session routing context
 			default:
+				ue.GmmLog.Info("---smcontext exist ,default case")
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 		} else { // AMF does not have a PDU session routing context for the PDU session ID and the UE
@@ -282,6 +285,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 						smContext.SetDnn(ueContextInSmf.Dnn)
 						smContext.SetPlmnID(*ueContextInSmf.PlmnId)
 						ue.StoreSmContext(pduSessionID, smContext)
+						ue.GmmLog.Info("---smcontext not exist,req type existing pdusession")
 						return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 					}
 				} else {
@@ -305,6 +309,7 @@ func forward5GSMMessageToSMF(
 	smContext *context.SmContext,
 	smMessage []byte,
 ) error {
+	ue.GmmLog.Infof("Forward 5G SM Message to SMF")
 	smContextUpdateData := models.SmContextUpdateData{
 		N1SmMsg: &models.RefToBinaryData{
 			ContentId: "N1SmMsg",
@@ -351,7 +356,7 @@ func forward5GSMMessageToSMF(
 		if response.BinaryDataN1SmMessage != nil {
 			ue.GmmLog.Debug("Receive N1 SM Message from SMF")
 			ue.GmmLog.Info("---Receive N1 SM Message from SMF")
-			ue.GmmLog.Info("---pdusessionID: ", pduSessionID)
+			ue.GmmLog.Info("---pdusessionID fwd: ", pduSessionID)
 			n1Msg, err = gmm_message.BuildDLNASTransport(ue, nasMessage.PayloadContainerTypeN1SMInfo,
 				response.BinaryDataN1SmMessage, uint8(pduSessionID), nil, nil, 0)
 			if err != nil {
@@ -376,7 +381,7 @@ func forward5GSMMessageToSMF(
 			}
 		} else if n1Msg != nil {
 			ue.GmmLog.Debugf("AMF forward Only N1 SM Message to UE")
-			ue.GmmLog.Infof("AMF forward Only N1 SM Message to UE")
+			ue.GmmLog.Infof("---AMF forward Only N1 SM Message to UE")
 			ngap_message.SendDownlinkNasTransport(ue.RanUe[accessType], n1Msg, nil)
 		}
 	}
