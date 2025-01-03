@@ -120,13 +120,12 @@ func Dispatch(conn net.Conn, msg []byte) {
 	amfSelf := context.AMF_Self()
 
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
-	logger.NgapLog.Info("---ran: ", ran)
-	logger.NgapLog.Info("---ran gnbid: ", ran.GnbId)
-
 	if !ok {
 		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
 		ran = amfSelf.NewAmfRan(conn)
 	}
+	logger.NgapLog.Info("---ran: ", ran)
+	logger.NgapLog.Info("---ran gnbid: ", ran.GnbId)
 
 	if len(msg) == 0 {
 		ran.Log.Infoln("RAN close the connection")
