@@ -109,6 +109,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 							ran.Log.Errorf("NewRanUe Error: %+v", err)
 						}
 						ranUe.Log.Warnf("known UE [GUTI: %s]", guti)
+						ranUe.Log.Info("---attachranue in fetchranuecontext")
 						amfUe.AttachRanUe(ranUe)
 					}
 				}

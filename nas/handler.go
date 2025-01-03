@@ -73,6 +73,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		if amfSelf.EnableSctpLb {
 			ue.Ran.AnType = models.AccessType__3_GPP_ACCESS
 		}
+		ue.Log.Info("---attachranue in handlenas")
 		ue.AmfUe.AttachRanUe(ue)
 
 		if ue.AmfUe.EventChannel == nil {

@@ -93,6 +93,7 @@ func (ran *AmfRan) Remove() {
 }
 
 func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
+	ran.Log.Info("---creating new ranue")
 	ranUe := RanUe{}
 	self := AMF_Self()
 	amfUeNgapID, err := self.AllocateAmfUeNgapID()

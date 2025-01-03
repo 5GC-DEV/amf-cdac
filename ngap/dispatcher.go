@@ -115,10 +115,14 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 }
 
 func Dispatch(conn net.Conn, msg []byte) {
+	logger.NgapLog.Info("---function call at Dispatch()")
 	var ran *context.AmfRan
 	amfSelf := context.AMF_Self()
 
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
+	logger.NgapLog.Info("---ran: ", ran)
+	logger.NgapLog.Info("---ran gnbid: ", ran.GnbId)
+
 	if !ok {
 		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
 		ran = amfSelf.NewAmfRan(conn)
@@ -137,6 +141,9 @@ func Dispatch(conn net.Conn, msg []byte) {
 	}
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
+	logger.NgapLog.Info("---ranUe: ", ranUe)
+	logger.NgapLog.Info("---ranUe ranuengapid: ", ranUe.RanUeNgapId)
+	logger.NgapLog.Info("---ranUe amfue: ", ranUe.AmfUe)
 
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {
@@ -152,6 +159,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ranUe.Ran.Conn = conn
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
+		logger.NgapLog.Info("---ranue nil or ranue.amfue nil")
 		go DispatchNgapMsg(ran, pdu, nil)
 	}
 }
