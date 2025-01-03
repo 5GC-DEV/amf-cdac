@@ -40,7 +40,7 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
 		}, []string{"id", "ip", "state", "tac"}),
-
+		// Counter of total UE Registrations - by cdac tvm
 		ueReg: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "amf_ue_registrations_total",
 			Help: "Counter of total UE Registrations",
@@ -97,7 +97,7 @@ func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
 }
 
-// IncrementUeRegStats increments registration level stats
+// IncrementUeRegStats increments registration level stats - by cdac tvm
 func IncrementUeRegStats(amfID, regType, result string) {
 	amfStats.ueReg.WithLabelValues(amfID, regType, result).Inc()
 }
