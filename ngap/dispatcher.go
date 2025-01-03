@@ -140,9 +140,12 @@ func Dispatch(conn net.Conn, msg []byte) {
 	}
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
-	logger.NgapLog.Info("---ranUe: ", ranUe)
-	logger.NgapLog.Info("---ranUe ranuengapid: ", ranUe.RanUeNgapId)
-	logger.NgapLog.Info("---ranUe amfue: ", ranUe.AmfUe)
+
+	if ranUe != nil {
+		logger.NgapLog.Info("---ranUe : ", ranUe)
+		logger.NgapLog.Info("---ranUe ranuengapid: ", ranUe.RanUeNgapId)
+		logger.NgapLog.Info("---ranUe amfue: ", ranUe.AmfUe)
+	}
 
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {
