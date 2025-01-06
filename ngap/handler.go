@@ -827,7 +827,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Errorln("UplinkNasTransport is nil")
 		return
 	}
-	ran.Log.Infoln("handle Uplink Nas Transport")
+	ran.Log.Infoln("***handle Uplink Nas Transport****")
 
 	for i := 0; i < len(uplinkNasTransport.ProtocolIEs.List); i++ {
 		ie := uplinkNasTransport.ProtocolIEs.List[i]
