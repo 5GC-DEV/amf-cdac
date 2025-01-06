@@ -512,14 +512,18 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 		logger.NgapLog.Warnf(" -----  AmfUe is nil at this point.")
 	}
 	ranUe.AmfUe = ue
-
+	if oldRanUe != nil {
+		oldRanUe.Log.Infof("--- oldRanUe not nill")
+		oldRanUe.Log.Infof(" -----  oldRanUe %v", oldRanUe.AmfUe)
+		oldRanUe.Log.Infof("---- oldRanUe %v", oldRanUe.AmfUeNgapId)
+	}
 	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil {
 			// nilcheck oldranue.log - cdac
 			if oldRanUe.Log != nil {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-				//oldRanUe.AmfUe = nil
+				oldRanUe.AmfUe = nil
 			}
 		}
 	}()
