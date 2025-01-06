@@ -517,22 +517,16 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 		oldRanUe.Log.Infof(" -----  oldRanUe %v", oldRanUe.AmfUe)
 		oldRanUe.Log.Infof("---- oldRanUe %v", oldRanUe.AmfUeNgapId)
 	}
-	/*go func() {
+	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil {
 			// nilcheck oldranue.log - cdac
 			if oldRanUe.Log != nil {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-				oldRanUe.AmfUe = nil
+				// oldRanUe.AmfUe = nil
 			}
 		}
-	}()*/
-	if oldRanUe != nil {
-		if oldRanUe.Log != nil {
-			oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
-			oldRanUe.AmfUe = nil
-		}
-	}
+	}()
 	logger.NgapLog.Infof("Setting NASLog, GmmLog, and TxLog for AmfUe with ID: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
 	// set log information
 	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
