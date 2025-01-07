@@ -503,15 +503,15 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 	delete(ue.RanUe, anType)
 }
 
-func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
-	logger.NgapLog.Infof("----   Attaching RanUe with RanUeNgapId: %d to AmfUe with ID: %d", ranUe.AmfUeNgapId, ue.Supi)
-	/* detach any RanUe associated to it */
+/*func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
+	logger.NgapLog.Infof("----   Attaching RanUe with RanUeNgapId: %d ", ranUe.AmfUeNgapId)
+	// detach any RanUe associated to it
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
 	oldamfue := oldRanUe.AmfUe
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
-	if ue == nil {
-		logger.NgapLog.Warnf(" -----  AmfUe is nil at this point.")
-	}
+	// if ue == nil {
+		// logger.NgapLog.Warnf(" -----  AmfUe is nil at this point.")
+	// }
 	ranUe.AmfUe = ue
 	if oldRanUe != nil {
 		oldRanUe.Log.Infof("--- oldRanUe not nill")
@@ -536,6 +536,34 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	logger.NgapLog.Infof("-----------  Attachment process completed for AmfUe with ID: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
+}*/
+
+func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
+	logger.NgapLog.Infof("Attaching RanUe with RanUeNgapId: %d to AmfUe with Supi: %d", ranUe.AmfUeNgapId, ue.Supi)
+
+	// Detach any RanUe previously associated with this AmfUe
+	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
+	ue.RanUe[ranUe.Ran.AnType] = ranUe
+	ranUe.AmfUe = ue
+
+	if oldRanUe != nil {
+		logger.NgapLog.Infof("Detaching old RanUe with RanUeNgapId: %d from AmfUe with Supi: %d", oldRanUe.RanUeNgapId, ue.Supi)
+		if oldRanUe.Log != nil {
+			oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
+		}
+		// Detach the old RanUe without affecting the current AmfUe
+		if oldRanUe != nil && oldRanUe != ranUe {
+			oldRanUe.AmfUe = nil
+		}
+	}
+
+	logger.NgapLog.Infof("Setting NASLog, GmmLog, and TxLog for AmfUe with Supi: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
+	// Set log information
+	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+
+	logger.NgapLog.Infof("Attachment process completed for AmfUe with Supi: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
 }
 
 func (ue *AmfUe) GetAnType() models.AccessType {
