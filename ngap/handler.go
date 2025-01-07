@@ -1689,6 +1689,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 				ranUe.Log.Warnf("Unknown UE [GUTI: %s]", guti)
 			} else {
 				ranUe.Log.Debugf("find AmfUe [GUTI: %s]", guti)
+				ranUe.Log.Infof("------ find AmfUe [GUTI: %s]", guti)
 				/* checking the guti-ue belongs to this amf instance */
 				if amfSelf.EnableDbStore {
 					id, err := amfSelf.Drsm.FindOwnerInt32ID(amfUe.Tmsi)
@@ -1723,10 +1724,14 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 				}
 				// TODO: stop Implicit Deregistration timer
 				ranUe.Log.Debugf("AmfUe Attach RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
+				ranUe.Log.Infof("---------  AmfUe Attach RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
 				amfUe.AttachRanUe(ranUe)
 			}
 		}
 	} else {
+		ranUe.Log.Info("--- ranUe not nill")
+		ranUe.Log.Infof("--- ran Ue ngap ID %v", rANUENGAPID)
+		ranUe.Log.Infof("--- amfUe %v", ranUe.AmfUe)
 		ranUe.Ran = ran
 		ranUe.AmfUe.AttachRanUe(ranUe)
 	}

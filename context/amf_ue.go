@@ -504,12 +504,20 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 }
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
+	logger.NgapLog.Infof("----   Attaching RanUe with RanUeNgapId: %d to AmfUe with ID: %d", ranUe.AmfUeNgapId, ue.Supi)
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
 	oldamfue := oldRanUe.AmfUe
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
+	if ue == nil {
+		logger.NgapLog.Warnf(" -----  AmfUe is nil at this point.")
+	}
 	ranUe.AmfUe = ue
-
+	if oldRanUe != nil {
+		oldRanUe.Log.Infof("--- oldRanUe not nill")
+		oldRanUe.Log.Infof(" -----  oldRanUe %v", oldRanUe.AmfUe)
+		oldRanUe.Log.Infof("---- oldRanUe %v", oldRanUe.AmfUeNgapId)
+	}
 	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil || oldamfue != nil {
@@ -518,14 +526,16 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
 				// oldRanUe.AmfUe = nil
 				oldamfue = nil
+				// oldRanUe.AmfUe = nil
 			}
 		}
 	}()
-
+	logger.NgapLog.Infof("Setting NASLog, GmmLog, and TxLog for AmfUe with ID: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
 	// set log information
 	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	logger.NgapLog.Infof("-----------  Attachment process completed for AmfUe with ID: %d and RanUeNgapId: %d", ue.Supi, ranUe.RanUeNgapId)
 }
 
 func (ue *AmfUe) GetAnType() models.AccessType {
