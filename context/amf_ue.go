@@ -515,8 +515,12 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 			// nilcheck oldranue.log - cdac
 			if oldRanUe.Log != nil {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
+			}
+			// Detach the old RanUe without affecting the current AmfUe  ---> Modified By CDAC TVM
+			if oldRanUe != ranUe {
 				oldRanUe.AmfUe = nil
 			}
+			// Modification END
 		}
 	}()
 
