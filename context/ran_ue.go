@@ -83,38 +83,99 @@ type RanUe struct {
 	SctplbMsg []byte
 }
 
+/*
+	 func (ranUe *RanUe) Remove() error {
+		logger.ContextLog.Infoln("RanUe has been deleted")
+		if ranUe == nil {
+			return fmt.Errorf("RanUe not found in RemoveRanUe")
+		}
+		ran := ranUe.Ran
+		if ran == nil {
+			return fmt.Errorf("RanUe not found in Ran")
+		}
+		if ranUe.AmfUe != nil {
+			amfUe := ranUe.AmfUe
+			if amfUe.RanUe[ran.AnType] == ranUe {
+				ranUe.AmfUe.DetachRanUe(ran.AnType)
+			}
+			ranUe.DetachAmfUe()
+		}
+
+		for index, ranUe1 := range ran.RanUeList {
+			if ranUe1 == ranUe {
+				ran.RanUeList = append(ran.RanUeList[:index], ran.RanUeList[index+1:]...)
+				break
+			}
+		}
+		self := AMF_Self()
+		self.RanUePool.Delete(ranUe.AmfUeNgapId)
+		if self.EnableDbStore {
+			if err := self.Drsm.ReleaseInt32ID(int32(ranUe.AmfUeNgapId)); err != nil {
+				logger.ContextLog.Errorf("error releasing UE: %v", err)
+			}
+		} else {
+			amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
+		}
+		return nil
+	}
+*/
 func (ranUe *RanUe) Remove() error {
-	logger.ContextLog.Infoln("RanUe has been deleted")
+	logger.ContextLog.Infoln("Starting RanUe removal process")
+
+	// Check if ranUe is nil
 	if ranUe == nil {
+		logger.ContextLog.Errorln("RanUe is nil in RemoveRanUe")
 		return fmt.Errorf("RanUe not found in RemoveRanUe")
 	}
+
+	// Log the AmfUeNgapId
+	logger.ContextLog.Infof("RanUe removal initiated for AmfUeNgapId: %d", ranUe.AmfUeNgapId)
+
 	ran := ranUe.Ran
 	if ran == nil {
+		logger.ContextLog.Errorln("Ran is nil for RanUe")
 		return fmt.Errorf("RanUe not found in Ran")
 	}
+
+	// Check if ranUe is associated with an AmfUe
 	if ranUe.AmfUe != nil {
+		logger.ContextLog.Infof("RanUe is associated with AmfUe ID: %d", ranUe.AmfUe.Supi)
 		amfUe := ranUe.AmfUe
+
 		if amfUe.RanUe[ran.AnType] == ranUe {
+			logger.ContextLog.Infof("Detaching RanUe from AmfUe with AnType: %v", ran.AnType)
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
+	} else {
+		logger.ContextLog.Warnln("RanUe is not associated with any AmfUe")
 	}
 
+	// Remove RanUe from Ran's RanUeList
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
+			logger.ContextLog.Infof("Removing RanUe from Ran's RanUeList at index: %d", index)
 			ran.RanUeList = append(ran.RanUeList[:index], ran.RanUeList[index+1:]...)
 			break
 		}
 	}
+
 	self := AMF_Self()
+	logger.ContextLog.Infof("Deleting RanUe from RanUePool with AmfUeNgapId: %d", ranUe.AmfUeNgapId)
 	self.RanUePool.Delete(ranUe.AmfUeNgapId)
+
+	// Check if database storage is enabled
 	if self.EnableDbStore {
+		logger.ContextLog.Infof("Releasing ID from DRSM for AmfUeNgapId: %d", ranUe.AmfUeNgapId)
 		if err := self.Drsm.ReleaseInt32ID(int32(ranUe.AmfUeNgapId)); err != nil {
-			logger.ContextLog.Errorf("error releasing UE: %v", err)
+			logger.ContextLog.Errorf("Error releasing UE in DRSM: %v (AmfUeNgapId: %d)", err, ranUe.AmfUeNgapId)
 		}
 	} else {
+		logger.ContextLog.Infof("Freeing AmfUeNgapId using ID generator: %d", ranUe.AmfUeNgapId)
 		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
 	}
+
+	logger.ContextLog.Infoln("RanUe removal process completed successfully")
 	return nil
 }
 
