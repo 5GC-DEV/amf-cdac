@@ -517,6 +517,7 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
 			}
 			// Detach the old RanUe without affecting the current AmfUe  ---> Modified By CDAC TVM
+			// TODO:The scenario of testing with different gNBs for the same UE has not been conducted.
 			if oldRanUe != ranUe {
 				oldRanUe.AmfUe = nil
 			}
