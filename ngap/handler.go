@@ -4170,6 +4170,14 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				}
 			}
 			ran.Log.Debugf("PLMN_ID[MCC:%s MNC:%s] TAC[%s]", plmnId.Mcc, plmnId.Mnc, tac)
+
+			// Modified by CDAC TVM to get the MNC,MCC values from the RAN
+			mccRAN = plmnId.Mcc
+			mncRAN = plmnId.Mnc
+			ran.Log.Debug("mcc from RAN: ", mccRAN)
+			ran.Log.Debug("mnc from RAN: ", mncRAN)
+			// End of Modification
+
 			if len(ran.SupportedTAList) < capOfSupportTai {
 				ran.SupportedTAList = append(ran.SupportedTAList, supportedTAI)
 			} else {
