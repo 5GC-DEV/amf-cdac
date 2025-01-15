@@ -1200,7 +1200,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
 					if !ok {
 						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-						// added continue cdac
+						// added continue by cdac
+						// According to 3GPP TS 24.501 Section 7.3.2 If the network receives a 5GSM message other than those listed in items a) through c) above in which the
+						// message includes a reserved PDU session identity value or an assigned value that does not match an existing
+						// PDU session, the network shall ignore the message.
 						continue
 					}
 					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
