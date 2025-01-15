@@ -24,7 +24,8 @@ import (
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
-	ueReg             *prometheus.CounterVec
+	// by cdac tvm
+	ueReg *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -62,7 +63,7 @@ func (ps *AmfStats) register() error {
 	} else {
 		fmt.Print("---gnb_session_profile metric registered successfully")
 	}
-
+	// by cdac tvm
 	if err := prometheus.Register(ps.ueReg); err != nil {
 		return err
 	} else {
