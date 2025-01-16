@@ -104,6 +104,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 	// case 1): looks up a PDU session routing context for the UE and the PDU session ID IE in case the Old PDU
 	// session ID IE is not included
 	if ulNasTransport.OldPDUSessionID == nil {
+		ue.GmmLog.Warnf("OldPDUSessionID is nil")
 		smContext, smContextExist := ue.SmContextFindByPDUSessionID(pduSessionID)
 		requestType := ulNasTransport.RequestType
 
@@ -139,13 +140,18 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 		}
 		// AMF has a PDU session routing context for the PDU session ID and the UE
 		if smContextExist {
+			ue.GmmLog.Infof("smContextExist")
 			// case i) Request type IE is either not included
 			if requestType == nil {
+				ue.GmmLog.Warnf("requestType is nil - forward5GSMMessageToSMF")
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 
+			ue.GmmLog.Infof("requestType: %v", requestType.GetRequestTypeValue())
+
 			switch requestType.GetRequestTypeValue() {
 			case nasMessage.ULNASTransportRequestTypeInitialRequest:
+				ue.GmmLog.Infof("requestType: %v", nasMessage.ULNASTransportRequestTypeInitialRequest)
 				smContext.StoreULNASTransport(ulNasTransport)
 				//  perform a local release of the PDU session identified by the PDU session ID and shall request
 				// the SMF to perform a local release of the PDU session
@@ -183,6 +189,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 			// case ii) AMF has a PDU session routing context, and Request type is "existing PDU session"
 			case nasMessage.ULNASTransportRequestTypeExistingPduSession:
+				ue.GmmLog.Infof("requestType: %v", nasMessage.ULNASTransportRequestTypeExistingPduSession)
 				if ue.InAllowedNssai(smContext.Snssai(), anType) {
 					return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 				} else {
@@ -194,13 +201,19 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 			// other requestType: AMF forward the 5GSM message, and the PDU session ID IE towards the SMF identified
 			// by the SMF ID of the PDU session routing context
 			default:
+				ue.GmmLog.Infof("requestType: defaault - ", forward5GSMMessageToSMF)
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 		} else { // AMF does not have a PDU session routing context for the PDU session ID and the UE
+			ue.GmmLog.Infof("smContext doest not exist")
+
+			ue.GmmLog.Infof("requestType: %v", requestType.GetRequestTypeValue())
+
 			switch requestType.GetRequestTypeValue() {
 			// case iii) if the AMF does not have a PDU session routing context for the PDU session ID and the UE
 			// and the Request type IE is included and is set to "initial request"
 			case nasMessage.ULNASTransportRequestTypeInitialRequest:
+				ue.GmmLog.Infof("requestType: %v", nasMessage.ULNASTransportRequestTypeInitialRequest)
 				var (
 					snssai models.Snssai
 					dnn    string
@@ -265,8 +278,10 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 					}
 				}
 			case nasMessage.ULNASTransportRequestTypeModificationRequest:
+				ue.GmmLog.Infof("requestType: %v", nasMessage.ULNASTransportRequestTypeModificationRequest)
 				fallthrough
 			case nasMessage.ULNASTransportRequestTypeExistingPduSession:
+				ue.GmmLog.Infof("requestType: %v", nasMessage.ULNASTransportRequestTypeExistingPduSession)
 				if ue.UeContextInSmfData != nil {
 					// TS 24.501 5.4.5.2.5 case a) 3)
 					pduSessionIDStr := fmt.Sprintf("%d", pduSessionID)
@@ -288,10 +303,12 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 						smMessage, pduSessionID, nasMessage.Cause5GMMPayloadWasNotForwarded, nil, 0)
 				}
 			default:
+				ue.GmmLog.Infof("requestType: default")
 			}
 		}
 	} else {
 		// TODO: implement SSC mode3 Op
+		ue.GmmLog.Errorf("SSC mode3 operation has not been implemented yet")
 		return fmt.Errorf("SSC mode3 operation has not been implemented yet")
 	}
 	return nil
