@@ -392,6 +392,9 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 
 	ue.GmmLog.Info("Handle Registration Request")
 
+	ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
+	ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
+
 	if ue.RanUe[anType] == nil {
 		return fmt.Errorf("RanUe is nil")
 	}
@@ -581,6 +584,8 @@ func IdentityVerification(ue *context.AmfUe) bool {
 
 func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) error {
 	ue.GmmLog.Infoln("Handle InitialRegistration")
+	ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
+	ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
 
 	amfSelf := context.AMF_Self()
 
@@ -1713,6 +1718,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	ue.GmmLog.Info("Handle Service Request")
+	ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
+	ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
 
 	if ue.T3513 != nil {
 		ue.T3513.Stop()
@@ -2040,6 +2047,7 @@ func sendServiceAccept(ue *context.AmfUe, anType models.AccessType, ctxList ngap
 	suList ngapType.PDUSessionResourceSetupListSUReq, pDUSessionStatus *[16]bool,
 	reactivationResult *[16]bool, errPduSessionId, errCause []uint8,
 ) error {
+	ue.GmmLog.Info("Send Service Accept")
 	if ue.RanUe[anType].UeContextRequest {
 		// update Kgnb/Kn3iwf
 		ue.UpdateSecurityContext(anType)
