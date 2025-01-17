@@ -1545,6 +1545,9 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 
 	var iesCriticalityDiagnostics ngapType.CriticalityDiagnosticsIEList
 
+	var mcc string
+	var mnc string
+
 	if !factory.AmfConfig.Rcvd {
 		logger.NgapLog.Errorln("AMF not ready to handle signalling traffic")
 		return
@@ -1637,6 +1640,27 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			ran.Log.Debugln("decode IE Allowed NSSAI")
 		}
 	}
+
+	// by cdac tvm
+	// plmnnr:= userLocationInformation.UserLocationInformationNR.NRCGI.PLMNIdentity.Value
+	// plmn from request
+	plmnTai := userLocationInformation.UserLocationInformationNR.TAI.PLMNIdentity
+	plmnID := ngapConvert.PlmnIdToModels(plmnTai)
+	plmnMcc := plmnID.Mcc
+	plmnMnc := plmnID.Mnc
+
+	// plmn from amfcontext ie core
+	for _, guami := range amfSelf.ServedGuamiList {
+		plmnid := guami.PlmnId
+		mcc = plmnid.Mcc
+		mnc = plmnid.Mnc
+	}
+	if plmnMcc == mcc && plmnMnc == mnc {
+		ran.Log.Info("---plmn values are equal")
+	} else {
+		ran.Log.Info("---plmn values are not equal")
+	}
+	//
 
 	if len(iesCriticalityDiagnostics.List) > 0 {
 		ran.Log.Debugln("has missing reject IE(s)")
