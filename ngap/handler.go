@@ -503,7 +503,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 	return ranUe, aMFUENGAPID
 }
 
-// Modified HandleNGSetupRequest to make the core capable of accepting multiple Slice configurations from the gnb - by CDAC TVM
+// Modified HandleNGSetupRequest to make the core capable of accepting multiple Slice configurations from the gnb
 func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var globalRANNodeID *ngapType.GlobalRANNodeID
 	var rANNodeName *ngapType.RANNodeName
@@ -511,7 +511,6 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var pagingDRX *ngapType.PagingDRX
 	var cause ngapType.Cause
 
-	// Modified by CDAC TVM
 	var sliceList [][]interface{}
 	var intOfSst int32
 	var snssaiLength int
@@ -648,7 +647,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			}
 		}
 	}
-	// Modified by CDAC TVM to get the SST,SD values configured in the core
+	// Modified to get the SST,SD values configured in the core
 	if ie.Value.PLMNSupportList != nil {
 		for _, s_nssai_amf := range pLMNSupportList.List {
 			for _, slice_supportlist_list := range s_nssai_amf.SliceSupportList.List {
@@ -685,7 +684,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	snssaiLength = len(supportedTAI.SNssaiList)
 	ran.Log.Debug("Length of snssai list: ", snssaiLength)
-	// Modified by CDAC TVM to get the SST,SD values configured in gnb
+	// Modified to get the SST,SD values configured in gnb
 	for _, s_nssai := range supportedTAI.SNssaiList {
 		if snssaiLength > 0 {
 			var sliceRAN []interface{}
@@ -762,7 +761,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				Value: ngapType.CauseMiscPresentUnknownPLMN,
 			}
 		}
-		// Modified by CDAC TVM
+
 		if snssaiLength > 0 && !sdTRUE {
 			if context.InSliceList(mulSliceListRAN, sliceList) {
 				ran.Log.Info("Slice values are equal ")
@@ -1200,8 +1199,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
 					if !ok {
 						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-						// added continue by cdac
-						// According to 3GPP TS 24.501 Section 7.3.2 If the network receives a 5GSM message other than those listed in items a) through c) above in which the
+						// Modified According to 3GPP TS 24.501 Section 7.3.2 If the network receives a 5GSM message other than those listed in items a) through c) above in which the
 						// message includes a reserved PDU session identity value or an assigned value that does not match an existing
 						// PDU session, the network shall ignore the message.
 						continue
@@ -1272,12 +1270,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		// TODO: it's a workaround, need to fix it.
 		targetRanUe := context.AMF_Self().RanUeFindByAmfUeNgapID(ranUe.TargetUe.AmfUeNgapId)
 
-		// If target UE RAN is nil, set it to current RAN - By CDAC TVM
+		// If target UE RAN is nil, set it to current RAN
+		// Modified for proper uecontext release during handover
 		if targetRanUe.Ran == nil {
 			ran.Log.Warnf("targetRanUe RAN is nil - Setting current RAN for target UE with AmfUeNgapId: %v", ranUe.TargetUe.AmfUeNgapId)
 			targetRanUe.Ran = ran
 		}
-		// End of modification - By CDAC TVM
+		// End of modification
 
 		context.DetachSourceUeTargetUe(ranUe)
 		err := ranUe.Remove()
@@ -2714,7 +2713,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 		return
 	}
 
-	// gnbid check for releasing UE - by cdac tvm
+	// Modified to check gnbid check for UE release
 	if ranUe.Ran.GnbId == ran.GnbId {
 		ran.Log.Info("Gnbid matches")
 	} else {
@@ -3159,14 +3158,14 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			ngapType.CauseNasPresentNormalRelease)
 	}
 
-	// Setting target UE ongoing procedure to nothing after N2 Handover is finished - By CDAC TVM
+	// Modified to Set target UE ongoing procedure to nothing after N2 Handover is finished
 	if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure == context.OnGoingProcedureN2Handover {
 		targetUe.Log.Infof("Setting target UE on going procedure to nothing after N2 Handover")
 		amfUe.SetOnGoing(amfUe.GetAnType(), &context.OnGoingProcedureWithPrio{
 			Procedure: context.OnGoingProcedureNothing,
 		})
 	}
-	// End of modification - By CDAC TVM
+	// End of modification
 
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.
 }
@@ -3248,7 +3247,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	// Commented to avoid updating target RAN as the Source RAN- by cdac tvm
+	// Commented to avoid updating target RAN as the Source RAN for proper Xn Handover procedure
 	// ranUe.Ran = ran
 	//
 
@@ -3280,7 +3279,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		// not support any E-UTRA algorithms
 	}
 
-	// Commented to avoid updating target RAN RANUENGAPID as the Source RAN RANUENGAPID - by cdac tvm
+	// Commented to avoid updating target RAN RANUENGAPID as the Source RAN RANUENGAPID for proper Xn Handover procedure
 	// if rANUENGAPID != nil {
 	// 	ranUe.RanUeNgapId = rANUENGAPID.Value
 	// }
@@ -4085,7 +4084,7 @@ func HandleNasNonDeliveryIndication(ran *context.AmfRan, message *ngapType.NGAPP
 	nas.HandleNAS(ranUe, ngapType.ProcedureCodeNASNonDeliveryIndication, nASPDU.Value)
 }
 
-// Modified HandleRanconfigurationupdate to make the core capable of accepting multiple TAC configurations - by CDAC TVM on 19/07/2024 - done by ashithacdac
+// Modified HandleRanconfigurationupdate to make the core capable of accepting multiple TAC configurations
 func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var rANNodeName *ngapType.RANNodeName
 	var supportedTAList *ngapType.SupportedTAList
@@ -4174,7 +4173,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			}
 			ran.Log.Debugf("PLMN_ID[MCC:%s MNC:%s] TAC[%s]", plmnId.Mcc, plmnId.Mnc, tac)
 
-			// Modified by CDAC TVM to get the MNC,MCC values from the RAN
+			// Modified to get the MNC,MCC values from the RAN
 			mccRAN = plmnId.Mcc
 			mncRAN = plmnId.Mnc
 			ran.Log.Debug("mcc from RAN: ", mccRAN)
@@ -4187,7 +4186,7 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 				break
 			}
 
-			// Modified by CDAC TVM to check the MNC, MCC values from RAN are equal to the one configured in the CORE
+			// Modified to check the MNC, MCC values from RAN are equal to the one configured in the CORE
 			for _, guami := range amfSelf.ServedGuamiList {
 				plmnid := guami.PlmnId
 				mcc = plmnid.Mcc
@@ -4237,7 +4236,6 @@ func HandleRanConfigurationUpdate(ran *context.AmfRan, message *ngapType.NGAPPDU
 			}
 		}
 
-		// Modified By CDAC TVM
 		// To check the TAC values configured in the CORE is equal with the TAC configured in the RAN.
 		// For Comparing the plmn list from the RAN and the CORE.
 		gnbPlmnList = append(gnbPlmnList, mccRAN, mncRAN)

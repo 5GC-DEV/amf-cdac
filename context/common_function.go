@@ -46,12 +46,12 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	return false
 }
 
-// Function for Comparing the plmn list from RAN and the CORE - Added by CDAC TVM on 25/06/2024 - done by ashithacdac
+// Added Function for Comparing the plmn list from RAN and the CORE for the proper RanConfiguration update procedure
 func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
 }
 
-// Function for Comparing the Slice list from RAN and the CORE - Added by CDAC TVM on 30/07/2024 - done by ashithacdac
+// Added Function for Comparing the Slice list from RAN and the CORE for the proper NgSetup update procedure
 func InSliceList(gnbslicelist [][]interface{}, amfslicelist [][]interface{}) bool {
 	for _, gnbItem := range gnbslicelist {
 		for _, amfItem := range amfslicelist {
@@ -63,7 +63,7 @@ func InSliceList(gnbslicelist [][]interface{}, amfslicelist [][]interface{}) boo
 	return false
 }
 
-// Function for converting hexstring to octalbytes - Added by CDAC TVM on 30/07/2024 - done by ashithacdac
+// Function for converting hexstring to octalbytes
 func ConvertHexToOctalbytes(hexstring string) []byte {
 	if len(hexstring)%2 != 0 {
 		fmt.Println("hexstring should have an even length")

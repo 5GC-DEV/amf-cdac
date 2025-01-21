@@ -1571,7 +1571,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	ue.ABBA = []uint8{0x00, 0x00} // set ABBA value as described at TS 33.501 Annex A.7.1
 
 	if ue.NgKsi.Tsc == models.ScType_NATIVE && ue.NgKsi.Ksi != 7 {
-		// Modification by CDAC TVM as per the Specification 24.501 - 5.4.1.3.2 Authentication initiation by the network
+		// Modification According to the Specification 24.501 - 5.4.1.3.2 Authentication initiation by the network
 
 		if ue.NgKsi.Ksi < 6 { // ksi is range from 0 to 6
 			ue.NgKsi.Ksi += 1
@@ -2040,6 +2040,7 @@ func sendServiceAccept(ue *context.AmfUe, anType models.AccessType, ctxList ngap
 	suList ngapType.PDUSessionResourceSetupListSUReq, pDUSessionStatus *[16]bool,
 	reactivationResult *[16]bool, errPduSessionId, errCause []uint8,
 ) error {
+	ue.GmmLog.Info("Send Service Accept")
 	if ue.RanUe[anType].UeContextRequest {
 		// update Kgnb/Kn3iwf
 		ue.UpdateSecurityContext(anType)

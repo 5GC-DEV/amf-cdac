@@ -216,7 +216,8 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			logger.GmmLog.Errorf("UE state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
-			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			// called SendEvent() to move to deregistered state if state mismatch occurs
+			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, AuthFailEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
@@ -348,7 +349,8 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
-			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			// called SendEvent() to move to deregistered state if state mismatch occurs
+			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, SecurityModeFailEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
@@ -466,7 +468,8 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			msgType := gmmMessage.GetMessageType()
-			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			// called SendEvent() to move to deregistered state if state mismatch occurs
+			// Modified to fix the State mismatch issue
 			if msgType == nas.MsgTypeRegistrationRequest {
 				err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
 					ArgAmfUe:      amfUe,
@@ -531,7 +534,8 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 		default:
 			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
-			// called SendEvent() to move to deregistered state if state mismatch occurs - by cdac tvm
+			// called SendEvent() to move to deregistered state if state mismatch occurs
+			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, DeregistrationAcceptEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
