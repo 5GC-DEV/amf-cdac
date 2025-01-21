@@ -771,7 +771,7 @@ func BuildPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 	// ueAmbrUL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Uplink)
 	// ueAmbrDL := ngapConvert.UEAmbrToInt64(ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr.Downlink)
 
-	// ueAmbrUL & ueAmbrDL is set to default value of 1000000000 if it's nil - By CDAC TVM
+	// Modified ueAmbrUL & ueAmbrDL to set to default value of 1000000000 if it's nil
 	var ueAmbrUL, ueAmbrDL int64
 	if ue.AmfUe == nil || ue.AmfUe.AccessAndMobilitySubscriptionData == nil || ue.AmfUe.AccessAndMobilitySubscriptionData.SubscribedUeAmbr == nil {
 		logger.NgapLog.Warn("Subscribed UE AMBR is nil; using default AMBR values (1000000000 UL, 1000000000 DL)")
@@ -783,7 +783,7 @@ func BuildPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 		ueAmbrUL = ngapConvert.UEAmbrToInt64(uplink)
 		ueAmbrDL = ngapConvert.UEAmbrToInt64(downlink)
 	}
-	// End of modification - By CDAC TVM
+	// End of modification
 
 	ie.Value.UEAggregateMaximumBitRate.UEAggregateMaximumBitRateUL.Value = ueAmbrUL
 	ie.Value.UEAggregateMaximumBitRate.UEAggregateMaximumBitRateDL.Value = ueAmbrDL
@@ -2497,7 +2497,7 @@ func BuildRanConfigurationUpdateFailure(
 	ie.Value.TimeToWait = new(ngapType.TimeToWait)
 
 	timeToWait := ie.Value.TimeToWait
-	// The TimeToWaitIE value was modified from 1 second to 5 second to fix the ran configuration update failure issue - by CDAC TVM
+	// The TimeToWaitIE value was modified from 1 second to 5 second to fix the ran configuration update failure issue
 	timeToWait.Value = ngapType.TimeToWaitPresentV5s
 
 	rANConfigurationUpdateFailureIEs.List = append(rANConfigurationUpdateFailureIEs.List, ie)

@@ -512,11 +512,11 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	go func() {
 		time.Sleep(time.Second * 2)
 		if oldRanUe != nil {
-			// nilcheck oldranue.log - cdac
+			// nilcheck oldranue.log
 			if oldRanUe.Log != nil {
 				oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
 			}
-			// Detach the old RanUe without affecting the current AmfUe  ---> Modified By CDAC TVM
+			// Modified to detach the old RanUe without affecting the current AmfUe
 			// TODO:The scenario of testing with different gNBs for the same UE has not been conducted.
 			if oldRanUe != ranUe {
 				oldRanUe.AmfUe = nil
