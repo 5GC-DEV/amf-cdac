@@ -1718,8 +1718,10 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	ue.GmmLog.Info("Handle Service Request")
-	ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
-	ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
+	// ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
+	// ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
+	ue.GmmLog.Info("---: mcc", ue.Tai.PlmnId.Mcc)
+	ue.GmmLog.Info("---: mnc", ue.Tai.PlmnId.Mnc)
 
 	if ue.T3513 != nil {
 		ue.T3513.Stop()
