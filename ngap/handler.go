@@ -1647,7 +1647,9 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	plmnTai := userLocationInformation.UserLocationInformationNR.TAI.PLMNIdentity
 	plmnID := ngapConvert.PlmnIdToModels(plmnTai)
 	plmnMcc := plmnID.Mcc
+	ran.Log.Info("---mcc request: ", plmnMcc)
 	plmnMnc := plmnID.Mnc
+	ran.Log.Info("---mnc request: ", plmnMnc)
 
 	// plmn from amfcontext ie core
 	for _, guami := range amfSelf.ServedGuamiList {
@@ -1655,6 +1657,8 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 		mcc = plmnid.Mcc
 		mnc = plmnid.Mnc
 	}
+	ran.Log.Info("---mnc core: ", mnc)
+	ran.Log.Info("---mcc core: ", mcc)
 	if plmnMcc == mcc && plmnMnc == mnc {
 		ran.Log.Info("---plmn values are equal")
 	} else {

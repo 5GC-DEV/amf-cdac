@@ -1723,6 +1723,13 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	ue.GmmLog.Info("---: mcc", ue.Tai.PlmnId.Mcc)
 	ue.GmmLog.Info("---: mnc", ue.Tai.PlmnId.Mnc)
 
+	for _, i := range ue.RanUe[anType].Ran.SupportedTAList {
+		ranMcc := i.Tai.PlmnId.Mcc
+		ranMnc := i.Tai.PlmnId.Mnc
+		ue.GmmLog.Info("---ranmcc: ", ranMcc)
+		ue.GmmLog.Info("---ranmnc: ", ranMnc)
+	}
+
 	if ue.T3513 != nil {
 		ue.T3513.Stop()
 		ue.T3513 = nil // clear the timer
@@ -2013,6 +2020,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 				var accept bool
 				switch ue.AmPolicyAssociation.ServAreaRes.RestrictionType {
 				case models.RestrictionType_ALLOWED_AREAS:
+					ue.GmmLog.Info("---ue.Tai: ", ue.Tai)
+					ue.GmmLog.Info("---ue.Tai.Tac: ", ue.Tai.Tac)
 					accept = context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
 				case models.RestrictionType_NOT_ALLOWED_AREAS:
 					accept = !context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
