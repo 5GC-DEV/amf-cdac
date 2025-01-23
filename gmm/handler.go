@@ -1815,6 +1815,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	// TODO: workaround to send service accept in ICSR
 	ue.RanUe[anType].UeContextRequest = true
 	if serviceType == nasMessage.ServiceTypeSignalling {
+		ue.GmmLog.Infof("---service type signalling")
 		err := sendServiceAccept(ue, anType, ctxList, suList, nil, nil, nil, nil)
 		return err
 	}
@@ -1898,6 +1899,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 	switch serviceType {
 	case nasMessage.ServiceTypeMobileTerminatedServices: // Trigger by Network
+		ue.GmmLog.Infof("---service type ServiceTypeMobileTerminatedServices")
 		if ue.N1N2Message != nil {
 			requestData := ue.N1N2Message.Request.JsonData
 			n1Msg := ue.N1N2Message.Request.BinaryDataN1Message
@@ -1905,6 +1907,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 
 			// downlink signalling
 			if n2Info == nil {
+				ue.GmmLog.Info("---n2info nil")
 				err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
 					reactivationResult, errPduSessionId, errCause)
 				if err != nil {
@@ -1996,6 +1999,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 						nasPdu, n2Info)
 				}
 			}
+			ue.GmmLog.Info("---N1N2Message not nil")
 			err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
 				reactivationResult, errPduSessionId, errCause)
 			if err != nil {
@@ -2004,6 +2008,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		}
 		// downlink signaling
 		if ue.ConfigurationUpdateMessage != nil {
+			ue.GmmLog.Info("---ConfigurationUpdateMessage not nil")
 			err := sendServiceAccept(ue, anType, ctxList, suList,
 				acceptPduSessionPsi, reactivationResult, errPduSessionId, errCause)
 			if err != nil {
@@ -2015,6 +2020,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			ue.ConfigurationUpdateMessage = nil
 		}
 	case nasMessage.ServiceTypeData:
+		ue.GmmLog.Info("---service type data")
 		if anType == models.AccessType__3_GPP_ACCESS {
 			if ue.AmPolicyAssociation != nil && ue.AmPolicyAssociation.ServAreaRes != nil {
 				var accept bool
@@ -2032,6 +2038,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 					return nil
 				}
 			}
+			ue.GmmLog.Info("accesstype 3gpp")
 			err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
 				reactivationResult, errPduSessionId, errCause)
 			if err != nil {
