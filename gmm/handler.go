@@ -1718,6 +1718,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	ue.GmmLog.Info("Handle Service Request")
+	//
 	// ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
 	// ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
 	ue.GmmLog.Info("---: mcc", ue.Tai.PlmnId.Mcc)
@@ -1730,6 +1731,12 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		ue.GmmLog.Info("---ranmnc: ", ranMnc)
 	}
 
+	ue.GmmLog.Info("---tai ranue: ", ue.RanUe[anType].Tai)
+	ue.GmmLog.Info("---tac ranue: ", ue.RanUe[anType].Tai.Tac)
+	ue.GmmLog.Info("---mcc ranue:", ue.RanUe[anType].Tai.PlmnId.Mcc)
+	ue.GmmLog.Info("---mnc ranue:", ue.RanUe[anType].Tai.PlmnId.Mnc)
+
+	//
 	if ue.T3513 != nil {
 		ue.T3513.Stop()
 		ue.T3513 = nil // clear the timer
