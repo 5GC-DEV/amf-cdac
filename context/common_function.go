@@ -46,6 +46,15 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	return false
 }
 
+func InTacList(servedTai models.Tai, targetTai models.Tai) bool {
+	if reflect.DeepEqual(servedTai, targetTai) {
+		return true
+	}
+	return false
+}
+
+//
+
 // Function for Comparing the plmn list from RAN and the CORE - Added by CDAC TVM on 25/06/2024 - done by ashithacdac
 func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)

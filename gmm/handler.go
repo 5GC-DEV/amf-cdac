@@ -1718,25 +1718,25 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	ue.GmmLog.Info("Handle Service Request")
-	//
-	// ue.GmmLog.Info("---mcc: ", ue.PlmnId.Mcc)
-	// ue.GmmLog.Info("---mnc: ", ue.PlmnId.Mnc)
+	// by cdac tvm
+	ue.GmmLog.Info("---: mcc", ue.Tai)
+	ue.GmmLog.Info("---: mcc", ue.Tai.Tac)
 	ue.GmmLog.Info("---: mcc", ue.Tai.PlmnId.Mcc)
 	ue.GmmLog.Info("---: mnc", ue.Tai.PlmnId.Mnc)
 
-	for _, i := range ue.RanUe[anType].Ran.SupportedTAList {
-		ranMcc := i.Tai.PlmnId.Mcc
-		ranMnc := i.Tai.PlmnId.Mnc
-		ue.GmmLog.Info("---ranmcc: ", ranMcc)
-		ue.GmmLog.Info("---ranmnc: ", ranMnc)
-	}
+	// for _, i := range ue.RanUe[anType].Ran.SupportedTAList {
+	// ranMcc := i.Tai.PlmnId.Mcc
+	// ranMnc := i.Tai.PlmnId.Mnc
+	// ue.GmmLog.Info("---ranmcc: ", ranMcc)
+	// ue.GmmLog.Info("---ranmnc: ", ranMnc)
+	// }
 
 	ue.GmmLog.Info("---tai ranue: ", ue.RanUe[anType].Tai)
 	ue.GmmLog.Info("---tac ranue: ", ue.RanUe[anType].Tai.Tac)
 	ue.GmmLog.Info("---mcc ranue:", ue.RanUe[anType].Tai.PlmnId.Mcc)
 	ue.GmmLog.Info("---mnc ranue:", ue.RanUe[anType].Tai.PlmnId.Mnc)
+	// end
 
-	//
 	if ue.T3513 != nil {
 		ue.T3513.Stop()
 		ue.T3513 = nil // clear the timer
@@ -1906,7 +1906,6 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 	switch serviceType {
 	case nasMessage.ServiceTypeMobileTerminatedServices: // Trigger by Network
-		ue.GmmLog.Infof("---service type ServiceTypeMobileTerminatedServices")
 		if ue.N1N2Message != nil {
 			requestData := ue.N1N2Message.Request.JsonData
 			n1Msg := ue.N1N2Message.Request.BinaryDataN1Message
@@ -1914,7 +1913,6 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 
 			// downlink signalling
 			if n2Info == nil {
-				ue.GmmLog.Info("---n2info nil")
 				err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
 					reactivationResult, errPduSessionId, errCause)
 				if err != nil {
@@ -2006,7 +2004,6 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 						nasPdu, n2Info)
 				}
 			}
-			ue.GmmLog.Info("---N1N2Message not nil")
 			err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
 				reactivationResult, errPduSessionId, errCause)
 			if err != nil {
@@ -2015,7 +2012,6 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		}
 		// downlink signaling
 		if ue.ConfigurationUpdateMessage != nil {
-			ue.GmmLog.Info("---ConfigurationUpdateMessage not nil")
 			err := sendServiceAccept(ue, anType, ctxList, suList,
 				acceptPduSessionPsi, reactivationResult, errPduSessionId, errCause)
 			if err != nil {
@@ -2028,13 +2024,18 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		}
 	case nasMessage.ServiceTypeData:
 		ue.GmmLog.Info("---service type data")
+		// by cdac tvm
+		var plmnAccept bool
+		plmnAccept = context.InTacList(ue.Tai, ue.RanUe[anType].Tai)
+		if !plmnAccept {
+			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMPLMNNotAllowed)
+		}
+		// end
 		if anType == models.AccessType__3_GPP_ACCESS {
 			if ue.AmPolicyAssociation != nil && ue.AmPolicyAssociation.ServAreaRes != nil {
 				var accept bool
 				switch ue.AmPolicyAssociation.ServAreaRes.RestrictionType {
 				case models.RestrictionType_ALLOWED_AREAS:
-					ue.GmmLog.Info("---ue.Tai: ", ue.Tai)
-					ue.GmmLog.Info("---ue.Tai.Tac: ", ue.Tai.Tac)
 					accept = context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
 				case models.RestrictionType_NOT_ALLOWED_AREAS:
 					accept = !context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
