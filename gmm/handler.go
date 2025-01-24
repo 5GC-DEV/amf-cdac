@@ -2029,6 +2029,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		plmnAccept = context.InTacList(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMPLMNNotAllowed)
+			return nil
 		}
 		// end
 		if anType == models.AccessType__3_GPP_ACCESS {
