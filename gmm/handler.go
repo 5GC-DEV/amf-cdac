@@ -97,6 +97,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 	if id := ulNasTransport.PduSessionID2Value; id != nil {
 		pduSessionID = int32(id.GetPduSessionID2Value())
+		ue.GmmLog.Info("---pduSessionID: ", pduSessionID)
 	} else {
 		return errors.New("PDU Session ID is nil")
 	}
@@ -105,6 +106,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 	// session ID IE is not included
 	if ulNasTransport.OldPDUSessionID == nil {
 		smContext, smContextExist := ue.SmContextFindByPDUSessionID(pduSessionID)
+		ue.GmmLog.Info("---smContextExist value: ", smContextExist)
 		requestType := ulNasTransport.RequestType
 
 		if requestType != nil {
@@ -139,6 +141,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 		}
 		// AMF has a PDU session routing context for the PDU session ID and the UE
 		if smContextExist {
+			ue.GmmLog.Info("---smcontext exist")
 			// case i) Request type IE is either not included
 			if requestType == nil {
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
@@ -197,6 +200,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 		} else { // AMF does not have a PDU session routing context for the PDU session ID and the UE
+			ue.GmmLog.Info("---smcontext not exist")
 			switch requestType.GetRequestTypeValue() {
 			// case iii) if the AMF does not have a PDU session routing context for the PDU session ID and the UE
 			// and the Request type IE is included and is set to "initial request"

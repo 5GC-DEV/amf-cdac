@@ -1032,6 +1032,8 @@ func (ue *AmfUe) StoreSmContext(pduSessionID int32, smContext *SmContext) {
 }
 
 func (ue *AmfUe) SmContextFindByPDUSessionID(pduSessionID int32) (*SmContext, bool) {
+	ue.TxLog.Info("---pdusessionID: ", pduSessionID)
+	// TxLog.Info("---smcontextlist: ", ue.SmContextList.Range())
 	if value, ok := ue.SmContextList.Load(pduSessionID); ok {
 		return value.(*SmContext), true
 	} else {
