@@ -122,19 +122,25 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 		}
 
 		if smContextExist && requestType != nil {
+			ue.GmmLog.Info("---smcontextexist and request type not nil")
 			/* AMF releases context locally as this is duplicate pdu session */
 			if requestType.GetRequestTypeValue() == nasMessage.ULNASTransportRequestTypeInitialRequest {
+				ue.GmmLog.Info("---deleting by considering it as a duplicate one")
 				ue.SmContextList.Delete(pduSessionID)
 				smContextExist = false
 			}
 		}
 
 		if !smContextExist {
+			ue.GmmLog.Info("---smcontextexist false")
 			msg := new(nas.Message)
 			if err := msg.PlainNasDecode(&smMessage); err != nil {
 				ue.GmmLog.Errorf("could not decode Nas message: %v", err)
 			}
+			ue.GmmLog.Info("---msg.GsmMessage: ", msg.GsmMessage)
+			ue.GmmLog.Info("---msg.GsmMessage.Status5GSM: ", msg.GsmMessage.Status5GSM)
 			if msg.GsmMessage != nil && msg.GsmMessage.Status5GSM != nil {
+				ue.GmmLog.Info("---msg.GsmMessage != nil && msg.GsmMessage.Status5GSM != nil")
 				ue.GmmLog.Warnf("SmContext doesn't exist, 5GSM Status message received from UE with cause %v", msg.GsmMessage.Status5GSM.Cause5GSM)
 				return nil
 			}
