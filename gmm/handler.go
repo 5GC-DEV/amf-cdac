@@ -750,6 +750,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	if anType == models.AccessType__3_GPP_ACCESS {
 		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
 		// IncrementUeRegStats increments registration level stats - by cdac tvm
+		ue.GmmLog.Info("---registration type string: ", string(ue.RegistrationType5GS))
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, string(ue.RegistrationType5GS), "success")
 	} else {
 		// TS 23.502 4.12.2.2 10a ~ 13: if non-3gpp, AMF should send initial context setup request to N3IWF first,

@@ -90,15 +90,18 @@ func InitMetrics() {
 
 // IncrementNgapMsgStats increments message level stats
 func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
+	fmt.Print("---exposing metric ngap_messages_total")
 	amfStats.ngapMsg.WithLabelValues(amfID, msgType, direction, result, reason).Inc()
 }
 
 // SetGnbSessProfileStats maintains Session profile info
 func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
+	fmt.Print("---exposing metric gnb_session_profile")
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
 }
 
 // IncrementUeRegStats increments registration level stats - by cdac tvm
 func IncrementUeRegStats(amfID, regType, result string) {
+	fmt.Print("---exposing metric amf_ue_registrations_total")
 	amfStats.ueReg.WithLabelValues(amfID, regType, result).Inc()
 }
