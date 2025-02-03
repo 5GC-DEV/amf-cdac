@@ -83,7 +83,7 @@ func init() {
 // InitMetrics initialises AMF stats
 func InitMetrics() {
 	http.Handle("/metrics", promhttp.Handler())
-	if err := http.ListenAndServe(":9089", nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:9089", nil); err != nil {
 		logger.InitLog.Errorf("could not open metrics port: %v", err)
 	}
 }
