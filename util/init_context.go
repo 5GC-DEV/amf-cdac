@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: 2024 Intel Corporation
 // SPDX-FileCopyrightText: 2021 Open Networking Foundation <info@opennetworking.org>
 // Copyright 2019 free5GC.org
 //
@@ -59,13 +60,11 @@ func InitAmfContext(context *context.AMFContext) {
 	if sbi.Scheme != "" {
 		context.UriScheme = models.UriScheme(sbi.Scheme)
 	} else {
-		logger.UtilLog.Warnln("SBI Scheme has not been set. Using http as default")
+		logger.UtilLog.Warnln("SBI scheme has not been set. Using http as default")
 		context.UriScheme = "http"
 	}
 	context.RegisterIPv4 = factory.AMF_DEFAULT_IPV4 // default localhost
 	context.SBIPort = factory.AMF_DEFAULT_PORT_INT  // default port
-	context.Key = AmfKeyPath                        // default key path
-	context.PEM = AmfPemPath                        // default PEM path
 	if sbi != nil {
 		if sbi.RegisterIPv4 != "" {
 			context.RegisterIPv4 = os.Getenv("POD_IP")
@@ -83,11 +82,11 @@ func InitAmfContext(context *context.AMFContext) {
 		}
 		context.BindingIPv4 = os.Getenv(sbi.BindingIPv4)
 		if context.BindingIPv4 != "" {
-			logger.UtilLog.Info("Parsing ServerIPv4 address from ENV Variable.")
+			logger.UtilLog.Infoln("parsing ServerIPv4 address from ENV Variable")
 		} else {
 			context.BindingIPv4 = sbi.BindingIPv4
 			if context.BindingIPv4 == "" {
-				logger.UtilLog.Warn("Error parsing ServerIPv4 address from string. Using the 0.0.0.0 as default.")
+				logger.UtilLog.Warnln("error parsing ServerIPv4 address from string. Using the 0.0.0.0 as default")
 				context.BindingIPv4 = "0.0.0.0"
 			}
 		}
@@ -108,7 +107,7 @@ func InitAmfContext(context *context.AMFContext) {
 	if configuration.NrfUri != "" {
 		context.NrfUri = configuration.NrfUri
 	} else {
-		logger.UtilLog.Warn("NRF Uri is empty! Using localhost as NRF IPv4 address.")
+		logger.UtilLog.Warnln("NRF Uri is empty! Using localhost as NRF IPv4 address")
 		context.NrfUri = factory.AMF_DEFAULT_NRFURI
 	}
 	security := configuration.Security
@@ -149,7 +148,7 @@ func getIntAlgOrder(integrityOrder []string) (intOrder []uint8) {
 		case "NIA3":
 			intOrder = append(intOrder, security.AlgIntegrity128NIA3)
 		default:
-			logger.UtilLog.Errorf("Unsupported algorithm: %s", intAlg)
+			logger.UtilLog.Errorf("unsupported algorithm: %s", intAlg)
 		}
 	}
 	return
@@ -167,7 +166,7 @@ func getEncAlgOrder(cipheringOrder []string) (encOrder []uint8) {
 		case "NEA3":
 			encOrder = append(encOrder, security.AlgCiphering128NEA3)
 		default:
-			logger.UtilLog.Errorf("Unsupported algorithm: %s", encAlg)
+			logger.UtilLog.Errorf("unsupported algorithm: %s", encAlg)
 		}
 	}
 	return
