@@ -46,6 +46,10 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	return false
 }
 
+func InTacList(servedTai models.Tai, targetTai models.Tai) bool {
+	return reflect.DeepEqual(servedTai, targetTai)
+}
+
 // Added Function for Comparing the plmn list from RAN and the CORE for the proper RanConfiguration update procedure
 func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
