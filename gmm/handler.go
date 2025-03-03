@@ -24,6 +24,7 @@ import (
 	"github.com/omec-project/amf/context"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/producer/callback"
 	"github.com/omec-project/amf/util"
@@ -2418,6 +2419,9 @@ func HandleDeregistrationRequest(ue *context.AmfUe, anType models.AccessType,
 	// if Deregistration type is not switch-off, send Deregistration Accept
 	if deregistrationRequest.GetSwitchOff() == 0 && ue.RanUe[anType] != nil {
 		gmm_message.SendDeregistrationAccept(ue.RanUe[anType])
+		metrics.IncrementUeDeregStats(context.AMF_Self().NfId, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "success")
+	} else {
+		metrics.IncrementUeDeregStats(context.AMF_Self().NfId, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "failure")
 	}
 
 	// TS 23.502 4.2.6, 4.12.3
@@ -2498,7 +2502,7 @@ func HandleDeregistrationAccept(ue *context.AmfUe, anType models.AccessType,
 				context.UeContextReleaseDueToNwInitiatedDeregistraion, ngapType.CausePresentNas, ngapType.CauseNasPresentDeregister)
 		}
 	}
-
+	metrics.IncrementUeDeregStats(context.AMF_Self().NfId, string(nas.MsgTypeDeregistrationAcceptUETerminatedDeregistration), "out", "success")
 	ue.DeregistrationTargetAccessType = 0
 
 	return GmmFSM.SendEvent(ue.State[models.AccessType__3_GPP_ACCESS], DeregistrationAcceptEvent, fsm.ArgsType{

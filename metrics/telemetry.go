@@ -23,6 +23,7 @@ import (
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
+	ueDeregistered    *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -38,6 +39,11 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
 		}, []string{"id", "ip", "state", "tac"}),
+
+		ueDeregistered: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "ue_deregistered_total",
+			Help: "ue deregistration stats",
+		}, []string{"amf_id", "msg_type", "direction", "result"}),
 	}
 }
 
@@ -48,6 +54,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.ueDeregistered); err != nil {
 		return err
 	}
 	return nil
@@ -77,4 +86,9 @@ func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
 // SetGnbSessProfileStats maintains Session profile info
 func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
+}
+
+// IncrementUeDeregStats increments ue deregistration stats
+func IncrementUeDeregStats(amfID, msgType, direction, result string) {
+	amfStats.ueDeregistered.WithLabelValues(amfID, msgType, direction, result).Inc()
 }
