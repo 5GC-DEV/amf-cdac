@@ -338,13 +338,13 @@ func HandleSCTPNotificationLb(gnbId string) {
 	ran, ok := amfSelf.AmfRanFindByGnbId(gnbId)
 	if !ok {
 		logger.NgapLog.Warnf("RAN context has been removed[gnbId: %+v]", gnbId)
+		metrics.IncrementGnbDisconnStats(context.AMF_Self().NfId, ran.Name, ran.GnbIp, "success")
 		return
 	}
 
 	// Removing Stale Connections in AmfRanPool
 	amfSelf.AmfRanPool.Range(func(key, value interface{}) bool {
 		amfRan := value.(*context.AmfRan)
-
 		if amfRan.GnbId == gnbId {
 			amfRan.Remove()
 			ran.Log.Infoln("removed stale entry in AmfRan pool")

@@ -23,6 +23,7 @@ import (
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
+	gnbDisconnect     *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -38,6 +39,11 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
 		}, []string{"id", "ip", "state", "tac"}),
+
+		gnbDisconnect: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "gnb_disconnection_total",
+			Help: "gnb disconnection counters",
+		}, []string{"amf_id", "id", "ip", "result"}),
 	}
 }
 
@@ -48,6 +54,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.gnbDisconnect); err != nil {
 		return err
 	}
 	return nil
@@ -77,4 +86,9 @@ func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
 // SetGnbSessProfileStats maintains Session profile info
 func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
+}
+
+// IncrementGnbDisconnStats increments gnb disconnection level stats
+func IncrementGnbDisconnStats(amfID, id, ip, result string) {
+	amfStats.gnbDisconnect.WithLabelValues(amfID, id, ip, result).Inc()
 }
