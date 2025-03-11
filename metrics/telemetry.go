@@ -43,7 +43,7 @@ func initAmfStats() *AmfStats {
 		ueAuthFail: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "ue_authentication_failure_total",
 			Help: "ue authentication fail counters ",
-		}, []string{"amf_id", "suci", "plmn_id", "result"}),
+		}, []string{"amf_id", "suci", "ausf_id", "result"}),
 	}
 }
 
@@ -89,6 +89,6 @@ func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 }
 
 // IncrementUeAuthFailStats increments ue authentication failure level stats
-func IncrementUeAuthFailStats(amfID, suci, plmnid, result string) {
-	amfStats.ueAuthFail.WithLabelValues(amfID, suci, plmnid, result).Inc()
+func IncrementUeAuthFailStats(amfID, suci, ausfid, result string) {
+	amfStats.ueAuthFail.WithLabelValues(amfID, suci, ausfid, result).Inc()
 }

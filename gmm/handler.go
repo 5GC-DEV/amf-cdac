@@ -24,6 +24,7 @@ import (
 	"github.com/omec-project/amf/context"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/producer/callback"
 	"github.com/omec-project/amf/util"
@@ -2104,6 +2105,7 @@ func HandleAuthenticationResponse(ue *context.AmfUe, accessType models.AccessTyp
 				return nil
 			} else {
 				gmm_message.SendAuthenticationReject(ue.RanUe[accessType], "")
+				metrics.IncrementUeAuthFailStats(context.AMF_Self().NfId, ue.Suci, ue.AusfId, "success")
 				return GmmFSM.SendEvent(ue.State[accessType], AuthFailEvent, fsm.ArgsType{
 					ArgAmfUe:      ue,
 					ArgAccessType: accessType,
@@ -2137,6 +2139,7 @@ func HandleAuthenticationResponse(ue *context.AmfUe, accessType models.AccessTyp
 				return nil
 			} else {
 				gmm_message.SendAuthenticationReject(ue.RanUe[accessType], "")
+				metrics.IncrementUeAuthFailStats(context.AMF_Self().NfId, ue.Suci, ue.AusfId, "success")
 				return GmmFSM.SendEvent(ue.State[accessType], AuthFailEvent, fsm.ArgsType{
 					ArgAmfUe:      ue,
 					ArgAccessType: accessType,
@@ -2207,10 +2210,12 @@ func HandleAuthenticationFailure(ue *context.AmfUe, anType models.AccessType,
 		case nasMessage.Cause5GMMMACFailure:
 			ue.GmmLog.Warnln("Authentication Failure Cause: Mac Failure")
 			gmm_message.SendAuthenticationReject(ue.RanUe[anType], "")
+			metrics.IncrementUeAuthFailStats(context.AMF_Self().NfId, ue.Suci, ue.AusfId, "success")
 			return GmmFSM.SendEvent(ue.State[anType], AuthFailEvent, fsm.ArgsType{ArgAmfUe: ue, ArgAccessType: anType})
 		case nasMessage.Cause5GMMNon5GAuthenticationUnacceptable:
 			ue.GmmLog.Warnln("Authentication Failure Cause: Non-5G Authentication Unacceptable")
 			gmm_message.SendAuthenticationReject(ue.RanUe[anType], "")
+			metrics.IncrementUeAuthFailStats(context.AMF_Self().NfId, ue.Suci, ue.AusfId, "success")
 			return GmmFSM.SendEvent(ue.State[anType], AuthFailEvent, fsm.ArgsType{ArgAmfUe: ue, ArgAccessType: anType})
 		case nasMessage.Cause5GMMngKSIAlreadyInUse:
 			ue.GmmLog.Warnln("Authentication Failure Cause: NgKSI Already In Use")
@@ -2230,6 +2235,7 @@ func HandleAuthenticationFailure(ue *context.AmfUe, anType models.AccessType,
 			if ue.AuthFailureCauseSynchFailureTimes >= 2 {
 				ue.GmmLog.Warnf("2 consecutive Synch Failure, terminate authentication procedure")
 				gmm_message.SendAuthenticationReject(ue.RanUe[anType], "")
+				metrics.IncrementUeAuthFailStats(context.AMF_Self().NfId, ue.Suci, ue.AusfId, "success")
 				return GmmFSM.SendEvent(ue.State[anType], AuthFailEvent, fsm.ArgsType{ArgAmfUe: ue, ArgAccessType: anType})
 			}
 
