@@ -23,6 +23,7 @@ import (
 type AmfStats struct {
 	ngapMsg           *prometheus.CounterVec
 	gnbSessionProfile *prometheus.GaugeVec
+	ueAuthFail        *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -38,6 +39,11 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_session_profile",
 			Help: "gNB session Profile",
 		}, []string{"id", "ip", "state", "tac"}),
+
+		ueAuthFail: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "ue_authentication_failure_total",
+			Help: "ue authentication fail counters ",
+		}, []string{"amf_id", "suci", "plmn_id", "result"}),
 	}
 }
 
@@ -48,6 +54,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.gnbSessionProfile); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.ueAuthFail); err != nil {
 		return err
 	}
 	return nil
@@ -77,4 +86,9 @@ func IncrementNgapMsgStats(amfID, msgType, direction, result, reason string) {
 // SetGnbSessProfileStats maintains Session profile info
 func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
+}
+
+// IncrementUeAuthFailStats increments ue authentication failure level stats
+func IncrementUeAuthFailStats(amfID, suci, plmnid, result string) {
+	amfStats.ueAuthFail.WithLabelValues(amfID, suci, plmnid, result).Inc()
 }
