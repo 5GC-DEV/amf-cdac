@@ -1660,15 +1660,19 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 		ranUe = nil
 	}
 	if ranUe == nil {
+		ran.Log.Info("---ranUe nil")
 		var err error
 		ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 		if err != nil {
 			ran.Log.Errorf("NewRanUe Error: %+v", err)
 		}
 		ran.Log.Debugf("New RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
+		ran.Log.Infof("---New RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
 
 		if fiveGSTMSI != nil {
+			ran.Log.Infof("---5g-s-tmsi: ", fiveGSTMSI.FiveGTMSI.Value)
 			ranUe.Log.Debug("Receive 5G-S-TMSI")
+			ranUe.Log.Info("---Receive 5G-S-TMSI")
 
 			servedGuami := amfSelf.ServedGuamiList[0]
 
@@ -1685,7 +1689,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			// TODO: invoke Namf_Communication_UEContextTransfer if serving AMF has changed since
 			// last Registration Request procedure
 			// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
-
+			ranUe.Log.Info("---guti after constructing: ", guti)
 			if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); !ok {
 				ranUe.Log.Warnf("Unknown UE [GUTI: %s]", guti)
 			} else {
