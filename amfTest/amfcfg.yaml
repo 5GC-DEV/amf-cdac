@@ -75,7 +75,7 @@ configuration:
   # retransmission timer for paging message
   t3513:
     enable: true     # true or false
-    expireTime: 12s   # default is 6 seconds
+    expireTime: 15s   # default is 6 seconds
     maxRetryTimes: 4 # the max number of retransmission
   # retransmission timer for NAS Deregistration Request message
   t3522:

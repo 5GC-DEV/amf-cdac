@@ -35,7 +35,7 @@ const (
 
 // timers at AMF side, defined in TS 24.501 table 10.2.2
 const (
-	TimeT3513 time.Duration = 6 * time.Second
+	TimeT3513 time.Duration = 15 * time.Second
 	TimeT3522 time.Duration = 6 * time.Second
 	TimeT3550 time.Duration = 6 * time.Second
 	TimeT3560 time.Duration = 6 * time.Second
