@@ -1729,6 +1729,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 
 	// Send Authtication / Security Procedure not support
 	// Rejecting ServiceRequest if it is received in Deregistered State
+
+	ue.GmmLog.Info("---ue current state: ", ue.State[anType].Current())
 	if !ue.SecurityContextIsValid() || ue.State[anType].Current() == context.Deregistered {
 		ue.GmmLog.Warnf("No Security Context : SUPI[%s]", ue.Supi)
 		gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMUEIdentityCannotBeDerivedByTheNetwork)

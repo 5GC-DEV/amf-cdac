@@ -193,6 +193,7 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 	if ue == nil {
 		return nil, fmt.Errorf("amfUe is nil")
 	}
+	ue.NASLog.Info("---ue.integrityalg: ", ue.IntegrityAlg)
 	if payload == nil {
 		return nil, fmt.Errorf("nas payload is empty")
 	}
@@ -274,20 +275,28 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 		ue.ULCount.SetSQN(sequenceNumber)
 
 		ue.NASLog.Debugf("calculate NAS MAC (algorithm: %+v, ULCount: 0x%0x)", ue.IntegrityAlg, ue.ULCount.Get())
+		ue.NASLog.Infof("---calculate NAS MAC (algorithm: %+v, ULCount: 0x%0x)", ue.IntegrityAlg, ue.ULCount.Get())
 		ue.NASLog.Debugf("NAS integrity key0x: %0x", ue.KnasInt)
+		ue.NASLog.Infof("---NAS integrity key0x: %0x", ue.KnasInt)
 		mutex.Lock()
 		defer mutex.Unlock()
+
+		ue.NASLog.Info("---ue.integrityalg: ", ue.IntegrityAlg)
 		mac32, err := security.NASMacCalculate(ue.IntegrityAlg, ue.KnasInt, ue.ULCount.Get(), security.Bearer3GPP,
 			security.DirectionUplink, payload)
 		if err != nil {
 			return nil, fmt.Errorf("MAC calcuate error: %+v", err)
 		}
 
+		ue.NASLog.Info("---mac32 :", mac32)
+		ue.NASLog.Info("---receivedMac32 :", receivedMac32)
 		if !reflect.DeepEqual(mac32, receivedMac32) {
 			ue.NASLog.Warnf("NAS MAC verification failed(received: 0x%08x, expected: 0x%08x)", receivedMac32, mac32)
 			ue.MacFailed = true
+			ue.NASLog.Info("---ue.macfailed: ", ue.MacFailed)
 		} else {
 			ue.NASLog.Debugf("cmac value: 0x%08x", mac32)
+			ue.NASLog.Infof("---cmac value: 0x%08x", mac32)
 			ue.MacFailed = false
 		}
 
