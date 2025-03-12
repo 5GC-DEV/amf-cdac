@@ -168,7 +168,7 @@ func FetchUeContextWithMobileIdentity(payload []byte) *context.AmfUe {
 		}
 	}
 	if guti != "" {
-		ue.NASLog.Info("---guti in fetchuecontextwithmobileidentity: ", guti)
+		logger.CommLog.Info("---guti in fetchuecontextwithmobileidentity: ", guti)
 		ue, _ = context.AMF_Self().AmfUeFindByGuti(guti)
 		if ue != nil {
 			if msg.SecurityHeaderType == nas.SecurityHeaderTypePlainNas {
