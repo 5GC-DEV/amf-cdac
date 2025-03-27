@@ -26,8 +26,8 @@ type AmfStats struct {
 	ueReg             *prometheus.CounterVec
 	ueDeregistered    *prometheus.CounterVec
 	ueConnRelease     *prometheus.CounterVec
-	// gnbDisconnect     *prometheus.CounterVec
-	ueAuthFail *prometheus.CounterVec
+	gnbDisconnect     *prometheus.CounterVec
+	ueAuthFail        *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -59,10 +59,10 @@ func initAmfStats() *AmfStats {
 			Help: "Total number of ue release",
 		}, []string{"amf_id", "ran_Ue_Ngap_Id", "direction", "result"}),
 
-		// gnbDisconnect: prometheus.NewCounterVec(prometheus.CounterOpts{
-		// 	Name: "gnb_disconnection_total",
-		// 	Help: "gnb disconnection counters",
-		// }, []string{"amf_id", "id", "ip", "result"}),
+		gnbDisconnect: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "gnb_disconnection_total",
+			Help: "gnb disconnection counters",
+		}, []string{"id", "ip", "result"}),
 
 		ueAuthFail: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "ue_authentication_failure_total",
@@ -89,9 +89,9 @@ func (ps *AmfStats) register() error {
 	if err := prometheus.Register(ps.ueConnRelease); err != nil {
 		return err
 	}
-	// if err := prometheus.Register(ps.gnbDisconnect); err != nil {
-	// 	return err
-	// }
+	if err := prometheus.Register(ps.gnbDisconnect); err != nil {
+		return err
+	}
 	if err := prometheus.Register(ps.ueAuthFail); err != nil {
 		return err
 	}
@@ -140,9 +140,9 @@ func IncrementUeConnRelStats(amfID, ranUeNgapId, direction, result string) {
 }
 
 // IncrementGnbDisconnStats increments gnb disconnection level stats
-// func IncrementGnbDisconnStats(amfID, id, ip, result string) {
-// 	amfStats.gnbDisconnect.WithLabelValues(amfID, id, ip, result).Inc()
-// }
+func IncrementGnbDisconnStats(id, ip, result string) {
+	amfStats.gnbDisconnect.WithLabelValues(id, ip, result).Inc()
+}
 
 // IncrementUeAuthFailStats increments ue authentication failure level stats
 func IncrementUeAuthFailStats(amfID, suci, ausfid, result string) {
