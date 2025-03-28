@@ -293,6 +293,7 @@ func HandleSCTPNotification(conn net.Conn, notification sctp.Notification) {
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
 		logger.NgapLog.Warnf("RAN context has been removed[addr: %+v]", conn.RemoteAddr())
+		// metrics.IncrementGnbDisconnStats(context.AMF_Self().NfId, ran.Name, ran.GnbIp, "success")
 		return
 	}
 

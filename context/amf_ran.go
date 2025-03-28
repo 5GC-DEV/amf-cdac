@@ -82,6 +82,7 @@ func (ran *AmfRan) Remove() {
 
 	ran.SetRanStats(RanDisconnected)
 	ran.Log.Infof("remove RAN Context[ID: %+v]", ran.RanID())
+	metrics.IncrementGnbDisconnStats(ran.Name, ran.GnbIp, "success")
 	ran.RemoveAllUeInRan()
 	if AMF_Self().EnableSctpLb {
 		if ran.GnbId != "" {
