@@ -10,6 +10,7 @@ import (
 
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/producer/callback"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/aper"
@@ -693,6 +694,7 @@ func SendPaging(ue *context.AmfUe, ngapBuf []byte) {
 		}, func() {
 			ue.GmmLog.Warnf("T3513 expires %d times, abort paging procedure", cfg.MaxRetryTimes)
 			ue.T3513 = nil // clear the timer
+			metrics.IncrementUePagingFailStats(context.AMF_Self().NfId, ue.Suci, "success")
 			if ue.GetOnGoing(models.AccessType__3_GPP_ACCESS).Procedure != context.OnGoingProcedureN2Handover {
 				callback.SendN1N2TransferFailureNotification(ue, models.N1N2MessageTransferCause_UE_NOT_RESPONDING)
 			}

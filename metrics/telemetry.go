@@ -28,6 +28,9 @@ type AmfStats struct {
 	ueConnRelease     *prometheus.CounterVec
 	gnbDisconnect     *prometheus.CounterVec
 	ueAuthFail        *prometheus.CounterVec
+	pagingFail        *prometheus.CounterVec
+	xnHandoverFail    *prometheus.CounterVec
+	n2HandoverFail    *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -68,6 +71,21 @@ func initAmfStats() *AmfStats {
 			Name: "ue_authentication_failure_total",
 			Help: "ue authentication fail counters ",
 		}, []string{"amf_id", "suci", "ausf_id", "result"}),
+
+		pagingFail: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "ue_paging_failures_total",
+			Help: "ue paging failure counters ",
+		}, []string{"amf_id", "suci", "result"}),
+
+		xnHandoverFail: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "xn_handover_failures_total",
+			Help: "xn handover failure counters",
+		}, []string{"amf_id", "suci", "target_gnbip", "result"}),
+
+		n2HandoverFail: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "n2_handover_failures_total",
+			Help: "n2 handover failure counters",
+		}, []string{"amf_id", "suci", "target_gnbip", "result"}),
 	}
 }
 
@@ -93,6 +111,15 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.ueAuthFail); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.pagingFail); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.xnHandoverFail); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.n2HandoverFail); err != nil {
 		return err
 	}
 	return nil
@@ -147,4 +174,19 @@ func IncrementGnbDisconnStats(id, ip, result string) {
 // IncrementUeAuthFailStats increments ue authentication failure level stats
 func IncrementUeAuthFailStats(amfID, suci, ausfid, result string) {
 	amfStats.ueAuthFail.WithLabelValues(amfID, suci, ausfid, result).Inc()
+}
+
+// IncrementUePagingFailStats increments ue paging failure level stats
+func IncrementUePagingFailStats(amfID, suci, result string) {
+	amfStats.pagingFail.WithLabelValues(amfID, suci, result).Inc()
+}
+
+// IncrementXnHandoverFailStats increments xn handover failure level stats
+func IncrementXnHandoverFailStats(amfID, suci, gnbip, result string) {
+	amfStats.xnHandoverFail.WithLabelValues(amfID, suci, gnbip, result).Inc()
+}
+
+// IncrementN2HandoverFailStats increments n2 handover failure level stats
+func IncrementN2HandoverFailStats(amfID, suci, gnbip, result string) {
+	amfStats.n2HandoverFail.WithLabelValues(amfID, suci, gnbip, result).Inc()
 }
