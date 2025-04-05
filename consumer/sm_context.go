@@ -17,6 +17,7 @@ import (
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/nas/nasMessage"
 	"github.com/omec-project/openapi"
@@ -129,6 +130,7 @@ func SelectSmf(
 
 	result, err := SendSearchNFInstances(nrfUri, models.NfType_SMF, models.NfType_AMF, &param)
 	if err != nil {
+		metrics.IncrementNfNonReachableStats(amf_context.AMF_Self().NfId, nrfUri, "success")
 		return nil, nasMessage.Cause5GMMPayloadWasNotForwarded, err
 	}
 

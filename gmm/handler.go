@@ -672,6 +672,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_PCF, models.NfType_AMF, &param)
 		if err != nil {
 			ue.GmmLog.Error("AMF can not select an PCF by NRF")
+			metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		} else {
 			// select the first PCF, TODO: select base on other info
 			var pcfUri string
@@ -1134,6 +1135,7 @@ func communicateWithUDM(ue *context.AmfUe, accessType models.AccessType) error {
 	}
 	resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_UDM, models.NfType_AMF, &param)
 	if err != nil {
+		metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		return fmt.Errorf("AMF can not select an UDM by NRF")
 	}
 
@@ -1553,6 +1555,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_AUSF, models.NfType_AMF, &param)
 	if err != nil {
 		ue.GmmLog.Error("AMF can not select an AUSF by NRF")
+		metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		return false, err
 	}
 
