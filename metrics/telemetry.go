@@ -32,6 +32,8 @@ type AmfStats struct {
 	xnHandoverFail    *prometheus.CounterVec
 	n2HandoverFail    *prometheus.CounterVec
 	nfNonReachable    *prometheus.CounterVec
+	noOfUeConnect     *prometheus.GaugeVec
+	noOfGnbConnect    *prometheus.GaugeVec
 }
 
 var amfStats *AmfStats
@@ -92,6 +94,16 @@ func initAmfStats() *AmfStats {
 			Name: "n2_handover_failures_total",
 			Help: "n2 handover failure counters",
 		}, []string{"amf_id", "nrf_uri", "result"}),
+
+		noOfUeConnect: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "ue_connected_total",
+			Help: "UE connections total",
+		}, []string{"id", "supi", "guti"}),
+
+		noOfGnbConnect: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "gnb_connected_total",
+			Help: "GNB connections total",
+		}, []string{"id", "gnb_id", "gnb_ip"}),
 	}
 }
 
@@ -129,6 +141,12 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.nfNonReachable); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.noOfUeConnect); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.noOfGnbConnect); err != nil {
 		return err
 	}
 	return nil
@@ -203,4 +221,14 @@ func IncrementN2HandoverFailStats(amfID, suci, gnbip, result string) {
 // IncrementNfNonReachableStats increments NF Non Reachable level stats
 func IncrementNfNonReachableStats(amfID, nrfuri, result string) {
 	amfStats.nfNonReachable.WithLabelValues(amfID, nrfuri, result).Inc()
+}
+
+// SetNoOfUeConnectionStats maintains total ue connections info
+func SetNoOfUeConnectionStats(id, suci, guti string, count uint64) {
+	amfStats.noOfUeConnect.WithLabelValues(id, suci, guti).Set(float64(count))
+}
+
+// SetNoOfGnbConnectionStats maintains total gNB connections info
+func SetNoOfGnbConnectionStats(id, gnbid, gnbip string, count uint64) {
+	amfStats.noOfGnbConnect.WithLabelValues(id, gnbid, gnbip).Set(float64(count))
 }

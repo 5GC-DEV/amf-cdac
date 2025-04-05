@@ -782,6 +782,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
+		metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 1)
 		// send nf(gnb) status notification
 		gnbStatus := mi.MetricEvent{
 			EventType: mi.CNfStatusEvt,
@@ -797,6 +798,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
+		metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 0)
 	}
 }
 
