@@ -91,8 +91,8 @@ func initAmfStats() *AmfStats {
 		}, []string{"amf_id", "suci", "target_gnbip", "result"}),
 
 		nfNonReachable: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "n2_handover_failures_total",
-			Help: "n2 handover failure counters",
+			Name: "nf_nonreachable_total",
+			Help: "nf non reachable counters",
 		}, []string{"amf_id", "nrf_uri", "result"}),
 
 		noOfUeConnect: prometheus.NewGaugeVec(prometheus.GaugeOpts{
