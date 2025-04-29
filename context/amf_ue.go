@@ -576,7 +576,6 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai *models.Snssai) bool {
 		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
 			return true
 		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst {
-			logger.ContextLog.Info("SST values match, SD values differ")
 			targetSNssai.Sd = sNssai.SubscribedSnssai.Sd
 			return true
 		}

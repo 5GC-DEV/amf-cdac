@@ -12,6 +12,7 @@ import (
 
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
 	"github.com/omec-project/openapi/models"
@@ -76,6 +77,7 @@ func SearchUdmSdmInstance(ue *amf_context.AmfUe, nrfUri string, targetNfType, re
 ) error {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
 	if localErr != nil {
+		metrics.IncrementNfNonReachableStats(amf_context.AMF_Self().NfId, nrfUri, "success")
 		return localErr
 	}
 
@@ -102,6 +104,7 @@ func SearchNssfNSSelectionInstance(ue *amf_context.AmfUe, nrfUri string, targetN
 ) error {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
 	if localErr != nil {
+		metrics.IncrementNfNonReachableStats(amf_context.AMF_Self().NfId, nrfUri, "success")
 		return localErr
 	}
 
@@ -126,6 +129,7 @@ func SearchAmfCommunicationInstance(ue *amf_context.AmfUe, nrfUri string, target
 ) (err error) {
 	resp, localErr := SendSearchNFInstances(nrfUri, targetNfType, requestNfType, param)
 	if localErr != nil {
+		metrics.IncrementNfNonReachableStats(amf_context.AMF_Self().NfId, nrfUri, "success")
 		err = localErr
 		return
 	}

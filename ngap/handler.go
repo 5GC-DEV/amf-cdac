@@ -782,6 +782,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
+		metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 1)
 		// send nf(gnb) status notification
 		gnbStatus := mi.MetricEvent{
 			EventType: mi.CNfStatusEvt,
@@ -797,6 +798,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
+		metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 0)
 	}
 }
 
@@ -3375,8 +3377,10 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
+		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
 	} else {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
+		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
 	}
 }
 
@@ -3542,6 +3546,7 @@ func HandleHandoverRequestAcknowledge(ran *context.AmfRan, message *ngapType.NGA
 				},
 			}
 			ngap_message.SendHandoverPreparationFailure(sourceUe, *cause, nil)
+			metrics.IncrementN2HandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
 			return
 		}
 		ngap_message.SendHandoverCommand(sourceUe, pduSessionResourceHandoverList, pduSessionResourceToReleaseList,

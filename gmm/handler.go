@@ -528,6 +528,7 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	if !context.InTaiList(ue.Tai, taiList) {
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMTrackingAreaNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 		return fmt.Errorf("registration reject[Tracking area not allowed]")
 	}
 
@@ -536,6 +537,7 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	} else {
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 		return fmt.Errorf("UESecurityCapability is nil")
 	}
 	// TODO (TS 23.502 4.2.2.2 step 4): if UE's 5g-GUTI is included & serving AMF has changed
@@ -608,6 +610,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	if len(ue.AllowedNssai[anType]) == 0 {
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 		ngap_message.SendUEContextReleaseCommand(ue.RanUe[anType], context.UeContextN2NormalRelease,
 			ngapType.CausePresentNas, ngapType.CauseNasPresentNormalRelease)
 		ue.Remove()
@@ -672,6 +675,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_PCF, models.NfType_AMF, &param)
 		if err != nil {
 			ue.GmmLog.Error("AMF can not select an PCF by NRF")
+			metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		} else {
 			// select the first PCF, TODO: select base on other info
 			var pcfUri string
@@ -697,11 +701,13 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		ue.GmmLog.Errorf("AM Policy Control Create Failed Problem[%+v]", problemDetails)
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 		return fmt.Errorf("AMPolicy Control Create failed at PCF")
 	} else if err != nil {
 		ue.GmmLog.Errorf("AM Policy Control Create Error[%+v]", err)
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 		return err
 	}
 
@@ -745,6 +751,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	if anType == models.AccessType__3_GPP_ACCESS {
 		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 1)
 	} else {
 		// TS 23.502 4.12.2.2 10a ~ 13: if non-3gpp, AMF should send initial context setup request to N3IWF first,
 		// and send registration accept after receiving initial context setup response
@@ -787,6 +794,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 		if ue.RegistrationType5GS != nasMessage.RegistrationType5GSPeriodicRegistrationUpdating {
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
 			metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+			metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 			return fmt.Errorf("Capability5GMM is nil")
 		}
 	}
@@ -1134,6 +1142,7 @@ func communicateWithUDM(ue *context.AmfUe, accessType models.AccessType) error {
 	}
 	resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_UDM, models.NfType_AMF, &param)
 	if err != nil {
+		metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		return fmt.Errorf("AMF can not select an UDM by NRF")
 	}
 
@@ -1252,6 +1261,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		if !disableSliceSelection {
 			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 			metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+			metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 			return fmt.Errorf("slice mismatch in registration request")
 		}
 
@@ -1274,11 +1284,13 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Errorf("NSSelection Get Failed Problem[%+v]", problemDetails)
 				gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
 				metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+				metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 				return fmt.Errorf("handle Requested Nssai of UE failed")
 			} else if err != nil {
 				ue.GmmLog.Errorf("NSSelection Get Error[%+v]", err)
 				gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMProtocolErrorUnspecified, "")
 				metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+				metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 				return fmt.Errorf("handle Requested Nssai of UE failed")
 			}
 
@@ -1553,6 +1565,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	resp, err := consumer.SendSearchNFInstances(amfSelf.NrfUri, models.NfType_AUSF, models.NfType_AMF, &param)
 	if err != nil {
 		ue.GmmLog.Error("AMF can not select an AUSF by NRF")
+		metrics.IncrementNfNonReachableStats(context.AMF_Self().NfId, amfSelf.NrfUri, "success")
 		return false, err
 	}
 
@@ -2550,6 +2563,7 @@ func HandleAuthenticationError(ue *context.AmfUe, anType models.AccessType) erro
 	if ue.RegistrationRequest != nil {
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMUEIdentityCannotBeDerivedByTheNetwork, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
+		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
 	}
 	return nil
 }
