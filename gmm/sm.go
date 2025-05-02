@@ -52,7 +52,7 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 		}
 	case NwInitiatedDeregistrationEvent:
@@ -130,7 +130,7 @@ func Registered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 		}
 	case StartAuthEvent:
@@ -214,7 +214,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			logger.GmmLog.Errorf("UE state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			logger.GmmLog.Warnf("UE state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
 			// Modified to fix the State mismatch issue
@@ -347,7 +347,7 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
 			// Modified to fix the State mismatch issue
@@ -426,7 +426,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			logger.GmmLog.Errorf("UE state mismatch: receieve wrong gmm message")
+			logger.GmmLog.Warnf("UE state mismatch: receieve wrong gmm message")
 		}
 	case GmmMessageEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
@@ -485,7 +485,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			msgType := gmmMessage.GetMessageType()
 			// called SendEvent() to move to deregistered state if state mismatch occurs
@@ -560,7 +560,7 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Errorf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
 			// Modified to fix the State mismatch issue
