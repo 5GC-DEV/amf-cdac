@@ -1662,6 +1662,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	}
 
 	ranUe := ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
+
 	if ranUe != nil && ranUe.AmfUe == nil {
 		err := ranUe.Remove()
 		if err != nil {
@@ -2724,14 +2725,28 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 	}
 
 	// Modified to check gnbid check for UE release
-	if ranUe.Ran.GnbId == ran.GnbId {
-		ran.Log.Info("Gnbid matches")
+	if ran.GnbId != "" {
+		if ranUe.Ran != nil {
+			if ranUe.Ran.GnbId == ran.GnbId {
+				ran.Log.Info("Gnbid matches")
+			} else {
+				ran.Log.Errorf("Gnbid mismatch")
+				cause = &ngapType.Cause{
+					Present: ngapType.CausePresentRadioNetwork,
+					RadioNetwork: &ngapType.CauseRadioNetwork{
+						Value: ngapType.CauseRadioNetworkPresentUnknownLocalUENGAPID,
+					},
+				}
+				ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)
+				return
+			}
+		}
 	} else {
-		ran.Log.Errorf("Gnbid mismatch")
+		ran.Log.Warnf("Gnbid is nil")
 		cause = &ngapType.Cause{
 			Present: ngapType.CausePresentRadioNetwork,
 			RadioNetwork: &ngapType.CauseRadioNetwork{
-				Value: ngapType.CauseRadioNetworkPresentUnknownLocalUENGAPID,
+				Value: ngapType.CauseRadioNetworkPresentReleaseDueToNgranGeneratedReason,
 			},
 		}
 		ngap_message.SendErrorIndication(ran, nil, nil, cause, nil)

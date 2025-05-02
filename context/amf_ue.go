@@ -520,6 +520,8 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 			// TODO:The scenario of testing with different gNBs for the same UE has not been conducted.
 			if oldRanUe != ranUe {
 				oldRanUe.AmfUe = nil
+				logger.ContextLog.Info("Detached UeContext from OldRanUe")
+				// oldRanUe.Log.Infof("Detached UeContext from OldRanUe")
 			}
 			// Modification END
 		}
