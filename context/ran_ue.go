@@ -131,7 +131,13 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 		return fmt.Errorf("newRan is nil")
 	}
 
+	logger.ContextLog.Info("---newRan.GnbId: ", newRan.GnbId)
+	logger.ContextLog.Info("---newRan.GnbId: ", newRan.GnbIp)
+
 	oldRan := ranUe.Ran
+
+	logger.ContextLog.Info("---oldRan.GnbId: ", oldRan.GnbId)
+	logger.ContextLog.Info("---oldRan.GnbIp: ", oldRan.GnbIp)
 
 	// remove ranUe from oldRan
 	for index, ranUe1 := range oldRan.RanUeList {
@@ -146,7 +152,10 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 
 	// switch to newRan
 	ranUe.Ran = newRan
+	logger.ContextLog.Info("---ranue.GnbId: ", ranUe.Ran.GnbId)
+	logger.ContextLog.Info("---ranue.GnbIp: ", ranUe.Ran.GnbIp)
 	ranUe.RanUeNgapId = ranUeNgapId
+	logger.ContextLog.Info("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
 
 	logger.ContextLog.Infof("RanUe[RanUeNgapID: %d] Switch to new Ran[Name: %s]", ranUe.RanUeNgapId, ranUe.Ran.Name)
 	return nil
