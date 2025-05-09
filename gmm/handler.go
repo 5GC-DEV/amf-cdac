@@ -527,9 +527,14 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	}
 	if !context.InTaiList(ue.Tai, taiList) {
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMTrackingAreaNotAllowed, "")
+		ue.GmmLog.Infof("registration reject[Tracking area not allowed]")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
-		return fmt.Errorf("registration reject[Tracking area not allowed]")
+		ue.GmmLog.Info("---state resetting to deregistered")
+		return GmmFSM.SendEvent(ue.State[anType], ContextSetupFailEvent, fsm.ArgsType{
+			ArgAmfUe:      ue,
+			ArgAccessType: anType,
+		})
 	}
 
 	if registrationRequest.UESecurityCapability != nil {
@@ -702,13 +707,22 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
-		return fmt.Errorf("AMPolicy Control Create failed at PCF")
+		ue.GmmLog.Infof("AMPolicy Control Create failed at PCF")
+		ue.GmmLog.Info("---state resetting to deregistered")
+		return GmmFSM.SendEvent(ue.State[anType], ContextSetupFailEvent, fsm.ArgsType{
+			ArgAmfUe:      ue,
+			ArgAccessType: anType,
+		})
 	} else if err != nil {
 		ue.GmmLog.Errorf("AM Policy Control Create Error[%+v]", err)
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
-		return err
+		ue.GmmLog.Info("---state resetting to deregistered")
+		return GmmFSM.SendEvent(ue.State[anType], ContextSetupFailEvent, fsm.ArgsType{
+			ArgAmfUe:      ue,
+			ArgAccessType: anType,
+		})
 	}
 
 	// Service Area Restriction are applicable only to 3GPP access
@@ -1259,10 +1273,15 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			}
 		}
 		if !disableSliceSelection {
-			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
+			gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMMDNNNotSupportedOrNotSubscribedInTheSlice, "")
 			metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
 			metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
-			return fmt.Errorf("slice mismatch in registration request")
+			ue.GmmLog.Infof("slice mismatch in registration request")
+			ue.GmmLog.Info("---state resetting to deregistered")
+			return GmmFSM.SendEvent(ue.State[anType], ContextSetupFailEvent, fsm.ArgsType{
+				ArgAmfUe:      ue,
+				ArgAccessType: anType,
+			})
 		}
 
 		if needSliceSelection {
