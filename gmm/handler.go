@@ -2040,7 +2040,12 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		}
 	case nasMessage.ServiceTypeData:
 		var plmnAccept bool
+		ue.GmmLog.Info("---MCC from req: ", ue.Tai.PlmnId.Mcc)
+		ue.GmmLog.Info("---MNC from req: ", ue.Tai.PlmnId.Mnc)
+		ue.GmmLog.Info("---MCC: ", ue.RanUe[anType].Tai.PlmnId.Mcc)
+		ue.GmmLog.Info("---MNC: ", ue.RanUe[anType].Tai.PlmnId.Mnc)
 		plmnAccept = context.InTacList(ue.Tai, ue.RanUe[anType].Tai)
+		ue.GmmLog.Info("---plmnaccept: ", plmnAccept)
 		if !plmnAccept {
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMPLMNNotAllowed)
 			return nil
