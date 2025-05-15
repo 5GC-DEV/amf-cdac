@@ -136,6 +136,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 		return
 	}
 
+	ran.Log.Infoln("---ran.gnbip: ", ran.GnbIp)
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
@@ -148,8 +149,10 @@ func Dispatch(conn net.Conn, msg []byte) {
 			NgapMsg:   pdu,
 			SctplbMsg: nil,
 		}
-
-		ranUe.Ran.Conn = conn
+		if ranUe.Ran != nil {
+			ranUe.Ran.Conn = conn
+			ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran.gnbip: ", ranUe.Ran.GnbIp)
+		}
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
