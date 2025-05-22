@@ -156,6 +156,8 @@ func Dispatch(conn net.Conn, msg []byte) {
 				ranUe.Ran.Conn = conn
 				ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran.gnbip: ", ranUe.Ran.GnbIp)
 			}
+		} else {
+			ranUe.AmfUe.TxLog.Infoln("---Amfran is nil")
 		}
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
