@@ -306,6 +306,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	}
 
 	aux := auxCustom.CustomAmfUe
+	logger.ContextLog.Infoln("---aux.Ranid: ", aux.RanId)
 	ran, ok := AMF_Self().AmfRanFindByGnbId(aux.RanId)
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)

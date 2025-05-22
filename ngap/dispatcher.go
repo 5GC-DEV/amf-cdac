@@ -150,8 +150,12 @@ func Dispatch(conn net.Conn, msg []byte) {
 			SctplbMsg: nil,
 		}
 		if ranUe.Ran != nil {
-			ranUe.Ran.Conn = conn
-			ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran.gnbip: ", ranUe.Ran.GnbIp)
+			ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran not nil")
+			if ranUe.Ran.Conn != nil {
+				ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran.Conn not nil")
+				ranUe.Ran.Conn = conn
+				ranUe.AmfUe.TxLog.Infoln("---ranUe.Ran.gnbip: ", ranUe.Ran.GnbIp)
+			}
 		}
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
