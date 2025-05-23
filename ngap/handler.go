@@ -3267,6 +3267,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Errorln("SourceAmfUeNgapID is nil")
 		return
 	}
+	ran.Log.Infoln("---sourceamfuengapid: ", sourceAMFUENGAPID.Value)
 	ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(sourceAMFUENGAPID.Value)
 	if ranUe == nil {
 		ran.Log.Errorf("Cannot find UE from sourceAMfUeNgapID[%d]", sourceAMFUENGAPID.Value)
