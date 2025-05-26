@@ -148,8 +148,15 @@ func Dispatch(conn net.Conn, msg []byte) {
 			NgapMsg:   pdu,
 			SctplbMsg: nil,
 		}
-
-		ranUe.Ran.Conn = conn
+		if ranUe.Ran != nil {
+			ranUe.AmfUe.TxLog.Infoln("---ranue.ran not nil")
+			if ranUe.Ran.Conn != nil {
+				ranUe.AmfUe.TxLog.Infoln("---ranue.ran.conn not nil")
+				ranUe.Ran.Conn = conn
+			}
+		} else {
+			ranUe.AmfUe.TxLog.Infoln("---amfran nil")
+		}
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)

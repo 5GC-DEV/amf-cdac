@@ -128,33 +128,39 @@ func BuildIEMobilityRestrictionList(ue *context.AmfUe) ngapType.MobilityRestrict
 		}
 	}
 
-	if ue.AmPolicyAssociation.ServAreaRes != nil {
-		mobilityRestrictionList.ServiceAreaInformation = new(ngapType.ServiceAreaInformation)
-		serviceAreaInformation := mobilityRestrictionList.ServiceAreaInformation
+	if ue != nil {
+		logger.NgapLog.Info("---ue not nil")
+		if ue.AmPolicyAssociation != nil {
+			logger.NgapLog.Info("---ue.AmPolicyAssociation not nil")
+			if ue.AmPolicyAssociation.ServAreaRes != nil {
+				mobilityRestrictionList.ServiceAreaInformation = new(ngapType.ServiceAreaInformation)
+				serviceAreaInformation := mobilityRestrictionList.ServiceAreaInformation
 
-		item := ngapType.ServiceAreaInformationItem{}
-		item.PLMNIdentity = ngapConvert.PlmnIdToNgap(ue.PlmnId)
-		var tacList []ngapType.TAC
-		for _, area := range ue.AmPolicyAssociation.ServAreaRes.Areas {
-			for _, tac := range area.Tacs {
-				tacBytes, err := hex.DecodeString(tac)
-				if err != nil {
-					logger.NgapLog.Errorf(
-						"[Error] DecodeString tac error: %+v", err)
+				item := ngapType.ServiceAreaInformationItem{}
+				item.PLMNIdentity = ngapConvert.PlmnIdToNgap(ue.PlmnId)
+				var tacList []ngapType.TAC
+				for _, area := range ue.AmPolicyAssociation.ServAreaRes.Areas {
+					for _, tac := range area.Tacs {
+						tacBytes, err := hex.DecodeString(tac)
+						if err != nil {
+							logger.NgapLog.Errorf(
+								"[Error] DecodeString tac error: %+v", err)
+						}
+						tacNgap := ngapType.TAC{}
+						tacNgap.Value = tacBytes
+						tacList = append(tacList, tacNgap)
+					}
 				}
-				tacNgap := ngapType.TAC{}
-				tacNgap.Value = tacBytes
-				tacList = append(tacList, tacNgap)
+				if ue.AmPolicyAssociation.ServAreaRes.RestrictionType == models.RestrictionType_ALLOWED_AREAS {
+					item.AllowedTACs = new(ngapType.AllowedTACs)
+					item.AllowedTACs.List = append(item.AllowedTACs.List, tacList...)
+				} else {
+					item.NotAllowedTACs = new(ngapType.NotAllowedTACs)
+					item.NotAllowedTACs.List = append(item.NotAllowedTACs.List, tacList...)
+				}
+				serviceAreaInformation.List = append(serviceAreaInformation.List, item)
 			}
 		}
-		if ue.AmPolicyAssociation.ServAreaRes.RestrictionType == models.RestrictionType_ALLOWED_AREAS {
-			item.AllowedTACs = new(ngapType.AllowedTACs)
-			item.AllowedTACs.List = append(item.AllowedTACs.List, tacList...)
-		} else {
-			item.NotAllowedTACs = new(ngapType.NotAllowedTACs)
-			item.NotAllowedTACs.List = append(item.NotAllowedTACs.List, tacList...)
-		}
-		serviceAreaInformation.List = append(serviceAreaInformation.List, item)
 	}
 	return mobilityRestrictionList
 }
