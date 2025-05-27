@@ -1673,12 +1673,14 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 		ranUe = nil
 	}
 	if ranUe == nil {
+		ran.Log.Errorf("---ranue nil")
 		var err error
 		ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 		if err != nil {
 			ran.Log.Errorf("NewRanUe Error: %+v", err)
 		}
 		ran.Log.Debugf("New RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
+		ran.Log.Infof("---New RanUe [RanUeNgapID: %d]", ranUe.RanUeNgapId)
 
 		if fiveGSTMSI != nil {
 			ranUe.Log.Debug("Receive 5G-S-TMSI")
@@ -1741,6 +1743,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			}
 		}
 	} else {
+		ran.Log.Errorf("---ranue not nil")
 		ranUe.Ran = ran
 		ranUe.AmfUe.AttachRanUe(ranUe)
 	}
