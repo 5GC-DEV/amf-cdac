@@ -3386,11 +3386,13 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Infof("---rANUENGAPID.Value from request: ", rANUENGAPID.Value)
 		ranUe.Log.Infof("---ran.GnbId: ", ran.GnbId)
 		ranUe.Log.Infof("---ran.GnbIp: ", ran.GnbIp)
+		ranUe.Log.Info("---amfuengapid before switch to ran: ", ranUe.AmfUeNgapId)
 		err := ranUe.SwitchToRan(ran, rANUENGAPID.Value)
 		if err != nil {
 			ranUe.Log.Errorln(err.Error())
 			return
 		}
+		ranUe.Log.Info("---amfuengapid after switch to ran: ", ranUe.AmfUeNgapId)
 		context.StoreContextInDB(amfUe)
 		ranUe.Log.Infof("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
