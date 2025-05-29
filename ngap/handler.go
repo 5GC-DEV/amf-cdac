@@ -3276,7 +3276,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 
 	// Commented to avoid updating target RAN as the Source RAN for proper Xn Handover procedure
-	ranUe.Ran = ran
+	// ranUe.Ran = ran
 
 	ran.Log.Debugf("AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
 	ran.Log.Infof("---AmfUeNgapID[%d] RanUeNgapID[%d]", ranUe.AmfUeNgapId, ranUe.RanUeNgapId)
@@ -3308,9 +3308,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 
 	// Commented to avoid updating target RAN RANUENGAPID as the Source RAN RANUENGAPID for proper Xn Handover procedure
-	if rANUENGAPID != nil {
-		ranUe.RanUeNgapId = rANUENGAPID.Value
-	}
+	// if rANUENGAPID != nil {
+	// ranUe.RanUeNgapId = rANUENGAPID.Value
+	// }
 
 	ranUe.UpdateLocation(userLocationInformation)
 
@@ -3393,6 +3393,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Info("---amfuengapid after switch to ran: ", ranUe.AmfUeNgapId)
 		context.StoreContextInDB(amfUe)
 		ranUe.Log.Infof("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
+		ranUe.Log.Infof("---ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
+		ranUe.Log.Infof("---ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
