@@ -3207,6 +3207,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	var pduSessionResourceFailedToSetupList *ngapType.PDUSessionResourceFailedToSetupListPSReq
 
 	var ranUe *context.RanUe
+	var ue *context.RanUe
 
 	if ran == nil {
 		logger.NgapLog.Errorln("ran is nil")
@@ -3274,6 +3275,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		return
 	}
+	ue = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 
 	// Commented to avoid updating target RAN as the Source RAN for proper Xn Handover procedure
 	// ranUe.Ran = ran
@@ -3395,7 +3397,9 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Infof("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
 		ranUe.Log.Infof("---ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
 		ranUe.Log.Infof("---ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
-		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
+		// ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
+		// 	pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
+		ngap_message.SendPathSwitchRequestAcknowledge(ue, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
