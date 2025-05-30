@@ -19,6 +19,7 @@ import (
 )
 
 func SendToRan(ran *context.AmfRan, packet []byte) {
+	logger.NgapLog.Info("---In SendToRan")
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -30,6 +31,9 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 		logger.NgapLog.Errorln("Ran is nil")
 		return
 	}
+
+	logger.NgapLog.Info("---ran.GnbId: ", ran.GnbId)
+	logger.NgapLog.Info("---ran.GnbIp: ", ran.GnbIp)
 
 	if len(packet) == 0 {
 		ran.Log.Errorln("packet len is 0")
@@ -67,12 +71,15 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 }
 
 func SendToRanUe(ue *context.RanUe, packet []byte) {
+	logger.NgapLog.Info("---In SendToRanUe")
 	var ran *context.AmfRan
 
 	if ue == nil {
 		logger.NgapLog.Errorln("RanUe is nil")
 		return
 	}
+	logger.NgapLog.Info("---ue.Ran.GnbId: ", ue.Ran.GnbId)
+	logger.NgapLog.Info("---ue.Ran.GnbIp: ", ue.Ran.GnbIp)
 
 	if ran = ue.Ran; ran == nil {
 		logger.NgapLog.Errorln("Ran is nil")
@@ -570,6 +577,8 @@ func SendPathSwitchRequestAcknowledge(
 	}
 
 	ue.Log.Infoln("send Path Switch Request Acknowledge")
+	ue.Log.Infoln("---ue.Ran.GnbId: ", ue.Ran.GnbId)
+	ue.Log.Infoln("---ue.Ran.GnbIp: ", ue.Ran.GnbIp)
 
 	if len(pduSessionResourceSwitchedList.List) > context.MaxNumOfPDUSessions {
 		ue.Log.Errorln("Pdu List out of range")
