@@ -34,6 +34,8 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 
 	logger.NgapLog.Info("---ran.GnbId: ", ran.GnbId)
 	logger.NgapLog.Info("---ran.GnbIp: ", ran.GnbIp)
+	logger.NgapLog.Info("---ran remote address network name: ", ran.Conn.RemoteAddr().Network())
+	logger.NgapLog.Info("---ran remote address: ", ran.Conn.RemoteAddr().String())
 
 	if len(packet) == 0 {
 		ran.Log.Errorln("packet len is 0")
@@ -80,6 +82,8 @@ func SendToRanUe(ue *context.RanUe, packet []byte) {
 	}
 	logger.NgapLog.Info("---ue.Ran.GnbId: ", ue.Ran.GnbId)
 	logger.NgapLog.Info("---ue.Ran.GnbIp: ", ue.Ran.GnbIp)
+	logger.NgapLog.Info("---ran remote address network name: ", ue.Ran.Conn.RemoteAddr().Network())
+	logger.NgapLog.Info("---ran remote address: ", ue.Ran.Conn.RemoteAddr().String())
 
 	if ran = ue.Ran; ran == nil {
 		logger.NgapLog.Errorln("Ran is nil")
@@ -579,6 +583,8 @@ func SendPathSwitchRequestAcknowledge(
 	ue.Log.Infoln("send Path Switch Request Acknowledge")
 	ue.Log.Infoln("---ue.Ran.GnbId: ", ue.Ran.GnbId)
 	ue.Log.Infoln("---ue.Ran.GnbIp: ", ue.Ran.GnbIp)
+	ue.Log.Infof("---ran remote address network name: ", ue.Ran.Conn.RemoteAddr().Network())
+	ue.Log.Infof("---ran remote address: ", ue.Ran.Conn.RemoteAddr().String())
 
 	if len(pduSessionResourceSwitchedList.List) > context.MaxNumOfPDUSessions {
 		ue.Log.Errorln("Pdu List out of range")

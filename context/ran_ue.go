@@ -132,12 +132,16 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 	}
 
 	logger.ContextLog.Info("---newRan.GnbId: ", newRan.GnbId)
-	logger.ContextLog.Info("---newRan.GnbId: ", newRan.GnbIp)
+	logger.ContextLog.Info("---newRan.GnbIp: ", newRan.GnbIp)
+	logger.ContextLog.Info("---newran remote address network name: ", newRan.Conn.RemoteAddr().Network())
+	logger.ContextLog.Info("---newRan remote address: ", newRan.Conn.RemoteAddr().String())
 
 	oldRan := ranUe.Ran
 
 	logger.ContextLog.Info("---oldRan.GnbId: ", oldRan.GnbId)
 	logger.ContextLog.Info("---oldRan.GnbIp: ", oldRan.GnbIp)
+	logger.ContextLog.Info("---newran remote address network name: ", oldRan.Conn.RemoteAddr().Network())
+	logger.ContextLog.Info("---newRan remote address: ", oldRan.Conn.RemoteAddr().String())
 
 	// remove ranUe from oldRan
 	for index, ranUe1 := range oldRan.RanUeList {
@@ -152,8 +156,10 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 
 	// switch to newRan
 	ranUe.Ran = newRan
-	logger.ContextLog.Info("---ranue.GnbId: ", ranUe.Ran.GnbId)
-	logger.ContextLog.Info("---ranue.GnbIp: ", ranUe.Ran.GnbIp)
+	logger.ContextLog.Info("---after switch to newran, ranue.GnbId: ", ranUe.Ran.GnbId)
+	logger.ContextLog.Info("---after switch to newran, ranue.GnbIp: ", ranUe.Ran.GnbIp)
+	logger.ContextLog.Info("---after switch to newran, remote address nw name: ", ranUe.Ran.Conn.RemoteAddr().Network())
+	logger.ContextLog.Info("---after switch to newran, remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 	ranUe.RanUeNgapId = ranUeNgapId
 	logger.ContextLog.Info("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
 

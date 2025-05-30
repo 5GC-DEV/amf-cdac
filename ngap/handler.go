@@ -3384,6 +3384,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Infof("---rANUENGAPID.Value from request: ", rANUENGAPID.Value)
 		ranUe.Log.Infof("---ran.GnbId: ", ran.GnbId)
 		ranUe.Log.Infof("---ran.GnbIp: ", ran.GnbIp)
+		ranUe.Log.Infof("---ran remote address network name: ", ran.Conn.RemoteAddr().Network())
+		ranUe.Log.Infof("---ran remote address: ", ran.Conn.RemoteAddr().String())
 		ranUe.Log.Info("---amfuengapid before switch to ran: ", ranUe.AmfUeNgapId)
 		err := ranUe.SwitchToRan(ran, rANUENGAPID.Value)
 		if err != nil {
@@ -3395,6 +3397,12 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Infof("---ranue.ranuengapid: ", ranUe.RanUeNgapId)
 		ranUe.Log.Infof("---ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
 		ranUe.Log.Infof("---ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
+		ranUe.Log.Infof("---ran.GnbId: ", ran.GnbId)
+		ranUe.Log.Infof("---ran.GnbIp: ", ran.GnbIp)
+		ranUe.Log.Infof("---ranue remote address network name: ", ranUe.Ran.Conn.RemoteAddr())
+		ranUe.Log.Infof("---ranue remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
+		ranUe.Log.Infof("---ran remote address network name: ", ran.Conn.RemoteAddr().Network())
+		ranUe.Log.Infof("---ran remote address: ", ran.Conn.RemoteAddr().String())
 		ngap_message.SendPathSwitchRequestAcknowledge(ranUe, pduSessionResourceSwitchedList,
 			pduSessionResourceReleasedListPSAck, false, nil, nil, nil)
 	} else if len(pduSessionResourceReleasedListPSFail.List) > 0 {
