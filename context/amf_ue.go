@@ -310,6 +310,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	ran, ok := AMF_Self().AmfRanFindByGnbId(aux.RanId)
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)
+		return nil
 	}
 	for index, states := range aux.State {
 		ue.State[index] = fsm.NewState(fsm.StateType(states))
@@ -320,6 +321,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 		ue.RanUe[index].AmfUeNgapId = aux.AmfUeNgapId
 		ue.RanUe[index].Log = logger.NgapLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ue.RanUe[index].AmfUeNgapId))
 		if ran != nil {
+			logger.ContextLog.Info("---ran nil while fetching by ranid")
 			// ran.RanUeList = append(ran.RanUeList, ue.RanUe[index])
 			ue.RanUe[index].Ran = ran
 		}

@@ -156,6 +156,7 @@ func DeleteContextFromDB(ue *AmfUe) {
 }
 
 func DbFetch(collName string, filter bson.M) *AmfUe {
+	logger.DataRepoLog.Info("---in DbFetch()")
 	ue := &AmfUe{}
 	ue.init()
 	result, getOneErr := mongoapi.CommonDBClient.RestfulAPIGetOne(collName, filter)
@@ -194,6 +195,9 @@ func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
 	filter["customFieldsAmfUe.ranUeNgapId"] = ranUeNgapID
 	filter["customFieldsAmfUe.ranId"] = ran.GnbId
 
+	logger.DataRepoLog.Info("---ranuengapid in DbFetchRanUeByRanUeNgapID(): ", ranUeNgapID)
+	logger.DataRepoLog.Info("---gnbid in DbFetchRanUeByRanUeNgapID(): ", ran.GnbId)
+
 	ue := DbFetch(AmfUeDataColl, filter)
 	if ue == nil {
 		logger.DataRepoLog.Errorln("DbFetchRanUeByRanUeNgapID: no document found for ranUeNgapID", ranUeNgapID)
@@ -207,6 +211,7 @@ func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
 	// and store in context
 	ranUe := ran.RanUeFindByRanUeNgapIDLocal(ranUeNgapID)
 	if ranUe != nil {
+		logger.DataRepoLog.Info("---ranue found---")
 		return ranUe
 	}
 	return ue.RanUe[models.AccessType__3_GPP_ACCESS]
