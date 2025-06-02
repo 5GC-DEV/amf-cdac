@@ -1745,7 +1745,9 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			}
 		}
 	} else {
-		ran.Log.Errorf("---ranue not nil")
+		ran.Log.Info("---ranue not nil")
+		ran.Log.Info("---ranuengapid while handling initial UE: ", ranUe.RanUeNgapId)
+		ran.Log.Info("---amfuengapid while handling initial UE: ", ranUe.AmfUeNgapId)
 		ranUe.Ran = ran
 		ranUe.AmfUe.AttachRanUe(ranUe)
 	}
@@ -1755,7 +1757,8 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	}
 
 	if rRCEstablishmentCause != nil {
-		ranUe.Log.Debugf("[Initial UE Message] RRC Establishment Cause[%d]", rRCEstablishmentCause.Value)
+		// ranUe.Log.Debugf("[Initial UE Message] RRC Establishment Cause[%d]", rRCEstablishmentCause.Value)
+		ran.Log.Debugf("[Initial UE Message] RRC Establishment Cause[%d]", rRCEstablishmentCause.Value)
 		ranUe.RRCEstablishmentCause = strconv.Itoa(int(rRCEstablishmentCause.Value))
 	}
 
