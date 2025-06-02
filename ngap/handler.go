@@ -84,11 +84,11 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			if ranUe == nil {
-				ranUe.Log.Warnf("---ranue nil while fetching ranue by find by ranuengapid")
+				ran.Log.Info("---ranue nil while fetching ranue by find by ranuengapid")
 				var err error
 
 				if fiveGSTMSI != nil {
-					ranUe.Log.Warnf("---5g tmsi not nil")
+					ran.Log.Info("---5g tmsi not nil")
 					servedGuami := amfSelf.ServedGuamiList[0]
 
 					// <5G-S-TMSI> := <AMF Set ID><AMF Pointer><5G-TMSI>
