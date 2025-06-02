@@ -140,8 +140,8 @@ func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {
 
 	logger.ContextLog.Info("---oldRan.GnbId: ", oldRan.GnbId)
 	logger.ContextLog.Info("---oldRan.GnbIp: ", oldRan.GnbIp)
-	logger.ContextLog.Info("---newran remote address network name: ", oldRan.Conn.RemoteAddr().Network())
-	logger.ContextLog.Info("---newRan remote address: ", oldRan.Conn.RemoteAddr().String())
+	logger.ContextLog.Info("---oldran remote address network name: ", oldRan.Conn.RemoteAddr().Network())
+	logger.ContextLog.Info("---oldran remote address: ", oldRan.Conn.RemoteAddr().String())
 
 	// remove ranUe from oldRan
 	for index, ranUe1 := range oldRan.RanUeList {
