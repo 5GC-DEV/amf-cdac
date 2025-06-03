@@ -3275,6 +3275,8 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
+	ran.Log.Infoln("---source ran remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
+
 	// Commented to avoid updating target RAN as the Source RAN for proper Xn Handover procedure
 	// ranUe.Ran = ran
 
@@ -3387,6 +3389,7 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ranUe.Log.Infof("---ran remote address network name: ", ran.Conn.RemoteAddr().Network())
 		ranUe.Log.Infof("---ran remote address: ", ran.Conn.RemoteAddr().String())
 		ranUe.Log.Info("---amfuengapid before switch to ran: ", ranUe.AmfUeNgapId)
+		ran.Log.Infoln("---source ran remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 		err := ranUe.SwitchToRan(ran, rANUENGAPID.Value)
 		if err != nil {
 			ranUe.Log.Errorln(err.Error())
