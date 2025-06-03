@@ -115,6 +115,7 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 }
 
 func Dispatch(conn net.Conn, msg []byte) {
+	logger.NgapLog.Infof("In dispatch")
 	var ran *context.AmfRan
 	amfSelf := context.AMF_Self()
 
@@ -148,8 +149,15 @@ func Dispatch(conn net.Conn, msg []byte) {
 			NgapMsg:   pdu,
 			SctplbMsg: nil,
 		}
-
+		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
+		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
+		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
+		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 		ranUe.Ran.Conn = conn
+		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
+		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
+		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
+		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
