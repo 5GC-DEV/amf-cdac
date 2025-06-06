@@ -149,15 +149,21 @@ func Dispatch(conn net.Conn, msg []byte) {
 			NgapMsg:   pdu,
 			SctplbMsg: nil,
 		}
-		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
-		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
-		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
-		ranUe.AmfUe.TxLog.Infoln("before updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
-		ranUe.Ran.Conn = conn
-		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
-		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
-		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
-		ranUe.AmfUe.TxLog.Infoln("after updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
+		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
+		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
+		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
+		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
+		if ranUe.Ran != nil {
+			ran.Log.Infoln("---ranue.ran not nil")
+			if ranUe.Ran.Conn != nil {
+				ran.Log.Infoln("---ranue.ran.conn not nil")
+				ranUe.Ran.Conn = conn
+			}
+		}
+		ranUe.AmfUe.TxLog.Infoln("---after updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
+		ranUe.AmfUe.TxLog.Infoln("---after updating conn ranUe.Ran.GnbIp: ", ranUe.Ran.GnbIp)
+		ranUe.AmfUe.TxLog.Infoln("---after updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
+		ranUe.AmfUe.TxLog.Infoln("---after updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
