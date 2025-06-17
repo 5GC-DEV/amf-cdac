@@ -43,6 +43,8 @@ func SendUEAuthenticationAuthenticateRequest(ue *amf_context.AmfUe,
 	}
 
 	var authInfo models.AuthenticationInfo
+	ue.GmmLog.Info("---suci: ", ue.Suci)
+	ue.GmmLog.Info("---suci: ", ue.Supi)
 	authInfo.SupiOrSuci = ue.Suci
 	if mnc, err := strconv.Atoi(plmnId.Mnc); err != nil {
 		return nil, nil, err
