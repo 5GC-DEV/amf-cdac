@@ -68,7 +68,7 @@ const (
 
 type AmfUe struct {
 	// Mutex sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
-	Mutex sync.Mutex `json:"-"`
+	Mutex sync.RWMutex `json:"-"`
 	/* the AMF which serving this AmfUe now */
 	ServingAMF *AMFContext `json:"servingAMF,omitempty"` // never nil
 
@@ -218,6 +218,8 @@ type AmfUe struct {
 }
 
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {
+	ue.Mutex.RLock()
+	defer ue.Mutex.RUnlock()
 	type Alias AmfUe
 	stateVal := make(map[models.AccessType]string)
 	smCtxListVal := make(map[string]SmContext)
