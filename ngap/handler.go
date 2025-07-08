@@ -788,7 +788,8 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			EventType: mi.CNfStatusEvt,
 			NfStatusData: mi.CNfStatus{
 				NfType:   mi.NfTypeGnb,
-				NfStatus: mi.NfStatusConnected, NfName: ran.GnbId,
+				NfStatus: mi.NfStatusConnected,
+				NfName:   ran.GnbId,
 			},
 		}
 		if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
@@ -2639,7 +2640,8 @@ func HandleInitialContextSetupFailure(ran *context.AmfRan, message *ngapType.NGA
 			transfer := item.PDUSessionResourceSetupUnsuccessfulTransfer
 			smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
 			if !ok {
-				ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+				ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found. No need to send UpdateSmContext message to SMF", pduSessionID)
+				continue
 			}
 			_, _, _, err := consumer.SendUpdateSmContextN2Info(amfUe, smContext,
 				models.N2SmInfoType_PDU_RES_SETUP_FAIL, transfer)
