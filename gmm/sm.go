@@ -217,7 +217,6 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			logger.GmmLog.Warnf("UE state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
-			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, AuthFailEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
@@ -227,7 +226,6 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			} else {
 				amfUe.GmmLog.Info("state reset to Deregistered")
 			}
-			//
 		}
 	case AuthSuccessEvent:
 		logger.GmmLog.Debugln(event)
@@ -350,7 +348,6 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
-			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, SecurityModeFailEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
@@ -360,7 +357,6 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			} else {
 				amfUe.GmmLog.Info("state reset to Deregistered")
 			}
-			//
 		}
 	case SecurityModeAbortEvent:
 		logger.GmmLog.Debugln(event)
@@ -488,9 +484,8 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			msgType := gmmMessage.GetMessageType()
-			// called SendEvent() to move to deregistered state if state mismatch occurs
-			// Modified to fix the State mismatch issue
 			if msgType == nas.MsgTypeRegistrationRequest {
+				// called SendEvent() to move to deregistered state if state mismatch occurs
 				err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
 					ArgAmfUe:      amfUe,
 					ArgAccessType: accessType,
@@ -501,7 +496,6 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 					amfUe.GmmLog.Info("state reset to Deregistered")
 				}
 			}
-			//
 		}
 	case ContextSetupSuccessEvent:
 		logger.GmmLog.Debugln(event)
@@ -563,7 +557,6 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
-			// Modified to fix the State mismatch issue
 			err := GmmFSM.SendEvent(state, DeregistrationAcceptEvent, fsm.ArgsType{
 				ArgAmfUe:      amfUe,
 				ArgAccessType: accessType,
@@ -573,7 +566,6 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 			} else {
 				amfUe.GmmLog.Info("state reset to Deregistered")
 			}
-			//
 		}
 	case DeregistrationAcceptEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
@@ -589,13 +581,14 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 
 func SetDeregisteredState(amfUe *context.AmfUe, anType uint8) {
 	amfUe.SubscriptionDataValid = false
-	if anType == nasMessage.AccessType3GPP {
+	switch anType {
+	case nasMessage.AccessType3GPP:
 		amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
 		amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
-	} else if anType == nasMessage.AccessTypeNon3GPP {
+	case nasMessage.AccessTypeNon3GPP:
 		amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
 		amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
-	} else {
+	default:
 		amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
 		amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
 		amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")

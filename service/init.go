@@ -52,7 +52,7 @@ import (
 	"github.com/omec-project/util/http2_util"
 	utilLogger "github.com/omec-project/util/logger"
 	"github.com/spf13/viper"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v3"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -73,7 +73,7 @@ type (
 var config Config
 
 var amfCLi = []cli.Flag{
-	cli.StringFlag{
+	&cli.StringFlag{
 		Name:     "cfg",
 		Usage:    "amf config file",
 		Required: true,
@@ -93,7 +93,7 @@ func (*AMF) GetCliCmd() (flags []cli.Flag) {
 	return amfCLi
 }
 
-func (amf *AMF) Initialize(c *cli.Context) error {
+func (amf *AMF) Initialize(c *cli.Command) error {
 	config = Config{
 		cfg: c.String("cfg"),
 	}
@@ -165,7 +165,7 @@ func manageGrpcClient(webuiUri string, amf *AMF) {
 	count := 0
 	for {
 		if client != nil {
-			if client.CheckGrpcConnectivity() != "ready" {
+			if client.CheckGrpcConnectivity() != "READY" {
 				time.Sleep(time.Second * 30)
 				count++
 				if count > 5 {
@@ -194,6 +194,8 @@ func manageGrpcClient(webuiUri string, amf *AMF) {
 				go amf.UpdateConfig(configChannel)
 				logger.InitLog.Infoln("AMF updateConfig is triggered")
 			}
+
+			time.Sleep(time.Second * 5) // Fixes (avoids) 100% CPU utilization
 		} else {
 			client, err = grpcClient.ConnectToConfigServer(webuiUri)
 			stream = nil
@@ -319,9 +321,9 @@ func (amf *AMF) setLogLevel() {
 	}
 }
 
-func (amf *AMF) FilterCli(c *cli.Context) (args []string) {
+func (amf *AMF) FilterCli(c *cli.Command) (args []string) {
 	for _, flag := range amf.GetCliCmd() {
-		name := flag.GetName()
+		name := flag.Names()[0]
 		value := fmt.Sprint(c.Generic(name))
 		if value == "" {
 			continue
@@ -423,10 +425,14 @@ func (amf *AMF) Start() {
 	}
 
 	serverScheme := factory.AmfConfig.Configuration.Sbi.Scheme
-	if serverScheme == "http" {
+	switch serverScheme {
+	case "http":
 		err = server.ListenAndServe()
-	} else if serverScheme == "https" {
+	case "https":
 		err = server.ListenAndServeTLS(self.PEM, self.Key)
+	default:
+		logger.InitLog.Fatalf("HTTP server setup failed: invalid server scheme %+v", serverScheme)
+		return
 	}
 
 	if err != nil {
@@ -434,7 +440,7 @@ func (amf *AMF) Start() {
 	}
 }
 
-func (amf *AMF) Exec(c *cli.Context) error {
+func (amf *AMF) Exec(c *cli.Command) error {
 	// AMF.Initialize(cfgPath, c)
 
 	logger.InitLog.Debugln("args:", c.String("cfg"))

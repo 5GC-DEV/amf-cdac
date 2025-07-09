@@ -46,10 +46,6 @@ func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	return false
 }
 
-func InTacList(servedTai models.Tai, targetTai models.Tai) bool {
-	return reflect.DeepEqual(servedTai, targetTai)
-}
-
 // Added Function for Comparing the plmn list from RAN and the CORE for the proper RanConfiguration update procedure
 func InPlmnList(gnbplmnlist []interface{}, amfplmnlist []interface{}) bool {
 	return reflect.DeepEqual(gnbplmnlist, amfplmnlist)
@@ -100,6 +96,10 @@ func ConvertHexToOctalbytes(hexstring string) []byte {
 	}
 
 	return sdlistgnb
+}
+
+func IsTaiEqual(servedTai models.Tai, targetTai models.Tai) bool {
+	return servedTai.PlmnId.Mcc == targetTai.PlmnId.Mcc && servedTai.PlmnId.Mnc == targetTai.PlmnId.Mnc && servedTai.Tac == targetTai.Tac
 }
 
 func TacInAreas(targetTac string, areas []models.Area) bool {
