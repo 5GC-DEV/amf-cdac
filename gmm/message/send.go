@@ -71,36 +71,44 @@ func SendIdentityRequest(ue *context.RanUe, typeOfIdentity uint8) {
 }
 
 func SendAuthenticationRequest(ue *context.RanUe) {
-	amfUe := ue.AmfUe
-	if amfUe == nil {
-		logger.GmmLog.Error("AmfUe is nil")
+	// modifn
+	if ue == nil {
+		logger.GmmLog.Error("---ue is nil")
 		return
 	}
+	// added checking ue.amfue not nil
+	if ue.AmfUe != nil {
+		amfUe := ue.AmfUe
+		if amfUe == nil {
+			logger.GmmLog.Error("AmfUe is nil")
+			return
+		}
 
-	amfUe.GmmLog.Infoln("send Authentication Request")
+		amfUe.GmmLog.Infoln("send Authentication Request")
 
-	if amfUe.AuthenticationCtx == nil {
-		amfUe.GmmLog.Errorln("authentication Context of UE is nil")
-		return
-	}
+		if amfUe.AuthenticationCtx == nil {
+			amfUe.GmmLog.Errorln("authentication Context of UE is nil")
+			return
+		}
 
-	nasMsg, err := BuildAuthenticationRequest(amfUe)
-	if err != nil {
-		amfUe.GmmLog.Errorln(err.Error())
-		return
-	}
-	ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
+		nasMsg, err := BuildAuthenticationRequest(amfUe)
+		if err != nil {
+			amfUe.GmmLog.Errorln(err.Error())
+			return
+		}
+		ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
 
-	if context.AMF_Self().T3560Cfg.Enable {
-		cfg := context.AMF_Self().T3560Cfg
-		amfUe.T3560 = context.NewTimer(cfg.ExpireTime, cfg.MaxRetryTimes, func(expireTimes int32) {
-			amfUe.GmmLog.Warnf("T3560 expires, retransmit Authentication Request (retry: %d)", expireTimes)
-			ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
-		}, func() {
-			amfUe.GmmLog.Warnf("T3560 Expires %d times, abort authentication procedure & ongoing 5GMM procedure",
-				cfg.MaxRetryTimes)
-			amfUe.Remove()
-		})
+		if context.AMF_Self().T3560Cfg.Enable {
+			cfg := context.AMF_Self().T3560Cfg
+			amfUe.T3560 = context.NewTimer(cfg.ExpireTime, cfg.MaxRetryTimes, func(expireTimes int32) {
+				amfUe.GmmLog.Warnf("T3560 expires, retransmit Authentication Request (retry: %d)", expireTimes)
+				ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
+			}, func() {
+				amfUe.GmmLog.Warnf("T3560 Expires %d times, abort authentication procedure & ongoing 5GMM procedure",
+					cfg.MaxRetryTimes)
+				amfUe.Remove()
+			})
+		}
 	}
 }
 
