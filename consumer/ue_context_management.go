@@ -11,6 +11,7 @@ import (
 	"time"
 
 	amf_context "github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/Nudm_UEContextManagement"
 	"github.com/omec-project/openapi/models"
@@ -19,6 +20,7 @@ import (
 func UeCmRegistration(ue *amf_context.AmfUe, accessType models.AccessType, initialRegistrationInd bool) (
 	*models.ProblemDetails, error,
 ) {
+	logger.ConsumerLog.Info("---In UeCmRegistration")
 	configuration := Nudm_UEContextManagement.NewConfiguration()
 	configuration.SetBasePath(ue.NudmUECMUri)
 	client := Nudm_UEContextManagement.NewAPIClient(configuration)
@@ -41,6 +43,7 @@ func UeCmRegistration(ue *amf_context.AmfUe, accessType models.AccessType, initi
 		_, httpResp, localErr := client.AMFRegistrationFor3GPPAccessApi.Registration(ctx,
 			ue.Supi, registrationData)
 		if localErr == nil {
+			logger.ConsumerLog.Info("---err nil, success")
 			return nil, nil
 		} else if httpResp != nil {
 			if httpResp.Status != localErr.Error() {

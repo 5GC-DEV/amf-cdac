@@ -664,6 +664,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	if ue.ServingAmfChanged || ue.State[models.AccessType_NON_3_GPP_ACCESS].Is(context.Registered) ||
 		!ue.SubscriptionDataValid {
 		if err := communicateWithUDM(ue, anType); err != nil {
+			ue.GmmLog.Info("---communicating with udm")
 			return err
 		}
 	}
