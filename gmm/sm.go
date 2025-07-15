@@ -167,6 +167,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		amfUe = args[ArgAmfUe].(*context.AmfUe)
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.GmmLog.Debugln("authRestartEvent at GMM State[Authentication]")
+		amfUe.GmmLog.Infoln("authRestartEvent at GMM State[Authentication]")
 
 		pass, err := AuthenticationProcedure(amfUe, accessType)
 		if err != nil {
@@ -190,6 +191,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		gmmMessage := args[ArgNASMessage].(*nas.GmmMessage)
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[Authentication]")
+		amfUe.GmmLog.Infoln("---GmmMessageEvent at GMM State[Authentication]")
 
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
@@ -441,6 +443,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			return
 		}
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[ContextSetup]")
+		amfUe.GmmLog.Debugln("---GmmMessageEvent at GMM State[ContextSetup]")
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
 			if err := HandleIdentityResponse(amfUe, gmmMessage.IdentityResponse); err != nil {
