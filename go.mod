@@ -13,7 +13,7 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/omec-project/aper v1.3.1
 	github.com/omec-project/config5g v1.6.2
-	github.com/omec-project/nas v1.5.3
+	github.com/omec-project/nas v1.5.3-imeifix
 	github.com/omec-project/ngap v1.4.2
 	github.com/omec-project/openapi v1.4.1
 	github.com/omec-project/util v1.3.2
@@ -26,6 +26,8 @@ require (
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/omec-project/nas => github.com/ashithacdac/nas v1.5.3-imeifix
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
