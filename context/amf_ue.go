@@ -500,6 +500,7 @@ func (ue *AmfUe) Remove() {
 }
 
 func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
+	logger.ContextLog.Infoln("---detaching ranue")
 	delete(ue.RanUe, anType)
 }
 

@@ -93,8 +93,10 @@ func (ranUe *RanUe) Remove() error {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
 	if ranUe.AmfUe != nil {
+		logger.ContextLog.Infoln("---ranUe.AmfUe != nil")
 		amfUe := ranUe.AmfUe
 		if amfUe.RanUe[ran.AnType] == ranUe {
+			logger.ContextLog.Infoln("---both ranue equal so detaching ranue")
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
@@ -119,6 +121,7 @@ func (ranUe *RanUe) Remove() error {
 }
 
 func (ranUe *RanUe) DetachAmfUe() {
+	logger.ContextLog.Infoln("---detaching amfue, by ranUe.AmfUe = nil")
 	ranUe.AmfUe = nil
 }
 
