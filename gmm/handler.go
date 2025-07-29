@@ -769,7 +769,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 
 func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType models.AccessType) error {
 	ue.GmmLog.Infoln("Handle MobilityAndPeriodicRegistrationUpdating")
-
+	ue.GmmLog.Infoln("---amfue: ", ue)
 	amfSelf := context.AMF_Self()
 
 	if ue.RegistrationRequest.UpdateType5GS != nil {

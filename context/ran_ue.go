@@ -123,6 +123,7 @@ func (ranUe *RanUe) Remove() error {
 func (ranUe *RanUe) DetachAmfUe() {
 	logger.ContextLog.Infoln("---detaching amfue, by ranUe.AmfUe = nil")
 	ranUe.AmfUe = nil
+	logger.ContextLog.Infoln("---ranue.amfue: ", ranUe.AmfUe)
 }
 
 func (ranUe *RanUe) SwitchToRan(newRan *AmfRan, ranUeNgapId int64) error {

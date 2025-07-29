@@ -392,6 +392,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	switch event {
 	case fsm.EntryEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
+		logger.GmmLog.Info("---amfue: ", amfUe)
 		if !ok {
 			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
 			return
