@@ -154,12 +154,16 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe remote address nw: ", ranUe.Ran.Conn.RemoteAddr().Network())
 		ranUe.AmfUe.TxLog.Infoln("---before updating conn ranUe remote address: ", ranUe.Ran.Conn.RemoteAddr().String())
 
-		if ranUe.Ran.GnbId == ran.GnbId {
-			ranUe.AmfUe.TxLog.Infoln("---gnbid same")
-			ranUe.Ran.Conn = conn
-		} else {
-			ranUe.AmfUe.TxLog.Infoln("---gnbid different")
-			ranUe.AmfUe.TxLog.Infof("---In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+		if ranUe.Ran != nil {
+			if ranUe.Ran.GnbId != "" {
+				if ranUe.Ran.GnbId == ran.GnbId {
+					ranUe.AmfUe.TxLog.Infoln("---gnbid same")
+					ranUe.Ran.Conn = conn
+				} else {
+					ranUe.AmfUe.TxLog.Infoln("---gnbid different")
+					ranUe.AmfUe.TxLog.Infof("---In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				}
+			}
 		}
 
 		ranUe.AmfUe.TxLog.Infoln("---after updating conn ranUe.Ran.GnbId: ", ranUe.Ran.GnbId)
