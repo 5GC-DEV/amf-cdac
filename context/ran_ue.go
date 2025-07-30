@@ -100,6 +100,8 @@ func (ranUe *RanUe) Remove() error {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
+		// cdac added amfue removal
+		amfUe.Remove()
 	}
 
 	for index, ranUe1 := range ran.RanUeList {

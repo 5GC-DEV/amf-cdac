@@ -17,6 +17,9 @@ import (
 )
 
 func Dispatch(ue *context.AmfUe, accessType models.AccessType, procedureCode int64, msg *nas.Message) error {
+	if ue == nil {
+		return errors.New("---ue nil")
+	}
 	if msg.GmmMessage == nil {
 		return errors.New("gmm message is nil")
 	}
