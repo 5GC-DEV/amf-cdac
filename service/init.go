@@ -9,6 +9,7 @@ package service
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // Using package only for invoking initialization.
@@ -25,7 +26,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/omec-project/amf/communication"
 	"github.com/omec-project/amf/consumer"
-	"github.com/omec-project/amf/context"
+	amfContext "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/eventexposure"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/gmm"
@@ -216,7 +217,7 @@ func (amf *AMF) WatchConfig() {
 		if err := factory.UpdateConfig(factory.AmfConfig.CfgLocation); err != nil {
 			logger.AppLog.Errorln("error in loading updated configuration")
 		} else {
-			self := context.AMF_Self()
+			self := amfContext.AMF_Self()
 			util.InitAmfContext(self)
 			logger.AppLog.Infoln("successfully updated configuration")
 		}
@@ -372,7 +373,7 @@ func (amf *AMF) Start() {
 		logger.InitLog.Errorf("initialise kafka stream failed, %v ", err.Error())
 	}
 
-	self := context.AMF_Self()
+	self := amfContext.AMF_Self()
 	util.InitAmfContext(self)
 	if self.EnableDbStore {
 		self.Drsm, err = util.InitDrsm()
@@ -401,7 +402,7 @@ func (amf *AMF) Start() {
 	}
 
 	if self.EnableDbStore {
-		go context.SetupAmfCollection()
+		go amfContext.SetupAmfCollection()
 	}
 
 	signalChannel := make(chan os.Signal, 1)
@@ -446,7 +447,8 @@ func (amf *AMF) Exec(c *cli.Command) error {
 	logger.InitLog.Debugln("args:", c.String("cfg"))
 	args := amf.FilterCli(c)
 	logger.InitLog.Debugln("filter:", args)
-	command := exec.Command("amf", args...)
+	// command := exec.Command("amf", args...)
+	command := exec.CommandContext(context.Background(), "amf", args...)
 
 	stdout, err := command.StdoutPipe()
 	if err != nil {
@@ -489,7 +491,7 @@ func (amf *AMF) Exec(c *cli.Command) error {
 // Used in AMF planned removal procedure
 func (amf *AMF) Terminate() {
 	logger.InitLog.Infoln("terminating AMF")
-	amfSelf := context.AMF_Self()
+	amfSelf := amfContext.AMF_Self()
 
 	// TODO: forward registered UE contexts to target AMF in the same AMF set if there is one
 
@@ -507,7 +509,7 @@ func (amf *AMF) Terminate() {
 	logger.InitLog.Infoln("send AMF Status Indication to Notify RANs due to AMF terminating")
 	unavailableGuamiList := ngap_message.BuildUnavailableGUAMIList(amfSelf.ServedGuamiList)
 	amfSelf.AmfRanPool.Range(func(key, value interface{}) bool {
-		ran := value.(*context.AmfRan)
+		ran := value.(*amfContext.AmfRan)
 		ngap_message.SendAMFStatusIndication(ran, unavailableGuamiList)
 		return true
 	})
@@ -555,7 +557,7 @@ func (amf *AMF) StopKeepAliveTimer() {
 }
 
 func (amf *AMF) BuildAndSendRegisterNFInstance() (models.NfProfile, error) {
-	self := context.AMF_Self()
+	self := amfContext.AMF_Self()
 	profile, err := consumer.BuildNFInstance(self)
 	if err != nil {
 		logger.InitLog.Errorf("build AMF Profile Error: %v", err)
@@ -751,7 +753,7 @@ func (amf *AMF) SendNFProfileUpdateToNrf() {
 	// for rocUpdateConfig := range RocUpdateConfigChannel {
 	for rocUpdateConfig := range RocUpdateConfigChannel {
 		if rocUpdateConfig {
-			self := context.AMF_Self()
+			self := amfContext.AMF_Self()
 			util.InitAmfContext(self)
 
 			// Register to NRF with Updated Profile
@@ -776,7 +778,7 @@ func (amf *AMF) SendNFProfileUpdateToNrf() {
 }
 
 func UeConfigSliceDeleteHandler(supi, sst, sd string, msg interface{}) {
-	amfSelf := context.AMF_Self()
+	amfSelf := amfContext.AMF_Self()
 	ue, _ := amfSelf.AmfUeFindBySupi(IMSI_PREFIX + supi)
 
 	// Triggers for NwInitiatedDeRegistration
@@ -819,7 +821,7 @@ func UeConfigSliceDeleteHandler(supi, sst, sd string, msg interface{}) {
 }
 
 func UeConfigSliceAddHandler(supi, sst, sd string, msg interface{}) {
-	amfSelf := context.AMF_Self()
+	amfSelf := amfContext.AMF_Self()
 	ue, _ := amfSelf.AmfUeFindBySupi(IMSI_PREFIX + supi)
 
 	ns := msg.(*protos.NetworkSlice)
@@ -841,19 +843,19 @@ func UeConfigSliceAddHandler(supi, sst, sd string, msg interface{}) {
 }
 
 func HandleImsiDeleteFromNetworkSlice(slice *protos.NetworkSlice) {
-	var ue *context.AmfUe
+	var ue *amfContext.AmfUe
 	var ok bool
 	logger.CfgLog.Infof("handle Subscribers Delete From Network Slice [sst:%v sd:%v]", slice.Nssai.Sst, slice.Nssai.Sd)
 
 	for _, supi := range slice.DeletedImsis {
-		amfSelf := context.AMF_Self()
+		amfSelf := amfContext.AMF_Self()
 		ue, ok = amfSelf.AmfUeFindBySupi(IMSI_PREFIX + supi)
 		if !ok {
 			logger.CfgLog.Infof("the UE [%v] is not Registered with the 5G-Core", supi)
 			continue
 		}
 		// publish the event to ue channel
-		configMsg := context.ConfigMsg{
+		configMsg := amfContext.ConfigMsg{
 			Supi: supi,
 			Msg:  slice,
 			Sst:  slice.Nssai.Sst,
@@ -866,19 +868,19 @@ func HandleImsiDeleteFromNetworkSlice(slice *protos.NetworkSlice) {
 }
 
 func HandleImsiAddInNetworkSlice(slice *protos.NetworkSlice) {
-	var ue *context.AmfUe
+	var ue *amfContext.AmfUe
 	var ok bool
 	logger.CfgLog.Infof("handle Subscribers Added in Network Slice [sst:%v sd:%v]", slice.Nssai.Sst, slice.Nssai.Sd)
 
 	for _, supi := range slice.AddUpdatedImsis {
-		amfSelf := context.AMF_Self()
+		amfSelf := amfContext.AMF_Self()
 		ue, ok = amfSelf.AmfUeFindBySupi(IMSI_PREFIX + supi)
 		if !ok {
 			logger.CfgLog.Infof("the UE [%v] is not Registered with the 5G-Core", supi)
 			continue
 		}
 		// publish the event to ue channel
-		configMsg := context.ConfigMsg{
+		configMsg := amfContext.ConfigMsg{
 			Supi: supi,
 			Msg:  slice,
 			Sst:  slice.Nssai.Sst,
