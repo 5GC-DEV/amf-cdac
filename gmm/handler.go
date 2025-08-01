@@ -769,7 +769,6 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 
 func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType models.AccessType) error {
 	ue.GmmLog.Infoln("Handle MobilityAndPeriodicRegistrationUpdating")
-	ue.GmmLog.Infoln("---amfue: ", ue)
 	amfSelf := context.AMF_Self()
 
 	if ue.RegistrationRequest.UpdateType5GS != nil {
@@ -813,10 +812,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 	// if ue.ServingAmfChanged {
 	// 	If the AMF has changed the new AMF notifies the old AMF that the registration of the UE in the new AMF is completed
 	// }
-	ue.GmmLog.Info("---ue.pei: ", ue.Pei)
-	ue.GmmLog.Info("---len of pei: ", len(ue.Pei))
 	if len(ue.Pei) == 0 {
-		ue.GmmLog.Info("---len of pei 0")
 		gmm_message.SendIdentityRequest(ue.RanUe[anType], nasMessage.MobileIdentity5GSTypeImei)
 		return nil
 	}
@@ -1475,16 +1471,12 @@ func HandleIdentityResponse(ue *context.AmfUe, identityResponse *nasMessage.Iden
 		}
 		ue.GmmLog.Debugf("get 5G-S-TMSI: %s", sTmsi)
 	case nasMessage.MobileIdentity5GSTypeImei:
-		ue.GmmLog.Info("---MobileIdentity5GSTypeImei")
 		if ue.MacFailed {
 			return fmt.Errorf("NAS message integrity check failed")
 		}
 		imei := nasConvert.PeiToString(mobileIdentityContents)
-		ue.GmmLog.Info("---imei: ", imei)
 		ue.Pei = imei
 		ue.GmmLog.Debugf("get PEI: %s", imei)
-		ue.GmmLog.Infof("---get PEI: %s", imei)
-		ue.GmmLog.Infof("---ue.Pei: %s", ue.Pei)
 	case nasMessage.MobileIdentity5GSTypeImeisv:
 		if ue.MacFailed {
 			return fmt.Errorf("NAS message integrity check failed")
@@ -1554,14 +1546,11 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	// Check whether UE has SUCI and SUPI
 	if IdentityVerification(ue) {
 		ue.GmmLog.Debugln("UE has SUCI / SUPI")
-		ue.GmmLog.Infoln("---UE has SUCI / SUPI")
 		if ue.SecurityContextIsValid() {
 			ue.GmmLog.Debugln("UE has a valid security context - skip the authentication procedure")
-			ue.GmmLog.Infoln("---UE has a valid security context - skip the authentication procedure")
 			return true, nil
 		}
 	} else {
-		ue.GmmLog.Info("---identity not verified sending identity req again")
 		// Request UE's SUCI by sending identity request
 		gmm_message.SendIdentityRequest(ue.RanUe[accessType], nasMessage.MobileIdentity5GSTypeSuci)
 		return false, nil

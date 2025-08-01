@@ -191,8 +191,6 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		gmmMessage := args[ArgNASMessage].(*nas.GmmMessage)
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[Authentication]")
-		amfUe.GmmLog.Infoln("---GmmMessageEvent at GMM State[Authentication]")
-
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
 			if err := HandleIdentityResponse(amfUe, gmmMessage.IdentityResponse); err != nil {
@@ -392,7 +390,6 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	switch event {
 	case fsm.EntryEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
-		logger.GmmLog.Info("---amfue: ", amfUe)
 		if !ok {
 			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
 			return
@@ -444,7 +441,6 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			return
 		}
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[ContextSetup]")
-		amfUe.GmmLog.Debugln("---GmmMessageEvent at GMM State[ContextSetup]")
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
 			if err := HandleIdentityResponse(amfUe, gmmMessage.IdentityResponse); err != nil {
