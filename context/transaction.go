@@ -29,7 +29,7 @@ func (tx *EventChannel) UpdateNasHandler(handler func(*AmfUe, NasMsg)) {
 }
 
 func (tx *EventChannel) UpdateSbiHandler(handler func(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{})) {
-	if tx.AmfUe == nil {
+	if tx == nil || tx.AmfUe == nil {
 		fmt.Print("---ue is nil")
 		return
 	}
