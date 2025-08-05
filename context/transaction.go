@@ -6,6 +6,8 @@
 
 package context
 
+import "fmt"
+
 type EventChannel struct {
 	Message       chan interface{}
 	Event         chan string
@@ -27,6 +29,10 @@ func (tx *EventChannel) UpdateNasHandler(handler func(*AmfUe, NasMsg)) {
 }
 
 func (tx *EventChannel) UpdateSbiHandler(handler func(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{})) {
+	if tx.AmfUe == nil {
+		fmt.Print("---ue is nil")
+		return
+	}
 	tx.AmfUe.TxLog.Infof("updated sbihandler")
 	tx.SbiHandler = handler
 }
