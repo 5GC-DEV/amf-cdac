@@ -295,6 +295,8 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 }
 
 func (ue *AmfUe) UnmarshalJSON(data []byte) error {
+	ue.Mutex.RLock()
+	defer ue.Mutex.RUnlock()
 	type Alias AmfUe
 	auxCustom := &struct {
 		CustomAmfUe CustomFieldsAmfUe `json:"customFieldsAmfUe"`
