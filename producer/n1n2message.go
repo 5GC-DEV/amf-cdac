@@ -51,13 +51,18 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 	reqUri := request.Params["reqUri"]
 
 	amfSelf := context.AMF_Self()
-
 	if ue, ok = amfSelf.AmfUeFindByUeContextID(ueContextID); !ok {
 		problemDetails = &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
 		}
 		return httpwrapper.NewResponse(http.StatusForbidden, nil, problemDetails)
+	}
+	logger.ProducerLog.Info("---ue state: ", ue.State[models.AccessType__3_GPP_ACCESS])
+	if ue.CmConnect(models.AccessType__3_GPP_ACCESS) {
+		logger.ProducerLog.Info("---cmconnect mode")
+	} else if ue.CmIdle(models.AccessType__3_GPP_ACCESS) {
+		logger.ProducerLog.Info("---cmidle mode")
 	}
 	sbiMsg := context.SbiMsg{
 		UeContextId: ueContextID,

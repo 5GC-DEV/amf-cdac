@@ -490,7 +490,7 @@ func (ue *AmfUe) Remove() {
 	} else {
 		tmsiGenerator.FreeID(int64(ue.Tmsi))
 	}
-
+	logger.ContextLog.Info("---ue state while removing amfue: ", ue.State[models.AccessType__3_GPP_ACCESS])
 	if len(ue.Supi) > 0 {
 		logger.ContextLog.Info("----supi: ", ue.Supi)
 		logger.ContextLog.Info("----deleting supi from uepool")

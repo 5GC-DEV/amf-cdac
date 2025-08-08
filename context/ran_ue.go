@@ -100,6 +100,7 @@ func (ranUe *RanUe) Remove() error {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
+		logger.ContextLog.Info("---amfue state before removing amfue: ", amfUe.State[models.AccessType__3_GPP_ACCESS])
 		// cdac added proper amfue removal
 		amfUe.Remove()
 	}
