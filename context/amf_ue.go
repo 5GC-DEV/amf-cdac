@@ -496,6 +496,12 @@ func (ue *AmfUe) Remove() {
 		logger.ContextLog.Info("----deleting supi from uepool")
 		AMF_Self().UePool.Delete(ue.Supi)
 	}
+	//
+	AMF_Self().UePool.Range(func(key, value interface{}) bool {
+		fmt.Printf("Key: %v, Value: %v\n", key, value)
+		return true // return true to keep iterating
+	})
+	//
 	if ue.EventChannel != nil {
 		ue.EventChannel.Event <- "quit"
 	}
