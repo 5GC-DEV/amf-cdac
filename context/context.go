@@ -493,6 +493,8 @@ func (context *AMFContext) AmfUeFindByGutiLocal(guti string) (ue *AmfUe, ok bool
 func (context *AMFContext) AmfUeFindBySupiLocal(supi string) (ue *AmfUe, ok bool) {
 	context.UePool.Range(func(key, value interface{}) bool {
 		candidate := value.(*AmfUe)
+		logger.ContextLog.Info("---supi: ", supi)
+		logger.ContextLog.Info("---candidate supi: ", candidate.Supi)
 		if ok = (candidate.Supi == supi); ok {
 			ue = candidate
 			return false

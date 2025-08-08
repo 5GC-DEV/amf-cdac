@@ -274,6 +274,7 @@ func DbFetchUeBySupi(supi string) (ue *AmfUe, ok bool) {
 	// Check if some parallel procedure has already
 	// fetched AmfUe. If so, then return the same.
 	// else return newly fetched AmfUe and store in context
+	logger.DataRepoLog.Info("---supi: ", supi)
 	if amfUe, ret := self.AmfUeFindBySupiLocal(supi); ret {
 		logger.DataRepoLog.Infoln("FindBySupi: found by local", supi)
 		ue = amfUe

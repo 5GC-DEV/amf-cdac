@@ -100,7 +100,7 @@ func (ranUe *RanUe) Remove() error {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
-		// cdac added amfue removal
+		// cdac added proper amfue removal
 		amfUe.Remove()
 	}
 

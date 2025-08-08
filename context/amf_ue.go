@@ -492,7 +492,8 @@ func (ue *AmfUe) Remove() {
 	}
 
 	if len(ue.Supi) > 0 {
-		logger.ContextLog.Info("---deleting supi from uepool")
+		logger.ContextLog.Info("----supi: ", ue.Supi)
+		logger.ContextLog.Info("----deleting supi from uepool")
 		AMF_Self().UePool.Delete(ue.Supi)
 	}
 	if ue.EventChannel != nil {
