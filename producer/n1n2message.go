@@ -45,6 +45,7 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 	var ok bool
 	var problemDetails *models.ProblemDetails
 	logger.ProducerLog.Infof("Handle N1N2 Message Transfer Request")
+	logger.ProducerLog.Infof("---Handle N1N2 Message Transfer Request")
 
 	n1n2MessageTransferRequest := request.Body.(models.N1N2MessageTransferRequest)
 	ueContextID := request.Params["ueContextId"]
