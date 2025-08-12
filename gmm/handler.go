@@ -814,6 +814,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 	// 	If the AMF has changed the new AMF notifies the old AMF that the registration of the UE in the new AMF is completed
 	// }
 
+	ue.GmmLog.Info("---pei: ", ue.Pei)
 	if len(ue.Pei) == 0 {
 		gmm_message.SendIdentityRequest(ue.RanUe[anType], nasMessage.MobileIdentity5GSTypeImei)
 		return nil
