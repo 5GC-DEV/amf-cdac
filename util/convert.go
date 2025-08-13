@@ -10,7 +10,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
-
 	"github.com/omec-project/amf/logger"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/openapi/models"
