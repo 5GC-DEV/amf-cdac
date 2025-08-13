@@ -19,7 +19,7 @@ import (
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/nas/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
 	"github.com/omec-project/openapi/Nsmf_PDUSession"

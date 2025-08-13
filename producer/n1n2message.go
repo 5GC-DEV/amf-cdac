@@ -17,7 +17,7 @@ import (
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/producer/callback"
 	"github.com/omec-project/aper"
-	"github.com/omec-project/nas/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/httpwrapper"

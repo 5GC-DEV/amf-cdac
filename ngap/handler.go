@@ -24,7 +24,7 @@ import (
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/aper"
-	"github.com/omec-project/nas/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	libngap "github.com/omec-project/ngap"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"

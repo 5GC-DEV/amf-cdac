@@ -13,7 +13,7 @@ import (
 
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/nas/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/Namf_Communication"
 	"github.com/omec-project/openapi/models"

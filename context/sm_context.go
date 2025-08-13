@@ -10,7 +10,7 @@ package context
 import (
 	"sync"
 
-	"github.com/omec-project/nas/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/openapi/models"
 )
 
