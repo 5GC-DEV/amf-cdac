@@ -19,7 +19,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
