@@ -11,7 +11,7 @@ import (
 
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/gmm"
-	"github.com/omec-project/nas"
+	"github.com/5GC-DEV/nas-cdac"
 	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/fsm"
 )

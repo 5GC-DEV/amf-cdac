@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/5GC-DEV/nas-cdac/nasType"
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/nas/nasType"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/Nausf_UEAuthentication"
 	"github.com/omec-project/openapi/models"
