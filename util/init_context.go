@@ -10,7 +10,6 @@ package util
 import (
 	"os"
 	"time"
-
 	"github.com/google/uuid"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
