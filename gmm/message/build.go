@@ -10,15 +10,15 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 
+	"github.com/5GC-DEV/nas-cdac"
+	"github.com/5GC-DEV/nas-cdac/nasConvert"
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/nas-cdac/nasType"
 	"github.com/mitchellh/mapstructure"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/nas/nas_security"
-	"github.com/5GC-DEV/nas-cdac"
-	"github.com/5GC-DEV/nas-cdac/nasConvert"
-	"github.com/5GC-DEV/nas-cdac/nasMessage"
-	"github.com/5GC-DEV/nas-cdac/nasType"
 	"github.com/omec-project/openapi/models"
 )
 

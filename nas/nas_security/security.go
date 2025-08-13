@@ -12,12 +12,12 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/omec-project/amf/context"
-	"github.com/omec-project/amf/logger"
 	"github.com/5GC-DEV/nas-cdac"
 	"github.com/5GC-DEV/nas-cdac/nasConvert"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/5GC-DEV/nas-cdac/security"
+	"github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/openapi/models"
 )
 

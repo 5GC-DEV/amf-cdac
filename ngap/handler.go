@@ -13,6 +13,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
@@ -24,7 +25,6 @@ import (
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/aper"
-	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	libngap "github.com/omec-project/ngap"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
