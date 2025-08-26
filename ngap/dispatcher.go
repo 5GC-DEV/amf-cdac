@@ -140,6 +140,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 	ran.Log.Info("---ue state: ", ranUe.AmfUe.State[ran.AnType])
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {
+		ran.Log.Info("---ue state: ", ranUe.AmfUe.State[ran.AnType])
 		ranUe.AmfUe.SetEventChannel(NgapMsgHandler)
 		ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
 		ranUe.AmfUe.EventChannel.UpdateNgapHandler(NgapMsgHandler)
