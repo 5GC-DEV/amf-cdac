@@ -100,6 +100,8 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		ue.AmfUe.NASLog.Errorln(err)
 		return
 	}
+	ue.AmfUe.NASLog.Info("---amfuengapid in handlenas: ", ue.AmfUeNgapId)
+	ue.AmfUe.NASLog.Info("---ue state: ", ue.AmfUe.State[ue.Ran.AnType])
 	if err := Dispatch(ue.AmfUe, ue.Ran.AnType, procedureCode, msg); err != nil {
 		ue.AmfUe.NASLog.Errorf("handle NAS Error: %v", err)
 	}

@@ -190,7 +190,10 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		gmmMessage := args[ArgNASMessage].(*nas.GmmMessage)
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[Authentication]")
-
+		amfUe.GmmLog.Info("---ue fsm state: ", state)
+		amfUe.GmmLog.Info("---ue state: ", amfUe.State[accessType])
+		amfUe.GmmLog.Info("---auth context: ", amfUe.AuthenticationCtx)
+		amfUe.GmmLog.Info("---auth context authtype: ", amfUe.AuthenticationCtx.AuthType)
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
 			if err := HandleIdentityResponse(amfUe, gmmMessage.IdentityResponse); err != nil {
@@ -246,6 +249,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			logger.GmmLog.Errorln(err)
 		}
 	case fsm.ExitEvent:
+		logger.GmmLog.Info("---fsm exitevent")
 		// clear authentication related data at exit
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		amfUe.GmmLog.Debugln(event)

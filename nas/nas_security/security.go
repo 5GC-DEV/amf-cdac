@@ -191,6 +191,7 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 	if ue == nil {
 		return nil, fmt.Errorf("amfUe is nil")
 	}
+	ue.NASLog.Info("---amfuengapid: ", ue.RanUe[accessType].AmfUeNgapId)
 	if payload == nil {
 		return nil, fmt.Errorf("nas payload is empty")
 	}

@@ -1594,6 +1594,8 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 		return false, errors.New("error response from AUSF")
 	}
 	ue.AuthenticationCtx = response
+	ue.GmmLog.Info("---auth context: ", ue.AuthenticationCtx)
+	ue.GmmLog.Info("---auth context authtype: ", ue.AuthenticationCtx.AuthType)
 	ue.ABBA = []uint8{0x00, 0x00} // set ABBA value as described at TS 33.501 Annex A.7.1
 
 	// As per the Specification 33.501 - 6.2.3.2 Key identification
@@ -2227,13 +2229,17 @@ func HandleAuthenticationFailure(ue *context.AmfUe, anType models.AccessType,
 	authenticationFailure *nasMessage.AuthenticationFailure,
 ) error {
 	ue.GmmLog.Info("Handle Authentication Failure")
-
+	ue.GmmLog.Info("---ue state: ", ue.State[anType])
 	if ue.T3560 != nil {
 		ue.T3560.Stop()
 		ue.T3560 = nil // clear the timer
 	}
 
 	cause5GMM := authenticationFailure.GetCauseValue()
+
+	if ue.AuthenticationCtx == nil {
+		return fmt.Errorf("---authentication context is nil")
+	}
 
 	switch ue.AuthenticationCtx.AuthType {
 	case models.AuthType__5_G_AKA:
