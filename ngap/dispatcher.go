@@ -137,7 +137,6 @@ func Dispatch(conn net.Conn, msg []byte) {
 	}
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
-	ran.Log.Info("---ue state: ", ranUe.AmfUe.State[ran.AnType])
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {
 		ran.Log.Info("---ue state: ", ranUe.AmfUe.State[ran.AnType])
