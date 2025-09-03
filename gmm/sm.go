@@ -193,7 +193,6 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		amfUe.GmmLog.Info("---ue fsm state: ", state)
 		amfUe.GmmLog.Info("---ue state: ", amfUe.State[accessType])
 		amfUe.GmmLog.Info("---auth context: ", amfUe.AuthenticationCtx)
-		amfUe.GmmLog.Info("---auth context authtype: ", amfUe.AuthenticationCtx.AuthType)
 		switch gmmMessage.GetMessageType() {
 		case nas.MsgTypeIdentityResponse:
 			if err := HandleIdentityResponse(amfUe, gmmMessage.IdentityResponse); err != nil {

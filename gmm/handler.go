@@ -1548,8 +1548,10 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	// Check whether UE has SUCI and SUPI
 	if IdentityVerification(ue) {
 		ue.GmmLog.Debugln("UE has SUCI / SUPI")
+		ue.GmmLog.Infoln("---UE has SUCI / SUPI")
 		if ue.SecurityContextIsValid() {
 			ue.GmmLog.Debugln("UE has a valid security context - skip the authentication procedure")
+			ue.GmmLog.Infoln("---UE has a valid security context - skip the authentication procedure")
 			return true, nil
 		}
 	} else {
@@ -1593,6 +1595,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 		ue.GmmLog.Errorf("Nausf_UEAU Authenticate Request Failed: %+v", problemDetails)
 		return false, errors.New("error response from AUSF")
 	}
+	ue.GmmLog.Info("---response of ausf for authreq : ", response)
 	ue.AuthenticationCtx = response
 	ue.GmmLog.Info("---auth context: ", ue.AuthenticationCtx)
 	ue.GmmLog.Info("---auth context authtype: ", ue.AuthenticationCtx.AuthType)
