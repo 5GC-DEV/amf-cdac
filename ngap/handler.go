@@ -13,7 +13,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/omec-project/nas/nasMessage"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"

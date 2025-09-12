@@ -21,7 +21,7 @@ import (
 	"syscall"
 	"time"
 
-	nasLogger "github.com/5GC-DEV/nas-cdac/logger"
+	nasLogger "github.com/omec-project/nas/logger"
 	"github.com/fsnotify/fsnotify"
 	"github.com/gin-contrib/cors"
 	"github.com/omec-project/amf/communication"

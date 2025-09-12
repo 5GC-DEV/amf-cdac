@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/omec-project/nas/nasMessage"
 	"github.com/omec-project/amf/context"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"

@@ -11,7 +11,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/5GC-DEV/nas-cdac/security"
+	"github.com/omec-project/nas/security"
 	"github.com/google/uuid"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"

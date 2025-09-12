@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/5GC-DEV/nas-cdac/nasType"
+	"github.com/omec-project/nas/nasType"
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
