@@ -1240,15 +1240,19 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
 			if ue.InSubscribedNssai(requestedSnssai.ServingSnssai) {
-				allowedSnssai := models.AllowedSnssai{
-					AllowedSnssai: &models.Snssai{
-						Sst: requestedSnssai.ServingSnssai.Sst,
-						Sd:  requestedSnssai.ServingSnssai.Sd,
-					},
-					MappedHomeSnssai: requestedSnssai.HomeSnssai,
+				if ue.AllowedNssai[anType] != nil {
+					allowedSnssai := models.AllowedSnssai{
+						AllowedSnssai: &models.Snssai{
+							Sst: requestedSnssai.ServingSnssai.Sst,
+							Sd:  requestedSnssai.ServingSnssai.Sd,
+						},
+						MappedHomeSnssai: requestedSnssai.HomeSnssai,
+					}
+					ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
+					ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
+				} else {
+					ue.GmmLog.Info("---allowedSnssai present no need to append")
 				}
-				ue.AllowedNssai[anType] = append(ue.AllowedNssai[anType], allowedSnssai)
-				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
 				break
