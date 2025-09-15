@@ -6,6 +6,7 @@
 package producer
 
 import (
+	ctxt "context"
 	"testing"
 
 	"github.com/omec-project/amf/context"
@@ -19,12 +20,37 @@ import (
 )
 
 func init() {
-	if err := factory.InitConfigFactory("../amfTest/amfcfg.yaml"); err != nil {
+	if err := factory.InitConfigFactory("../util/testdata/amfcfg.yaml"); err != nil {
 		logger.ProducerLog.Errorf("error in InitConfigFactory: %v", err)
 	}
 
 	self := context.AMF_Self()
 	util.InitAmfContext(self)
+	self.ServedGuamiList = []models.Guami{
+		{
+			PlmnId: &models.PlmnId{Mcc: "208", Mnc: "93"},
+			AmfId:  "cafe00",
+		},
+	}
+	self.SupportTaiLists = []models.Tai{
+		{
+			PlmnId: &models.PlmnId{Mcc: "208", Mnc: "93"},
+			Tac:    "1",
+		},
+	}
+	self.PlmnSupportList = []models.PlmnSnssai{
+		{
+			PlmnId: &models.PlmnId{Mcc: "208", Mnc: "93"},
+			SNssaiList: []models.Snssai{
+				{
+					Sst: 1, Sd: "010203",
+				},
+				{
+					Sst: 1, Sd: "112233",
+				},
+			},
+		},
+	}
 
 	gmm.Mockinit()
 }
@@ -38,7 +64,7 @@ func TestHandleOAMPurgeUEContextRequest_UEDeregistered(t *testing.T) {
 	}
 	amfUe := self.NewAmfUe("imsi-208930100007497")
 
-	HandleOAMPurgeUEContextRequest(amfUe.Supi, "", nil)
+	HandleOAMPurgeUEContextRequest(ctxt.Background(), amfUe.Supi, "", nil)
 
 	if _, ok := self.AmfUeFindBySupi(amfUe.Supi); ok {
 		t.Errorf("test failed")
@@ -53,7 +79,7 @@ func TestHandleOAMPurgeUEContextRequest_UERegistered(t *testing.T) {
 	amfUe := self.NewAmfUe("imsi-208930100007497")
 	amfUe.State[models.AccessType__3_GPP_ACCESS] = fsm.NewState(context.Registered)
 
-	HandleOAMPurgeUEContextRequest(amfUe.Supi, "", nil)
+	HandleOAMPurgeUEContextRequest(ctxt.Background(), amfUe.Supi, "", nil)
 
 	if _, ok := self.AmfUeFindBySupi(amfUe.Supi); ok {
 		t.Errorf("test failed")

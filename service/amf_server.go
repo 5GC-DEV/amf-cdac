@@ -6,11 +6,12 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
 
-	"github.com/omec-project/amf/context"
+	amfContext "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -25,6 +26,7 @@ type Server struct {
 }
 
 func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServer) error {
+	ctx := srv.Context()
 	Amf2RanMsgChan := make(chan *sdcoreAmfServer.AmfMessage, 100)
 
 	go func() {
@@ -51,8 +53,8 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 				rsp.Msgtype = sdcoreAmfServer.MsgType_INIT_MSG
 				rsp.AmfId = os.Getenv("HOSTNAME")
 				logger.GrpcLog.Debugf("send Response message body from client (%s): Verbose - %s, MsgType %v", rsp.AmfId, rsp.VerboseMsg, rsp.Msgtype)
-				amfSelf := context.AMF_Self()
-				var ran *context.AmfRan
+				amfSelf := amfContext.AMF_Self()
+				var ran *amfContext.AmfRan
 				var ok bool
 				if ran, ok = amfSelf.AmfRanFindByGnbId(req.GnbId); !ok {
 					ran = amfSelf.NewAmfRanId(req.GnbId)
@@ -114,17 +116,18 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 					}
 				}
 			default:
-				ngap.DispatchLb(req, Amf2RanMsgChan)
+				ngap.DispatchLb(ctx, req, Amf2RanMsgChan)
 			}
 		}
 	}
 	return nil
 }
 
-func StartGrpcServer(port int) {
+func StartGrpcServer(ctx context.Context, port int) {
 	endpt := fmt.Sprintf(":%d", port)
-	fmt.Println("listen - ", endpt)
-	lis, err := net.Listen("tcp", endpt)
+	logger.GrpcLog.Infof("AMF gRPC server is starting on port %s", endpt)
+	lisCfg := net.ListenConfig{}
+	lis, err := lisCfg.Listen(ctx, "tcp", endpt)
 	if err != nil {
 		logger.GrpcLog.Errorf("failed to listen: %v", err)
 	}

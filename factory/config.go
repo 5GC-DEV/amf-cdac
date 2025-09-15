@@ -12,7 +12,6 @@ package factory
 import (
 	"time"
 
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/logger"
 )
 
@@ -25,7 +24,6 @@ type Config struct {
 	Configuration *Configuration `yaml:"configuration"`
 	Logger        *logger.Logger `yaml:"logger"`
 	CfgLocation   string
-	Rcvd          bool
 }
 
 type Info struct {
@@ -52,8 +50,15 @@ type KafkaInfo struct {
 	Topic       string `yaml:"topicName,omitempty"`
 }
 
+type TelemetryConfig struct {
+	Enabled      bool     `yaml:"enabled,omitempty"`       // Optional; defaults to false
+	OtlpEndpoint string   `yaml:"otlp_endpoint,omitempty"` // Mandatory if enabled=true
+	Ratio        *float64 `yaml:"ratio,omitempty"`         // Optional; defaults to 1.0
+}
+
 type Configuration struct {
 	AmfName                         string                    `yaml:"amfName,omitempty"`
+	AmfId                           string                    `yaml:"amfId,omitempty"`
 	AmfDBName                       string                    `yaml:"amfDBName,omitempty"`
 	Mongodb                         *Mongodb                  `yaml:"mongodb,omitempty"`
 	NgapIpList                      []string                  `yaml:"ngapIpList,omitempty"`
@@ -62,9 +67,6 @@ type Configuration struct {
 	Sbi                             *Sbi                      `yaml:"sbi,omitempty"`
 	NetworkFeatureSupport5GS        *NetworkFeatureSupport5GS `yaml:"networkFeatureSupport5GS,omitempty"`
 	ServiceNameList                 []string                  `yaml:"serviceNameList,omitempty"`
-	ServedGumaiList                 []models.Guami            `yaml:"servedGuamiList,omitempty"`
-	SupportTAIList                  []models.Tai              `yaml:"supportTaiList,omitempty"`
-	PlmnSupportList                 []PlmnSupportItem         `yaml:"plmnSupportList,omitempty"`
 	SupportDnnList                  []string                  `yaml:"supportDnnList,omitempty"`
 	NrfUri                          string                    `yaml:"nrfUri,omitempty"`
 	WebuiUri                        string                    `yaml:"webuiUri"`
@@ -78,15 +80,14 @@ type Configuration struct {
 	T3550                           TimerValue                `yaml:"t3550"`
 	T3560                           TimerValue                `yaml:"t3560"`
 	T3565                           TimerValue                `yaml:"t3565"`
+	Telemetry                       *TelemetryConfig          `yaml:"telemetry,omitempty"`
 
-	// Maintain TaiList per slice
-	SliceTaiList             map[string][]models.Tai `yaml:"sliceTaiList,omitempty"`
-	EnableSctpLb             bool                    `yaml:"enableSctpLb"`
-	EnableDbStore            bool                    `yaml:"enableDBStore"`
-	EnableNrfCaching         bool                    `yaml:"enableNrfCaching"`
-	NrfCacheEvictionInterval int                     `yaml:"nrfCacheEvictionInterval,omitempty"`
-	KafkaInfo                KafkaInfo               `yaml:"kafkaInfo,omitempty"`
-	DebugProfilePort         int                     `yaml:"debugProfilePort,omitempty"`
+	EnableSctpLb             bool      `yaml:"enableSctpLb"`
+	EnableDbStore            bool      `yaml:"enableDBStore"`
+	EnableNrfCaching         bool      `yaml:"enableNrfCaching"`
+	NrfCacheEvictionInterval int       `yaml:"nrfCacheEvictionInterval,omitempty"`
+	KafkaInfo                KafkaInfo `yaml:"kafkaInfo,omitempty"`
+	DebugProfilePort         int       `yaml:"debugProfilePort,omitempty"`
 }
 
 func (c *Configuration) Get5gsNwFeatSuppEnable() bool {
@@ -172,11 +173,6 @@ type TLS struct {
 type Security struct {
 	IntegrityOrder []string `yaml:"integrityOrder,omitempty"`
 	CipheringOrder []string `yaml:"cipheringOrder,omitempty"`
-}
-
-type PlmnSupportItem struct {
-	PlmnId     models.PlmnId   `yaml:"plmnId"`
-	SNssaiList []models.Snssai `yaml:"snssaiList,omitempty"`
 }
 
 type NetworkName struct {

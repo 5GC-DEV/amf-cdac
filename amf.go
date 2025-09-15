@@ -33,12 +33,10 @@ func main() {
 }
 
 func action(ctx context.Context, c *cli.Command) error {
-	if err := AMF.Initialize(c); err != nil {
+	if err := AMF.Initialize(ctx, c); err != nil {
 		logger.CfgLog.Errorf("%+v", err)
 		return fmt.Errorf("failed to initialize")
 	}
-
-	AMF.WatchConfig()
 
 	AMF.Start()
 
