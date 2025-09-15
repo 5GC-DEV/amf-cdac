@@ -1,5 +1,7 @@
 git.cs.nctu.edu.tw/calee/sctp v1.1.0 h1:caiPJ0g2sH1QmDkC7x2yklKrc01Fuo1rqYW68Tq4mU0=
 git.cs.nctu.edu.tw/calee/sctp v1.1.0/go.mod h1:NeOuBXO1iJBtldmNhkfSH8yFbnxlhI8eEJdUd7DZvws=
+github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a h1:/iHiORbp/o/AgYzlC+IUgxuOovCmGIcP/GM+y9zZPQI=
+github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a/go.mod h1:C/2/vUxhZtHpiFfGGIAgruCYt//atf6mEdX/l5FO1ds=
 github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 h1:+JkXLHME8vLJafGhOH4aoV2Iu8bR55nU6iKMVfYVLjY=
 github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1/go.mod h1:nuudZmJhzWtx2212z+pkuy7B6nkBqa+xwNXZHL1j8cg=
 github.com/antihax/optional v1.0.0 h1:xK2lYat7ZLaVVcIuj82J8kIro4V6kDe0AUDFboUCwcg=
