@@ -522,7 +522,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 
 	supportedTAI := context.NewSupportedTAI()
 
-	// amfSelf := context.AMF_Self()
+	amfSelf := context.AMF_Self()
 	var pdu ngapType.NGAPPDU
 	// pdu.Present = ngapType.NGAPPDUPresentSuccessfulOutcome
 	pdu.SuccessfulOutcome = new(ngapType.SuccessfulOutcome)
@@ -542,16 +542,16 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	ie.Value.PLMNSupportList = new(ngapType.PLMNSupportList)
 
 	pLMNSupportList := ie.Value.PLMNSupportList
-	// for _, plmnItem := range amfSelf.PlmnSupportList {
-	// 	pLMNSupportItem := ngapType.PLMNSupportItem{}
-	// 	pLMNSupportItem.PLMNIdentity = ngapConvert.PlmnIdToNgap(plmnItem.PlmnId)
-	// 	for _, snssai := range plmnItem.SNssaiList {
-	// 		sliceSupportItem := ngapType.SliceSupportItem{}
-	// 		sliceSupportItem.SNSSAI = ngapConvert.SNssaiToNgap(snssai)
-	// 		pLMNSupportItem.SliceSupportList.List = append(pLMNSupportItem.SliceSupportList.List, sliceSupportItem)
-	// 	}
-	// 	pLMNSupportList.List = append(pLMNSupportList.List, pLMNSupportItem)
-	// }
+	for _, plmnItem := range amfSelf.PlmnSupportList {
+		pLMNSupportItem := ngapType.PLMNSupportItem{}
+		pLMNSupportItem.PLMNIdentity = ngapConvert.PlmnIdToNgap(*plmnItem.PlmnId)
+		for _, snssai := range plmnItem.SNssaiList {
+			sliceSupportItem := ngapType.SliceSupportItem{}
+			sliceSupportItem.SNSSAI = ngapConvert.SNssaiToNgap(snssai)
+			pLMNSupportItem.SliceSupportList.List = append(pLMNSupportItem.SliceSupportList.List, sliceSupportItem)
+		}
+		pLMNSupportList.List = append(pLMNSupportList.List, pLMNSupportItem)
+	}
 	nGSetupResponseIEs.List = append(nGSetupResponseIEs.List, ie)
 	// End of Modification
 	if ran == nil {
