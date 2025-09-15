@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	git.cs.nctu.edu.tw/calee/sctp v1.1.0
+	github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
 	github.com/antihax/optional v1.0.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.10.1
@@ -27,8 +28,6 @@ require (
 	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v2 v2.4.0
 )
-
-require github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
