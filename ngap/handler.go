@@ -742,13 +742,21 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	} else {
 		var found bool
 		taiList := make([]models.Tai, len(context.AMF_Self().SupportTaiLists))
+		ran.Log.Infof("---len of supported tailist in amf: ", len(context.AMF_Self().SupportTaiLists))
 		copy(taiList, context.AMF_Self().SupportTaiLists)
-		for i := range taiList {
+		ran.Log.Infof("---tailist: ", taiList)
+		for i, contents := range taiList {
+			ran.Log.Infof("---contents.PlmnId.Mcc , contents.PlmnId.Mnc: ", contents.PlmnId.Mcc, contents.PlmnId.Mnc)
+			ran.Log.Infof("---contents.Tac: ", contents.Tac)
 			taiList[i].Tac = util.TACConfigToModels(taiList[i].Tac)
 			ran.Log.Infof("Supported Tai List in AMF Plmn: %v, Tac: 0x%v Tac: %v", taiList[i].PlmnId, taiList[i].Tac, context.AMF_Self().SupportTaiLists[i].Tac)
 		}
 
+		ran.Log.Infof("---ran.supptalist: ", ran.SupportedTAList)
 		for i, tai := range ran.SupportedTAList {
+			ran.Log.Infof("---tai.SNssaiList:", tai.SNssaiList)
+			ran.Log.Infof("---tai.Tai.Tac:", tai.Tai.Tac)
+			ran.Log.Infof("---mcc,mnc:", tai.Tai.PlmnId.Mcc, tai.Tai.PlmnId.Mcc)
 			if context.InTaiList(tai.Tai, taiList) {
 				ran.Log.Debugf("SERVED_TAI_INDEX[%d]", i)
 				found = true
