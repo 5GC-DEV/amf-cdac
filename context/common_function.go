@@ -39,8 +39,13 @@ func CompareUserLocation(loc1 models.UserLocation, loc2 models.UserLocation) boo
 
 func InTaiList(servedTai models.Tai, taiList []models.Tai) bool {
 	for _, tai := range taiList {
+		fmt.Println("---tai: ", tai)
+		fmt.Println("---servedtai: ", servedTai)
 		if reflect.DeepEqual(tai, servedTai) {
+			fmt.Println("---tai equal")
 			return true
+		} else {
+			fmt.Println("---tai not equal")
 		}
 	}
 	return false
