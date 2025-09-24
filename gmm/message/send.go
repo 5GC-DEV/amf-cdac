@@ -71,6 +71,10 @@ func SendIdentityRequest(ue *context.RanUe, typeOfIdentity uint8) {
 }
 
 func SendAuthenticationRequest(ue *context.RanUe) {
+	if ue == nil {
+		logger.GmmLog.Error("ue is nil while sending authentication request")
+		return
+	}
 	amfUe := ue.AmfUe
 	if amfUe == nil {
 		logger.GmmLog.Error("AmfUe is nil")
@@ -185,6 +189,14 @@ func SendRegistrationReject(ue *context.RanUe, cause5GMM uint8, eapMessage strin
 // eapSuccess: only used when authType is EAP-AKA', set the value to false if authType is not EAP-AKA'
 // eapMessage: only used when authType is EAP-AKA', set the value to "" if authType is not EAP-AKA'
 func SendSecurityModeCommand(ue *context.RanUe, eapSuccess bool, eapMessage string) {
+	if ue == nil {
+		logger.GmmLog.Error("ue nil while sending securitymodecommand")
+		return
+	}
+	if ue.AmfUe == nil {
+		logger.GmmLog.Error("amfue nil while sending securitymodecommand")
+		return
+	}
 	ue.AmfUe.GmmLog.Infoln("send Security Mode Command")
 
 	nasMsg, err := BuildSecurityModeCommand(ue.AmfUe, eapSuccess, eapMessage)

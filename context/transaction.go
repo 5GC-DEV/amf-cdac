@@ -6,6 +6,10 @@
 
 package context
 
+import (
+	"github.com/omec-project/amf/logger"
+)
+
 type EventChannel struct {
 	Message       chan interface{}
 	Event         chan string
@@ -27,8 +31,13 @@ func (tx *EventChannel) UpdateNasHandler(handler func(*AmfUe, NasMsg)) {
 }
 
 func (tx *EventChannel) UpdateSbiHandler(handler func(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{})) {
-	tx.AmfUe.TxLog.Infof("updated sbihandler")
-	tx.SbiHandler = handler
+	if tx.AmfUe == nil {
+		logger.ContextLog.Error("eventchannel is nil while updating Sbi handler")
+		return
+	} else {
+		tx.AmfUe.TxLog.Infof("updated sbihandler")
+		tx.SbiHandler = handler
+	}
 }
 
 func (tx *EventChannel) UpdateConfigHandler(handler func(s1, s2, s3 string, msg interface{})) {

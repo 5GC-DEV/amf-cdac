@@ -121,6 +121,10 @@ func (ran *AmfRan) RemoveAllUeInRan() {
 func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
 	// TODO - need fix..Make this map so search is fast
 	for _, ranUe := range ran.RanUeList {
+		if ranUe == nil {
+			ran.Log.Error("ranue nil in the RanUeList")
+			return nil
+		}
 		if ranUe.RanUeNgapId == ranUeNgapID {
 			return ranUe
 		}
