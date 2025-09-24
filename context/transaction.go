@@ -32,7 +32,7 @@ func (tx *EventChannel) UpdateNasHandler(handler func(*AmfUe, NasMsg)) {
 
 func (tx *EventChannel) UpdateSbiHandler(handler func(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{})) {
 	if tx.AmfUe == nil {
-		logger.ContextLog.Error("eventchannel is nil")
+		logger.ContextLog.Error("eventchannel is nil while updating Sbi handler")
 		return
 	} else {
 		tx.AmfUe.TxLog.Infof("updated sbihandler")
