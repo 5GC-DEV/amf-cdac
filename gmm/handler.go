@@ -2235,6 +2235,10 @@ func HandleAuthenticationFailure(ue *context.AmfUe, anType models.AccessType,
 
 	cause5GMM := authenticationFailure.GetCauseValue()
 
+	if ue.AuthenticationCtx == nil {
+		return fmt.Errorf("ue authentication context is nil while handling authentication failure")
+	}
+
 	switch ue.AuthenticationCtx.AuthType {
 	case models.AuthType__5_G_AKA:
 		switch cause5GMM {
