@@ -534,6 +534,7 @@ func (context *AMFContext) AmfUeFindByPolicyAssociationID(polAssoId string) (ue 
 }
 
 func (context *AMFContext) RanUeFindByAmfUeNgapIDLocal(amfUeNgapID int64) *RanUe {
+	logger.ContextLog.Info("in RanUeFindByAmfUeNgapIDLocal")
 	if value, ok := context.RanUePool.Load(amfUeNgapID); ok {
 		return value.(*RanUe)
 	} else {
@@ -542,6 +543,7 @@ func (context *AMFContext) RanUeFindByAmfUeNgapIDLocal(amfUeNgapID int64) *RanUe
 }
 
 func (context *AMFContext) RanUeFindByAmfUeNgapID(amfUeNgapID int64) *RanUe {
+	logger.ContextLog.Info("in RanUeFindByAmfUeNgapID")
 	ranUe := context.RanUeFindByAmfUeNgapIDLocal(amfUeNgapID)
 	if ranUe != nil {
 		return ranUe

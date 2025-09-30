@@ -298,6 +298,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 }
 
 func (ue *AmfUe) UnmarshalJSON(data []byte) error {
+	logger.ContextLog.Info("in unmarshaljson")
 	type Alias AmfUe
 	auxCustom := &struct {
 		CustomAmfUe CustomFieldsAmfUe `json:"customFieldsAmfUe"`
@@ -311,7 +312,10 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	}
 
 	aux := auxCustom.CustomAmfUe
+	logger.ContextLog.Info("aux ranid: ", aux.RanId)
+	logger.ContextLog.Info("aux ranuengapid: ", aux.RanUeNgapId)
 	ran, ok := AMF_Self().AmfRanFindByGnbId(aux.RanId)
+	logger.ContextLog.Info("ran: ", ran)
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)
 	}

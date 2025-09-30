@@ -28,6 +28,15 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		accessType := args[ArgAccessType].(models.AccessType)
 		amfUe.ClearRegistrationRequestData(accessType)
 		amfUe.GmmLog.Debugln("EntryEvent at GMM State[DeRegistered]")
+		amfUe.GmmLog.Infoln("EntryEvent at GMM State[DeRegistered]")
+		fmt.Println("amfue: ", amfUe)
+		fmt.Println("amfue ranue: ", amfUe.RanUe)
+		fmt.Println("amfue ranuengapid: ", amfUe.RanUe[accessType].RanUeNgapId)
+		fmt.Println("amfue amfuengapid: ", amfUe.RanUe[accessType].AmfUeNgapId)
+		fmt.Println("amfue ran: ", amfUe.RanUe[accessType].Ran)
+		fmt.Println("amfue gnbid: ", amfUe.RanUe[accessType].Ran.GnbId)
+		fmt.Println("amfue ranid: ", amfUe.RanUe[accessType].Ran.RanId)
+
 	case GmmMessageEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		procedureCode := args[ArgProcedureCode].(int64)

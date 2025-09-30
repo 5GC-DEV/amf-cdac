@@ -137,6 +137,13 @@ func Dispatch(conn net.Conn, msg []byte) {
 	}
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
+	ran.Log.Info("ranue: ", ranUe)
+	ran.Log.Info("ranue amfue: ", ranUe.AmfUe)
+	ran.Log.Info("ranue amfuengapid: ", ranUe.AmfUeNgapId)
+	ran.Log.Info("ranue ranuengapid: ", ranUe.RanUeNgapId)
+	if ranUe.Ran != nil {
+		ran.Log.Info("ranue: ", ranUe.Ran)
+	}
 
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {

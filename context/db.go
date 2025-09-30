@@ -156,6 +156,7 @@ func DeleteContextFromDB(ue *AmfUe) {
 }
 
 func DbFetch(collName string, filter bson.M) *AmfUe {
+	logger.DataRepoLog.Info("in DbFetch")
 	ue := &AmfUe{}
 	ue.init()
 	result, getOneErr := mongoapi.CommonDBClient.RestfulAPIGetOne(collName, filter)
@@ -190,6 +191,7 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 }
 
 func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
+	logger.DataRepoLog.Info("in DbFetchRanUeByRanUeNgapID")
 	filter := bson.M{}
 	filter["customFieldsAmfUe.ranUeNgapId"] = ranUeNgapID
 	filter["customFieldsAmfUe.ranId"] = ran.GnbId
@@ -213,6 +215,7 @@ func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
 }
 
 func DbFetchRanUeByAmfUeNgapID(amfUeNgapID int64) *RanUe {
+	logger.DataRepoLog.Info("in DbFetchRanUeByAmfUeNgapID")
 	self := AMF_Self()
 	filter := bson.M{}
 	filter["customFieldsAmfUe.amfUeNgapId"] = amfUeNgapID

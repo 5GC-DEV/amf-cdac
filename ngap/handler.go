@@ -175,6 +175,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 			if ranUe == nil {
+				ran.Log.Info("ranue nil so finding ranue by ranuengapid")
 				ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			}
 		case ngapType.ProcedureCodeNASNonDeliveryIndication:
