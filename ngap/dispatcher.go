@@ -153,12 +153,16 @@ func Dispatch(conn net.Conn, msg []byte) {
 			NgapMsg:   pdu,
 			SctplbMsg: nil,
 		}
-		if ranUe.Ran.GnbId == ran.GnbId {
-			ranUe.AmfUe.TxLog.Infoln("gnbid match")
-			ranUe.Ran.Conn = conn
+		if ranUe.Ran != nil {
+			if ranUe.Ran.GnbId == ran.GnbId {
+				ranUe.AmfUe.TxLog.Infoln("gnbid match")
+				ranUe.Ran.Conn = conn
+			} else {
+				ranUe.AmfUe.TxLog.Infoln("gnbid differ")
+				ranUe.AmfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+			}
 		} else {
-			ranUe.AmfUe.TxLog.Infoln("gnbid differ")
-			ranUe.AmfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+			ranUe.AmfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
 		}
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
