@@ -133,6 +133,7 @@ func ToBsonM(data *AmfUe) (ret bson.M) {
 func StoreContextInDB(ue *AmfUe) {
 	self := AMF_Self()
 	if self.EnableDbStore {
+		logger.DataRepoLog.Info("---ranid to put: ", ue.RanUe[models.AccessType__3_GPP_ACCESS].Ran.RanId)
 		amfUeBsonA := ToBsonM(ue)
 		filter := bson.M{"supi": ue.Supi}
 
