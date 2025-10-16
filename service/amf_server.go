@@ -25,6 +25,7 @@ type Server struct {
 }
 
 func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServer) error {
+	logger.GrpcLog.Info("---in Handlemessage")
 	Amf2RanMsgChan := make(chan *sdcoreAmfServer.AmfMessage, 100)
 
 	go func() {
@@ -44,6 +45,7 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 			break
 		} else {
 			logger.GrpcLog.Debugf("receive message body from client (%s): GnbIp: %v, GnbId: %v, Verbose - %s, MsgType %v", req.SctplbId, req.GnbIpAddr, req.GnbId, req.VerboseMsg, req.Msgtype)
+			logger.GrpcLog.Infof("---receive message body from client (%s): GnbIp: %v, GnbId: %v, Verbose - %s, MsgType %v", req.SctplbId, req.GnbIpAddr, req.GnbId, req.VerboseMsg, req.Msgtype)
 			switch req.Msgtype {
 			case sdcoreAmfServer.MsgType_INIT_MSG:
 				rsp := &sdcoreAmfServer.AmfMessage{}

@@ -395,6 +395,7 @@ func (context *AMFContext) NewAmfRanAddr(remoteAddr string) *AmfRan {
 }
 
 func (context *AMFContext) NewAmfRanId(GnbId string) *AmfRan {
+	logger.ContextLog.Info("---in Newamfranid")
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.GnbId = GnbId
