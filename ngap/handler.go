@@ -174,7 +174,9 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 				}
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
-			ranUe.Ran = ran
+			if ranUe != nil {
+				ranUe.Ran = ran
+			}
 			if ranUe == nil {
 				ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			}
