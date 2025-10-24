@@ -12,6 +12,7 @@ import (
 
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/Nudm_SubscriberDataManagement"
 	"github.com/omec-project/openapi/models"
@@ -51,7 +52,12 @@ func SDMGetAmData(ue *amf_context.AmfUe) (problemDetails *models.ProblemDetails,
 		ctx, ue.Supi, &getAmDataParamOpt)
 	if localErr == nil {
 		ue.AccessAndMobilitySubscriptionData = &data
-		ue.Gpsi = data.Gpsis[0] // TODO: select GPSI
+		logger.ConsumerLog.Info("gpsi[0]: ", data.Gpsis[0])
+		if data.Gpsis[0] != "" {
+			ue.Gpsi = data.Gpsis[0] // TODO: select GPSI
+		} else {
+			logger.ConsumerLog.Errorf("data.Gpsis[0] nil")
+		}
 	} else if httpResp != nil {
 		if httpResp.Status != localErr.Error() {
 			err = localErr
