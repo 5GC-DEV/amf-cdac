@@ -1195,40 +1195,46 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			cause = *tmp
 		}
 	}
-	if amfUe.State[ran.AnType] != nil {
-		ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
-		if amfUe.State[ran.AnType].Is(context.Registered) {
-			ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
-			if pDUSessionResourceList != nil {
-				for _, pduSessionReourceItem := range pDUSessionResourceList.List {
-					pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
-					smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
-					if !ok {
-						ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
-						// Modified According to 3GPP TS 24.501 Section 7.3.2 If the network receives a 5GSM message other than those listed in items a) through c) above in which the
-						// message includes a reserved PDU session identity value or an assigned value that does not match an existing
-						// PDU session, the network shall ignore the message.
-						continue
+	// Skip SM context update during N2 handover
+	procedure := amfUe.GetOnGoing(amfUe.GetAnType()).Procedure
+	if procedure == context.OnGoingProcedureNothing {
+		ranUe.Log.Infoln("Handover ongoing: releasing source gNB UE context")
+	} else {
+		if amfUe.State[ran.AnType] != nil {
+			ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
+			if amfUe.State[ran.AnType].Is(context.Registered) {
+				ranUe.Log.Infoln("Rel Ue Context in GMM-Registered")
+				if pDUSessionResourceList != nil {
+					for _, pduSessionReourceItem := range pDUSessionResourceList.List {
+						pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)
+						smContext, ok := amfUe.SmContextFindByPDUSessionID(pduSessionID)
+						if !ok {
+							ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
+							// Modified According to 3GPP TS 24.501 Section 7.3.2 If the network receives a 5GSM message other than those listed in items a) through c) above in which the
+							// message includes a reserved PDU session identity value or an assigned value that does not match an existing
+							// PDU session, the network shall ignore the message.
+							continue
+						}
+						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+						if err != nil {
+							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+						} else if response == nil {
+							ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+						}
 					}
-					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-					if err != nil {
-						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-					} else if response == nil {
-						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-					}
+				} else {
+					ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
+					amfUe.SmContextList.Range(func(key, value interface{}) bool {
+						smContext := value.(*context.SmContext)
+						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+						if err != nil {
+							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
+						} else if response == nil {
+							ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
+						}
+						return true
+					})
 				}
-			} else {
-				ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
-				amfUe.SmContextList.Range(func(key, value interface{}) bool {
-					smContext := value.(*context.SmContext)
-					response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-					if err != nil {
-						ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
-					} else if response == nil {
-						ran.Log.Errorln("Send Update SmContextDeactivate UpCnxState Error")
-					}
-					return true
-				})
 			}
 		}
 	}
