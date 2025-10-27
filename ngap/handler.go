@@ -3191,7 +3191,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
 		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
-			ngapType.CauseNasPresentNormalRelease)
+			ngapType.CauseRadioNetworkPresentSuccessfulHandover)
 	}
 
 	// Modified to Set target UE ongoing procedure to nothing after N2 Handover is finished
@@ -3202,7 +3202,8 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		})
 	}
 	// End of modification
-
+	// ContextSetup is set to true for the target gNB in case of N2 handover.
+	targetUe.SentInitialContextSetupRequest = true
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.
 }
 
