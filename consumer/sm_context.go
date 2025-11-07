@@ -9,6 +9,7 @@ package consumer
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"strconv"
@@ -478,10 +479,22 @@ func SendUpdateSmContextRequest(smContext *amf_context.SmContext,
 	updateSmContextRequest.BinaryDataN1SmMessage = n1Msg
 	updateSmContextRequest.BinaryDataN2SmInformation = n2Info
 
+	log.Printf("[SendUpdateSmContextRequest] Sending Update SM Context request to SMF: %s", smContext.SmfUri())
+	if updateSmContextRequest.JsonData != nil {
+		log.Printf("[SendUpdateSmContextRequest] Request JSON: %+v", *updateSmContextRequest.JsonData)
+	}
+	if len(n1Msg) > 0 {
+		log.Printf("[SendUpdateSmContextRequest] Included N1 SM message (len=%d bytes)", len(n1Msg))
+	}
+	if len(n2Info) > 0 {
+		log.Printf("[SendUpdateSmContextRequest] Included N2 SM info (len=%d bytes)", len(n2Info))
+	}
+
 	updateSmContextReponse, httpResponse, err := client.IndividualSMContextApi.UpdateSmContext(ctx, smContext.SmContextRef(),
 		updateSmContextRequest)
 	// retry on alternate SMF
 	if err != nil {
+		log.Printf("[SendUpdateSmContextRequest]  Error not nil")
 		if errProfile := setAltSmfProfile(smContext); errProfile == nil {
 			configuration := Nsmf_PDUSession.NewConfiguration()
 			configuration.SetBasePath(smContext.SmfUri())

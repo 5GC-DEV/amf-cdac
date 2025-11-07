@@ -184,17 +184,21 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 
 			// case ii) AMF has a PDU session routing context, and Request type is "existing PDU session"
 			case nasMessage.ULNASTransportRequestTypeExistingPduSession:
+				ue.GmmLog.Infof("[ULNASTransport] RequestType: Existing PDU Session (PDU Session ID: %d, S-NSSAI: %v, AccessType: %s)", pduSessionID, smContext.Snssai(), anType)
 				if ue.InAllowedNssai(smContext.Snssai(), anType) {
+					ue.GmmLog.Infof("[ULNASTransport] S-NSSAI[%v] allowed for access type [%s]. Forwarding message to SMF...", smContext.Snssai(), anType)
 					return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 				} else {
-					ue.GmmLog.Errorf("S-NSSAI[%v] is not allowed for access type[%s] (PDU Session ID: %d)",
+					ue.GmmLog.Infof("S-NSSAI[%v] is not allowed for access type[%s] (PDU Session ID: %d)",
 						smContext.Snssai(), anType, pduSessionID)
 					gmm_message.SendDLNASTransport(ue.RanUe[anType], nasMessage.PayloadContainerTypeN1SMInfo,
 						smMessage, pduSessionID, nasMessage.Cause5GMMPayloadWasNotForwarded, nil, 0)
+					ue.GmmLog.Infof("[ULNASTransport] Downlink NAS Transport sent with cause 'PayloadWasNotForwarded'")
 				}
 			// other requestType: AMF forward the 5GSM message, and the PDU session ID IE towards the SMF identified
 			// by the SMF ID of the PDU session routing context
 			default:
+				ue.GmmLog.Infof("[ULNASTransport] RequestType: Other (Forwarding 5GSM message for PDU Session ID: %d, AccessType: %s, S-NSSAI: %v)", pduSessionID, anType, smContext.Snssai())
 				return forward5GSMMessageToSMF(ue, anType, pduSessionID, smContext, smMessage)
 			}
 		} else { // AMF does not have a PDU session routing context for the PDU session ID and the UE
@@ -305,6 +309,7 @@ func forward5GSMMessageToSMF(
 	smContext *context.SmContext,
 	smMessage []byte,
 ) error {
+	ue.GmmLog.Infof("[PDU Session %d] Forwarding 5GSM message to SMF", pduSessionID)
 	smContextUpdateData := models.SmContextUpdateData{
 		N1SmMsg: &models.RefToBinaryData{
 			ContentId: "N1SmMsg",
@@ -312,44 +317,51 @@ func forward5GSMMessageToSMF(
 	}
 	smContextUpdateData.Pei = ue.Pei
 	smContextUpdateData.Gpsi = ue.Gpsi
+	ue.GmmLog.Infof("[PDU Session %d] UE PEI: %s, GPSI: %s", pduSessionID, ue.Pei, ue.Gpsi)
 	if !context.CompareUserLocation(ue.Location, smContext.UserLocation()) {
 		smContextUpdateData.UeLocation = &ue.Location
+		ue.GmmLog.Infof("[PDU Session %d] UE location changed → updating SMF context", pduSessionID)
 	}
 
 	if accessType != smContext.AccessType() {
 		smContextUpdateData.AnType = accessType
+		ue.GmmLog.Infof("[PDU Session %d] Access Type changed: old=%v, new=%v", pduSessionID, smContext.AccessType(), accessType)
 	}
 
+	ue.GmmLog.Infof("[PDU Session %d] Sending UpdateSmContextRequest to SMF", pduSessionID)
 	response, errResponse, problemDetail, err := consumer.SendUpdateSmContextRequest(smContext,
 		smContextUpdateData, smMessage, nil)
-
+	ue.GmmLog.Infof("[PDU Session %d] UpdateSmContextRequest sent. Awaiting response...", pduSessionID)
 	if err != nil {
 		// TODO: error handling
-		ue.GmmLog.Errorf("Update SMContext error [pduSessionID: %d], Error[%v]", pduSessionID, err)
+		ue.GmmLog.Infof("Update SMContext error [pduSessionID: %d], Error[%v]", pduSessionID, err)
 		return nil
 	} else if problemDetail != nil {
-		ue.GmmLog.Errorf("Update SMContext failed [pduSessionID: %d], problem[%v]", pduSessionID, problemDetail)
+		ue.GmmLog.Infof("Update SMContext failed [pduSessionID: %d], problem[%v]", pduSessionID, problemDetail)
 		return nil
 	} else if errResponse != nil {
 		errJSON := errResponse.JsonData
 		n1Msg := errResponse.BinaryDataN1SmMessage
-		ue.GmmLog.Warnf("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
+		ue.GmmLog.Infof("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
 			pduSessionID, errJSON.Error.Cause)
 		if n1Msg != nil {
+			ue.GmmLog.Infof("[PDU Session %d] Forwarding N1 SM error message from SMF to UE", pduSessionID)
 			gmm_message.SendDLNASTransport(ue.RanUe[accessType], nasMessage.PayloadContainerTypeN1SMInfo,
 				errResponse.BinaryDataN1SmMessage, pduSessionID, 0, nil, 0)
 		}
 		// TODO: handle n2 info transfer
 	} else if response != nil {
+		ue.GmmLog.Infof("[PDU Session %d] SMF responded successfully", pduSessionID)
 		// update SmContext in AMF
 		smContext.SetAccessType(accessType)
 		smContext.SetUserLocation(ue.Location)
 
 		responseData := response.JsonData
+		ue.GmmLog.Infof("[PDU Session %d] Response Data: N2SmInfoType=%v", pduSessionID, responseData.N2SmInfoType)
 		var n1Msg []byte
 		n2SmInfo := response.BinaryDataN2SmInformation
 		if response.BinaryDataN1SmMessage != nil {
-			ue.GmmLog.Debug("Receive N1 SM Message from SMF")
+			ue.GmmLog.Infof("Receive N1 SM Message from SMF")
 			n1Msg, err = gmm_message.BuildDLNASTransport(ue, nasMessage.PayloadContainerTypeN1SMInfo,
 				response.BinaryDataN1SmMessage, uint8(pduSessionID), nil, nil, 0)
 			if err != nil {
@@ -358,25 +370,32 @@ func forward5GSMMessageToSMF(
 		}
 
 		if response.BinaryDataN2SmInformation != nil {
+			ue.GmmLog.Infof("[PDU Session %d] Received N2 SM Information of type [%s]", pduSessionID, responseData.N2SmInfoType)
 			ue.GmmLog.Debugf("Receive N2 SM Information[%s] from SMF", responseData.N2SmInfoType)
 			switch responseData.N2SmInfoType {
 			case models.N2SmInfoType_PDU_RES_MOD_REQ:
+				ue.GmmLog.Infof("[PDU Session %d] Handling PDU Session Resource Modify Request", pduSessionID)
 				list := ngapType.PDUSessionResourceModifyListModReq{}
 				ngap_message.AppendPDUSessionResourceModifyListModReq(&list, pduSessionID, n1Msg, n2SmInfo)
 				ngap_message.SendPDUSessionResourceModifyRequest(ue.RanUe[accessType], list)
 			case models.N2SmInfoType_PDU_RES_REL_CMD:
+				ue.GmmLog.Infof("[PDU Session %d] Handling PDU Session Resource Release Command", pduSessionID)
 				list := ngapType.PDUSessionResourceToReleaseListRelCmd{}
 				ngap_message.AppendPDUSessionResourceToReleaseListRelCmd(&list, pduSessionID, n2SmInfo)
 				ngap_message.SendPDUSessionResourceReleaseCommand(ue.RanUe[accessType], n1Msg, list)
 			default:
+				ue.GmmLog.Infof("[PDU Session %d] Unknown N2 SM Information type [%s]", pduSessionID, responseData.N2SmInfoType)
 				return fmt.Errorf("error N2 SM information type[%s]", responseData.N2SmInfoType)
 			}
 		} else if n1Msg != nil {
+			ue.GmmLog.Infof("[PDU Session %d] Forwarding N1 SM message only to UE", pduSessionID)
 			ue.GmmLog.Debugf("AMF forward Only N1 SM Message to UE")
 			ngap_message.SendDownlinkNasTransport(ue.RanUe[accessType], n1Msg, nil)
 		}
 	}
+	ue.GmmLog.Infof("[PDU Session %d] Publishing updated UE context info", pduSessionID)
 	ue.PublishUeCtxtInfo()
+	ue.GmmLog.Infof("[PDU Session %d] Completed forward5GSMMessageToSMF()", pduSessionID)
 	return nil
 }
 
