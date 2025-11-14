@@ -1900,9 +1900,13 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 						n2Info := errResponse.BinaryDataN2SmInformation
 						ranUe.Log.Info("---n1Msg: ", n1Msg)
 						ranUe.Log.Info("---n2Info: ", n2Info)
-						ranUe.Log.Info("---responseData.N2SmInfoType: ", responseData.N2SmInfoType)
-						ranUe.Log.Info("---pduSessionID: ", pduSessionID)
-						BuildAndSendN1N2Msg(ranUe, n1Msg, n2Info, responseData.N2SmInfoType, pduSessionID)
+						if responseData.N2SmInfoType != "" {
+							ranUe.Log.Info("---responseData.N2SmInfoType: ", responseData.N2SmInfoType)
+							ranUe.Log.Info("---pduSessionID: ", pduSessionID)
+							BuildAndSendN1N2Msg(ranUe, n1Msg, n2Info, responseData.N2SmInfoType, pduSessionID)
+						} else {
+							ranUe.Log.Error("---responseData.N2SmInfoType nil")
+						}
 					}
 				}
 			}
