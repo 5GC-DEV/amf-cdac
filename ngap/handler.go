@@ -3195,7 +3195,7 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 		amfUe.AttachRanUe(targetUe)
 		context.StoreContextInDB(amfUe)
-		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentNas,
+		ngap_message.SendUEContextReleaseCommand(sourceUe, context.UeContextReleaseHandover, ngapType.CausePresentRadioNetwork,
 			ngapType.CauseRadioNetworkPresentSuccessfulHandover)
 	}
 
