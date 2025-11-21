@@ -22,6 +22,7 @@ import (
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/5GC-DEV/nas-cdac/nasType"
 	"github.com/5GC-DEV/nas-cdac/security"
+	"github.com/5GC-DEV/util-cdac/fsm"
 	"github.com/antihax/optional"
 	"github.com/mitchellh/mapstructure"
 	"github.com/mohae/deepcopy"
@@ -37,7 +38,6 @@ import (
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
 	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/fsm"
 )
 
 const (

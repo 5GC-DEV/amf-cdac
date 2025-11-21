@@ -12,6 +12,7 @@ import (
 	"net"
 	"strings"
 
+	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -19,7 +20,6 @@ import (
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/models"
-	mi "github.com/omec-project/util/metricinfo"
 	"go.uber.org/zap"
 )
 

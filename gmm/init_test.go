@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/5GC-DEV/util-cdac/fsm"
 	"github.com/omec-project/amf/gmm"
-	"github.com/omec-project/util/fsm"
 )
 
 func TestGmmFSM(t *testing.T) {

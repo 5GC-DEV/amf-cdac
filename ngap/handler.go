@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
@@ -29,7 +30,6 @@ import (
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/models"
-	mi "github.com/omec-project/util/metricinfo"
 )
 
 func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context.RanUe, *ngapType.AMFUENGAPID) {

@@ -12,6 +12,7 @@ import (
 	"strconv"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/omec-project/amf/context"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
@@ -20,7 +21,6 @@ import (
 	"github.com/omec-project/aper"
 	"github.com/omec-project/ngap/ngapType"
 	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 func ProducerHandler(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{}) {

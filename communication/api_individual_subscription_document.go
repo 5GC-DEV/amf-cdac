@@ -17,12 +17,12 @@ package communication
 import (
 	"net/http"
 
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/gin-gonic/gin"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/producer"
 	"github.com/omec-project/openapi"
 	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 // AMFStatusChangeSubscribeModify - Namf_Communication AMF Status Change Subscribe Modify service Operation

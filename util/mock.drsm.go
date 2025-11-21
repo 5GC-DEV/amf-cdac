@@ -6,8 +6,8 @@
 package util
 
 import (
+	"github.com/5GC-DEV/util-cdac/drsm"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/util/drsm"
 )
 
 type MockDrsmInterface interface {
