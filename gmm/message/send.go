@@ -9,12 +9,12 @@ package message
 import (
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/5GC-DEV/nas-cdac/nasType"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/producer/callback"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 )
 
 // backOffTimerUint = 7 means backoffTimer is null

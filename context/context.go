@@ -18,9 +18,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/drsm"
 	"github.com/omec-project/util/idgenerator"
 )

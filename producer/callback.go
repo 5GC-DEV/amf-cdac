@@ -14,6 +14,8 @@ import (
 
 	"github.com/5GC-DEV/nas-cdac/nasConvert"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	nrfCache "github.com/5GC-DEV/openapi-cdac/nrfcache"
 	"github.com/mohae/deepcopy"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
@@ -23,8 +25,6 @@ import (
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
-	nrfCache "github.com/omec-project/openapi/nrfcache"
 	"github.com/omec-project/util/httpwrapper"
 )
 

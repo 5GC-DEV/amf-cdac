@@ -8,6 +8,7 @@ package message
 import (
 	"os"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -15,7 +16,6 @@ import (
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/aper"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 )
 
 func SendToRan(ran *context.AmfRan, packet []byte) {

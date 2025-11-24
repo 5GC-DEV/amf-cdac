@@ -8,12 +8,12 @@ package producer
 import (
 	"testing"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/gmm"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/fsm"
 	"github.com/stretchr/testify/assert"
 )

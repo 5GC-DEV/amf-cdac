@@ -10,10 +10,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Nudm_UEContextManagement"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	amf_context "github.com/omec-project/amf/context"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Nudm_UEContextManagement"
-	"github.com/omec-project/openapi/models"
 )
 
 func UeCmRegistration(ue *amf_context.AmfUe, accessType models.AccessType, initialRegistrationInd bool) (

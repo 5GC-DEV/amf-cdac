@@ -14,7 +14,7 @@ require (
 	github.com/omec-project/aper v1.3.1
 	github.com/omec-project/config5g v1.6.2
 	github.com/omec-project/ngap v1.4.2
-	github.com/omec-project/openapi v1.5.0
+	github.com/5GC-DEV/openapi-cdac v1.5.0
 	github.com/omec-project/util v1.3.2
 	github.com/prometheus/client_golang v1.22.0
 	github.com/spf13/viper v1.20.1
@@ -27,6 +27,8 @@ require (
 )
 
 require github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
+
+require github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8 // indirect
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect

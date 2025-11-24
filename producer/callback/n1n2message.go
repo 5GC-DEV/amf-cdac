@@ -10,10 +10,10 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/5GC-DEV/openapi-cdac/Namf_Communication"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/Namf_Communication"
-	"github.com/omec-project/openapi/models"
 )
 
 func SendN1N2TransferFailureNotification(ue *amf_context.AmfUe, cause models.N1N2MessageTransferCause) {

@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
@@ -28,7 +29,6 @@ import (
 	libngap "github.com/omec-project/ngap"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 	mi "github.com/omec-project/util/metricinfo"
 )
 

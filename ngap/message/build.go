@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -19,7 +20,6 @@ import (
 	"github.com/omec-project/ngap"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 )
 
 func IncrementNGAPMsgCount(pdu ngapType.NGAPPDU) {

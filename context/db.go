@@ -11,9 +11,9 @@ import (
 	"os"
 	"sync"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/idgenerator"
 	"github.com/omec-project/util/mongoapi"
 	"go.mongodb.org/mongo-driver/bson"

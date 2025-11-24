@@ -10,9 +10,9 @@ import (
 	"fmt"
 
 	"github.com/5GC-DEV/nas-cdac"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/gmm"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/fsm"
 )
 

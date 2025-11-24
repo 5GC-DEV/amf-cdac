@@ -12,11 +12,11 @@ import (
 	"time"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Namf_Communication"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Namf_Communication"
-	"github.com/omec-project/openapi/models"
 )
 
 func BuildUeContextCreateData(ue *amf_context.AmfUe, targetRanId models.NgRanTargetId,

@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/httpwrapper"
 )
 

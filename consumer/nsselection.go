@@ -11,12 +11,12 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Nnssf_NSSelection"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Nnssf_NSSelection"
-	"github.com/omec-project/openapi/models"
 )
 
 func NSSelectionGetForRegistration(ue *amf_context.AmfUe, requestedNssai []models.MappingOfSnssai) (

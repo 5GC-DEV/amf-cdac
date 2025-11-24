@@ -12,13 +12,13 @@ import (
 	"net"
 	"strings"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 	mi "github.com/omec-project/util/metricinfo"
 	"go.uber.org/zap"
 )

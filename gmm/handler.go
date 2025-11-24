@@ -22,6 +22,8 @@ import (
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/5GC-DEV/nas-cdac/nasType"
 	"github.com/5GC-DEV/nas-cdac/security"
+	"github.com/5GC-DEV/openapi-cdac/Nnrf_NFDiscovery"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/antihax/optional"
 	"github.com/mitchellh/mapstructure"
 	"github.com/mohae/deepcopy"
@@ -35,8 +37,6 @@ import (
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/ngap/ngapConvert"
 	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
-	"github.com/omec-project/openapi/models"
 	"github.com/omec-project/util/fsm"
 )
 
@@ -1537,7 +1537,7 @@ func HandleConfigurationUpdateComplete(ue *context.AmfUe,
 
 	// TODO: Stop timer T3555 in TS 24.501 Figure 5.4.4.1.1 in handler
 	// TODO: Send acknowledgment by Nudm_SMD_Info_Service to UDM in handler
-	//		import "github.com/omec-project/openapi/Nudm_SubscriberDataManagement" client.Info
+	//		import "github.com/5GC-DEV/openapi-cdac/Nudm_SubscriberDataManagement" client.Info
 
 	return nil
 }
