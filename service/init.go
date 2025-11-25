@@ -9,7 +9,6 @@ package service
 
 import (
 	"bufio"
-	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // Using package only for invoking initialization.
@@ -413,18 +412,25 @@ func (amf *AMF) Start() {
 		os.Exit(0)
 	}()
 
-	sslLog := filepath.Dir(factory.AmfConfig.CfgLocation) + "/sslkey.log"
-	// server, err := http2_util.NewServer(addr, sslLog, router)
-	server, err := http2_util.NewServer(
-		addr,
-		sslLog,
-		context.AMF_Self().PEM,
-		context.AMF_Self().Key,
-		router,
-	)
+	var sslLog string
+	if factory.AmfConfig.Configuration.Sbi.TLS != nil && factory.AmfConfig.Configuration.Sbi.TLS.EnableKeyLog {
+
+		if factory.AmfConfig.Configuration.Sbi.TLS.KeyLogPath != "" {
+			sslLog = factory.AmfConfig.Configuration.Sbi.TLS.KeyLogPath
+		} else {
+			sslLog = "/tmp/sslkey.log" // default
+		}
+	}
+
+	server, err := http2_util.NewServer(addr, sslLog, router)
+
+	if server == nil {
+		logger.InitLog.Errorf("initialize HTTP server failed: %+v", err)
+		return
+	}
 
 	if err != nil {
-		logger.InitLog.Fatalf("Server init failed: %v", err)
+		logger.InitLog.Warnf("initialize HTTP server: %+v", err)
 	}
 
 	serverScheme := factory.AmfConfig.Configuration.Sbi.Scheme
@@ -432,12 +438,10 @@ func (amf *AMF) Start() {
 	case "http":
 		err = server.ListenAndServe()
 	case "https":
-		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
-		if err != nil {
-			logger.InitLog.Fatalf("TLS listen failed: %v", err)
-		}
-		logger.InitLog.Infof("SMF HTTPS running at %s", addr)
-		err = server.Serve(ln)
+		err = server.ListenAndServeTLS(self.PEM, self.Key)
+	default:
+		logger.InitLog.Fatalf("HTTP server setup failed: invalid server scheme %+v", serverScheme)
+		return
 	}
 
 	if err != nil {

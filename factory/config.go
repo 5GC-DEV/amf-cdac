@@ -165,8 +165,10 @@ type Sbi struct {
 }
 
 type TLS struct {
-	PEM string `yaml:"pem,omitempty"`
-	Key string `yaml:"key,omitempty"`
+	PEM          string `yaml:"pem,omitempty"`
+	Key          string `yaml:"key,omitempty"`
+	KeyLogPath   string `yaml:"keyLogPath,omitempty"`
+	EnableKeyLog bool   `yaml:"enableKeyLog,omitempty"`
 }
 
 type Security struct {
