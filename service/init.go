@@ -9,6 +9,7 @@ package service
 
 import (
 	"bufio"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // Using package only for invoking initialization.
@@ -429,7 +430,17 @@ func (amf *AMF) Start() {
 	case "http":
 		err = server.ListenAndServe()
 	case "https":
-		err = server.ListenAndServeTLS(self.PEM, self.Key)
+		// err = server.ListenAndServeTLS(self.PEM, self.Key)
+		cert, _ := tls.LoadX509KeyPair(context.AMF_Self().PEM, context.AMF_Self().Key)
+		server.TLSConfig.Certificates = []tls.Certificate{cert}
+
+		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		err = server.Serve(ln)
+
 	default:
 		logger.InitLog.Fatalf("HTTP server setup failed: invalid server scheme %+v", serverScheme)
 		return
