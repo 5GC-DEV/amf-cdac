@@ -28,7 +28,7 @@ require (
 require github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
 
 require (
-	github.com/5GC-DEV/util-cdac v0.0.0-20251121092437-4f36f7ad1952
+	github.com/5GC-DEV/util-cdac v0.0.0-20251125050929-8c003fe1084b
 	github.com/omec-project/util v1.3.2 // indirect
 )
 
