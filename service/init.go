@@ -414,15 +414,17 @@ func (amf *AMF) Start() {
 	}()
 
 	sslLog := filepath.Dir(factory.AmfConfig.CfgLocation) + "/sslkey.log"
-	server, err := http2_util.NewServer(addr, sslLog, router)
-
-	if server == nil {
-		logger.InitLog.Errorf("initialize HTTP server failed: %+v", err)
-		return
-	}
+	// server, err := http2_util.NewServer(addr, sslLog, router)
+	server, err := http2_util.NewServer(
+		addr,
+		sslLog,
+		context.AMF_Self().PEM,
+		context.AMF_Self().Key,
+		router,
+	)
 
 	if err != nil {
-		logger.InitLog.Warnf("initialize HTTP server: %+v", err)
+		logger.InitLog.Fatalf("Server init failed: %v", err)
 	}
 
 	serverScheme := factory.AmfConfig.Configuration.Sbi.Scheme
@@ -430,22 +432,12 @@ func (amf *AMF) Start() {
 	case "http":
 		err = server.ListenAndServe()
 	case "https":
-		// err = server.ListenAndServeTLS(self.PEM, self.Key)
-		cert, _ := tls.LoadX509KeyPair(context.AMF_Self().PEM, context.AMF_Self().Key)
-		server.TLSConfig.Certificates = []tls.Certificate{cert}
-		server.TLSConfig.NextProtos = []string{"h2"} // required for HTTP/2
-
 		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
 		if err != nil {
 			logger.InitLog.Fatalf("TLS listen failed: %v", err)
 		}
-		serveErr := server.Serve(ln)
-		if serveErr != nil {
-			logger.InitLog.Fatalf("HTTP/2 TLS server failed: %v", serveErr)
-		}
-	default:
-		logger.InitLog.Fatalf("HTTP server setup failed: invalid server scheme %+v", serverScheme)
-		return
+		logger.InitLog.Infof("SMF HTTPS running at %s", addr)
+		err = server.Serve(ln)
 	}
 
 	if err != nil {

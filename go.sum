@@ -2,8 +2,8 @@ git.cs.nctu.edu.tw/calee/sctp v1.1.0 h1:caiPJ0g2sH1QmDkC7x2yklKrc01Fuo1rqYW68Tq4
 git.cs.nctu.edu.tw/calee/sctp v1.1.0/go.mod h1:NeOuBXO1iJBtldmNhkfSH8yFbnxlhI8eEJdUd7DZvws=
 github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a h1:/iHiORbp/o/AgYzlC+IUgxuOovCmGIcP/GM+y9zZPQI=
 github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a/go.mod h1:C/2/vUxhZtHpiFfGGIAgruCYt//atf6mEdX/l5FO1ds=
-github.com/5GC-DEV/util-cdac v0.0.0-20251125050929-8c003fe1084b h1:aMatZtLvx9ZkSCVz80oPDGzCwd8pNLgV+H+rHreWDOE=
-github.com/5GC-DEV/util-cdac v0.0.0-20251125050929-8c003fe1084b/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
+github.com/5GC-DEV/util-cdac v0.0.0-20251125124744-9e86537bc0ce h1:mariXUHEe8Mub7lcZCjZOWpLqzhxbmMR66YEpZKgkw0=
+github.com/5GC-DEV/util-cdac v0.0.0-20251125124744-9e86537bc0ce/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/Microsoft/go-winio v0.5.2 h1:a9IhgEQBCUEk6QCdml9CiJGhAws+YwffDHEMp1VMrpA=
