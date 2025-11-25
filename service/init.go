@@ -433,6 +433,7 @@ func (amf *AMF) Start() {
 		// err = server.ListenAndServeTLS(self.PEM, self.Key)
 		cert, _ := tls.LoadX509KeyPair(context.AMF_Self().PEM, context.AMF_Self().Key)
 		server.TLSConfig.Certificates = []tls.Certificate{cert}
+		server.TLSConfig.NextProtos = []string{"h2"} // required for HTTP/2
 
 		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
 		if err != nil {
