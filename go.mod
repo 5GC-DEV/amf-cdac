@@ -24,10 +24,10 @@ require (
 )
 
 require (
+	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6
 	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8
+	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
 	github.com/ashithacdac/ngap-cdac v0.0.0-20251125092144-fce8cca48226
-	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6 
-	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085 // indirect
 )
 
 require (
@@ -53,7 +53,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
@@ -90,7 +90,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.12 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.12 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.12 // indirect
