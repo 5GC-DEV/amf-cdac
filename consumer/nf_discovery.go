@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/5GC-DEV/openapi-cdac/Nnrf_NFDiscovery"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	nrfCache "github.com/5GC-DEV/openapi-cdac/nrfcache"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
-	"github.com/omec-project/openapi/models"
-	nrfCache "github.com/omec-project/openapi/nrfcache"
 )
 
 func SendSearchNFInstances(nrfUri string, targetNfType, requestNfType models.NfType,

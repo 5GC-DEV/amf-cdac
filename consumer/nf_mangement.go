@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Nnrf_NFManagement"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Nnrf_NFManagement"
-	"github.com/omec-project/openapi/models"
 )
 
 func BuildNFInstance(context *amf_context.AMFContext) (profile models.NfProfile, err error) {

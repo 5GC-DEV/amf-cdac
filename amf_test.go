@@ -15,11 +15,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/service"
 	protos "github.com/omec-project/config5g/proto/sdcoreConfig"
-	"github.com/omec-project/openapi/models"
 	"github.com/stretchr/testify/require"
 )
 

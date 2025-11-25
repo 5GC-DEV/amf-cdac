@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"strings"
 
+	utilLogger "github.com/5GC-DEV/util-cdac/logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/omec-project/amf/logger"
-	utilLogger "github.com/omec-project/util/logger"
 )
 
 // Route is the information for every URI.

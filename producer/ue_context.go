@@ -10,11 +10,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 func UeContextHandler(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{}) {

@@ -13,9 +13,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/omec-project/aper v1.3.1
 	github.com/omec-project/config5g v1.6.2
-	github.com/omec-project/ngap v1.4.2
-	github.com/omec-project/openapi v1.5.0
-	github.com/omec-project/util v1.3.2
 	github.com/prometheus/client_golang v1.22.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
@@ -26,7 +23,12 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
+require (
+	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8
+	github.com/ashithacdac/ngap-cdac v0.0.0-20251125092144-fce8cca48226
+	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6 
+	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085 // indirect
+)
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
@@ -88,6 +90,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.12 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.12 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.12 // indirect

@@ -15,15 +15,15 @@ import (
 	"time"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Nnrf_NFDiscovery"
+	"github.com/5GC-DEV/openapi-cdac/Nsmf_PDUSession"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Nnrf_NFDiscovery"
-	"github.com/omec-project/openapi/Nsmf_PDUSession"
-	"github.com/omec-project/openapi/models"
 )
 
 const N2SMINFO_ID = "N2SmInfo"

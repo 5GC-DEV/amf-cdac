@@ -8,11 +8,11 @@ package message
 import (
 	"encoding/hex"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/ashithacdac/ngap-cdac/ngapConvert"
+	"github.com/ashithacdac/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/ngap/ngapConvert"
-	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 )
 
 func AppendPDUSessionResourceSetupListSUReq(list *ngapType.PDUSessionResourceSetupListSUReq,

@@ -17,12 +17,12 @@ package communication
 import (
 	"net/http"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/gin-gonic/gin"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/producer"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 func HTTPN1N2MessageSubscribe(c *gin.Context) {

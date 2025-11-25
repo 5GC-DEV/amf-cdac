@@ -12,8 +12,8 @@ package factory
 import (
 	"time"
 
-	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/logger"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/5GC-DEV/util-cdac/logger"
 )
 
 const (

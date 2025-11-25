@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"time"
 
+	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
-	mi "github.com/omec-project/util/metricinfo"
 	"github.com/segmentio/kafka-go"
 )
 

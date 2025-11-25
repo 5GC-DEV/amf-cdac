@@ -13,11 +13,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/ashithacdac/ngap-cdac/ngapConvert"
+	"github.com/ashithacdac/ngap-cdac/ngapType"
 	"github.com/mohae/deepcopy"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/ngap/ngapConvert"
-	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 	"go.uber.org/zap"
 )
 

@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/ashithacdac/ngap-cdac"
+	"github.com/ashithacdac/ngap-cdac/ngapConvert"
+	"github.com/ashithacdac/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/msgtypes/ngapmsgtypes"
 	"github.com/omec-project/aper"
-	"github.com/omec-project/ngap"
-	"github.com/omec-project/ngap/ngapConvert"
-	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
 )
 
 func IncrementNGAPMsgCount(pdu ngapType.NGAPPDU) {

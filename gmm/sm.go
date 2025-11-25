@@ -13,12 +13,12 @@ import (
 	"github.com/5GC-DEV/nas-cdac"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	"github.com/5GC-DEV/nas-cdac/security"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/5GC-DEV/util-cdac/fsm"
 	"github.com/omec-project/amf/context"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/fsm"
 )
 
 func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {

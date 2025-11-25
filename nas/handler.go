@@ -9,11 +9,11 @@ package nas
 import (
 	"os"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/nas/nas_security"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
-	"github.com/omec-project/openapi/models"
 )
 
 func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
