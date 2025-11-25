@@ -436,11 +436,12 @@ func (amf *AMF) Start() {
 
 		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
 		if err != nil {
-			panic(err)
+			logger.InitLog.Fatalf("TLS listen failed: %v", err)
 		}
-
-		err = server.Serve(ln)
-
+		serveErr := server.Serve(ln)
+		if serveErr != nil {
+			logger.InitLog.Fatalf("HTTP/2 TLS server failed: %v", serveErr)
+		}
 	default:
 		logger.InitLog.Fatalf("HTTP server setup failed: invalid server scheme %+v", serverScheme)
 		return
