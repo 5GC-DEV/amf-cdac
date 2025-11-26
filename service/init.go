@@ -448,7 +448,7 @@ func (amf *AMF) Start() {
 
 		// 2. Attach cert + enable HTTP/2
 		server.TLSConfig.Certificates = []tls.Certificate{cert}
-		server.TLSConfig.NextProtos = []string{"h2"}
+		server.TLSConfig.NextProtos = []string{"h2", "http/1.1"}
 
 		// 3. Create manual TLS listener
 		ln, err := tls.Listen("tcp", addr, server.TLSConfig)
