@@ -141,7 +141,11 @@ func Dispatch(conn net.Conn, msg []byte) {
 	/* uecontext is found, submit the message to transaction queue*/
 	if ranUe != nil && ranUe.AmfUe != nil {
 		ranUe.AmfUe.SetEventChannel(NgapMsgHandler)
-		ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+		if ranUe.AmfUe.TxLog != nil {
+			ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+		} else {
+			logger.NgapLog.Error("---Txlog nil")
+		}
 		if ranUe.AmfUe.EventChannel == nil {
 			logger.NgapLog.Error("Eventchannel nil while dispatching the message")
 			return
