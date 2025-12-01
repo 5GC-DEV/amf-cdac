@@ -175,7 +175,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 			if ranUe != nil {
-				//if ranUe.Ran.GnbId == ran.GnbId {
+				// if ranUe.Ran.GnbId == ran.GnbId {
 				ranUe.Ran = ran
 				// }
 			}
