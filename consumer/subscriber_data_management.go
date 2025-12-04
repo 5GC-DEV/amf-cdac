@@ -177,6 +177,7 @@ func SDMGetSliceSelectionSubscriptionData(ue *amf_context.AmfUe) (problemDetails
 			}
 			ue.SubscribedNssai = append(ue.SubscribedNssai, subscribedSnssai)
 		}
+		ue.GmmLog.Infof("Final SubscribedNssai for SUPI[%s]: %+v", ue.Supi, ue.SubscribedNssai)
 	} else if httpResp != nil {
 		if httpResp.Status != localErr.Error() {
 			err = localErr
