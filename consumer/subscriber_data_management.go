@@ -155,7 +155,7 @@ func SDMGetSliceSelectionSubscriptionData(ue *amf_context.AmfUe) (problemDetails
 	}
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
-	nssai, httpResp, localErr := client.SliceSelectionSubscriptionDataRetrievalApi.GetNssai(ctx, ue.Supi, &paramOpt)
+	/*nssai, httpResp, localErr := client.SliceSelectionSubscriptionDataRetrievalApi.GetNssai(ctx, ue.Supi, &paramOpt)
 	if localErr == nil {
 		for _, defaultSnssai := range nssai.DefaultSingleNssais {
 			subscribedSnssai := models.SubscribedSnssai{
@@ -177,6 +177,39 @@ func SDMGetSliceSelectionSubscriptionData(ue *amf_context.AmfUe) (problemDetails
 			}
 			ue.SubscribedNssai = append(ue.SubscribedNssai, subscribedSnssai)
 		}
+		ue.GmmLog.Infof("Final SubscribedNssai for SUPI[%s]: %+v", ue.Supi, ue.SubscribedNssai)*/
+	nssai, httpResp, localErr := client.SliceSelectionSubscriptionDataRetrievalApi.GetNssai(ctx, ue.Supi, &paramOpt)
+	if localErr == nil {
+
+		// Log raw UDM response
+		ue.GmmLog.Infof("UDM DefaultSingleNssais: %+v", nssai.DefaultSingleNssais)
+		ue.GmmLog.Infof("UDM SingleNssais: %+v", nssai.SingleNssais)
+
+		// Add slices into ue.SubscribedNssai
+		for _, defaultSnssai := range nssai.DefaultSingleNssais {
+			ue.GmmLog.Infof("Adding default slice: SST=%d SD=%s", defaultSnssai.Sst, defaultSnssai.Sd)
+			subscribedSnssai := models.SubscribedSnssai{
+				SubscribedSnssai: &models.Snssai{
+					Sst: defaultSnssai.Sst,
+					Sd:  defaultSnssai.Sd,
+				},
+				DefaultIndication: true,
+			}
+			ue.SubscribedNssai = append(ue.SubscribedNssai, subscribedSnssai)
+		}
+
+		for _, snssai := range nssai.SingleNssais {
+			ue.GmmLog.Infof("Adding non-default slice: SST=%d SD=%s", snssai.Sst, snssai.Sd)
+			subscribedSnssai := models.SubscribedSnssai{
+				SubscribedSnssai: &models.Snssai{
+					Sst: snssai.Sst,
+					Sd:  snssai.Sd,
+				},
+				DefaultIndication: false,
+			}
+			ue.SubscribedNssai = append(ue.SubscribedNssai, subscribedSnssai)
+		}
+
 		ue.GmmLog.Infof("Final SubscribedNssai for SUPI[%s]: %+v", ue.Supi, ue.SubscribedNssai)
 	} else if httpResp != nil {
 		if httpResp.Status != localErr.Error() {
