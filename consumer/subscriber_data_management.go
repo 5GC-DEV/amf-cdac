@@ -180,7 +180,6 @@ func SDMGetSliceSelectionSubscriptionData(ue *amf_context.AmfUe) (problemDetails
 		ue.GmmLog.Infof("Final SubscribedNssai for SUPI[%s]: %+v", ue.Supi, ue.SubscribedNssai)*/
 	nssai, httpResp, localErr := client.SliceSelectionSubscriptionDataRetrievalApi.GetNssai(ctx, ue.Supi, &paramOpt)
 	if localErr == nil {
-
 		// Log raw UDM response
 		ue.GmmLog.Infof("UDM DefaultSingleNssais: %+v", nssai.DefaultSingleNssais)
 		ue.GmmLog.Infof("UDM SingleNssais: %+v", nssai.SingleNssais)
