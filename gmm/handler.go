@@ -212,6 +212,10 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				// select a default snssai
 				if ulNasTransport.SNSSAI != nil {
 					snssai = nasConvert.SnssaiToModels(ulNasTransport.SNSSAI)
+
+					logger.ContextLog.Infof("[AMF] Received S-NSSAI in UL NAS Transport: SST=%d SD=%s",
+						snssai.Sst, snssai.Sd)
+					snssai = nasConvert.SnssaiToModels(ulNasTransport.SNSSAI)
 				} else {
 					if allowedNssai, ok := ue.AllowedNssai[anType]; ok {
 						snssai = *allowedNssai[0].AllowedSnssai
@@ -1254,7 +1258,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				// break
 				continue
 			} else {
-				ue.GmmLog.Info("slices are not identical")
+				ue.GmmLog.Debug("slices are not identical")
 				disableSliceSelection = false
 				// needSliceSelection = true
 			}
