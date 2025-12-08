@@ -70,6 +70,7 @@ type AmfUe struct {
 	Mutex       sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
 	StateMu     sync.RWMutex
 	SmctxlistMu sync.RWMutex
+	RanueMu     sync.RWMutex
 	// Mutex sync.RWMutex `json:"-"`
 	/* the AMF which serving this AmfUe now */
 	ServingAMF *AMFContext `json:"servingAMF,omitempty"` // never nil
@@ -225,6 +226,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 	smCtxListVal := make(map[string]SmContext)
 	var ranUeNgapIDVal, amfUeNgapIDVal int64
 	var gnbId string
+	ue.RanueMu.RLock()
 	if ue.RanUe != nil && ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
 		gnbId = ue.RanUe[models.AccessType__3_GPP_ACCESS].Ran.GnbId
 		if ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
@@ -232,6 +234,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 			amfUeNgapIDVal = ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId
 		}
 	}
+	ue.RanueMu.RUnlock()
 	ue.StateMu.RLock()
 	for access, state := range ue.State {
 		stateVal[access] = string(state.Current())
