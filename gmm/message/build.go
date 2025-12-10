@@ -519,26 +519,28 @@ func BuildRegistrationAccept(
 		registrationAccept.AllowedNSSAI.SetSNSSAIValue(buf)
 	}
 	/* TODO: DT-Trial: Commented below code because UE is not allowing rejected Nssais */
-	/*
-		if ue.NetworkSliceInfo != nil {
-			if len(ue.NetworkSliceInfo.RejectedNssaiInPlmn) != 0 || len(ue.NetworkSliceInfo.RejectedNssaiInTa) != 0 {
-				rejectedNssaiNas := nasConvert.RejectedNssaiToNas(
-					ue.NetworkSliceInfo.RejectedNssaiInPlmn, ue.NetworkSliceInfo.RejectedNssaiInTa)
-				registrationAccept.RejectedNSSAI = &rejectedNssaiNas
-				registrationAccept.RejectedNSSAI.SetIei(nasMessage.RegistrationAcceptRejectedNSSAIType)
-			}
-		}
 
-		if includeConfiguredNssaiCheck(ue) {
-			registrationAccept.ConfiguredNSSAI = nasType.NewConfiguredNSSAI(nasMessage.RegistrationAcceptConfiguredNSSAIType)
-			var buf []uint8
-			for _, snssai := range ue.ConfiguredNssai {
-				buf = append(buf, nasConvert.SnssaiToNas(*snssai.ConfiguredSnssai)...)
-			}
-			registrationAccept.ConfiguredNSSAI.SetLen(uint8(len(buf)))
-			registrationAccept.ConfiguredNSSAI.SetSNSSAIValue(buf)
+	if ue.NetworkSliceInfo != nil {
+		if len(ue.NetworkSliceInfo.RejectedNssaiInPlmn) != 0 || len(ue.NetworkSliceInfo.RejectedNssaiInTa) != 0 {
+			rejectedNssaiNas := nasConvert.RejectedNssaiToNas(
+				ue.NetworkSliceInfo.RejectedNssaiInPlmn, ue.NetworkSliceInfo.RejectedNssaiInTa)
+			registrationAccept.RejectedNSSAI = &rejectedNssaiNas
+			registrationAccept.RejectedNSSAI.SetIei(nasMessage.RegistrationAcceptRejectedNSSAIType)
 		}
-	*/
+	} else {
+		logger.GmmLog.Info("---ue.NetworkSliceInfo nil")
+	}
+
+	// if includeConfiguredNssaiCheck(ue) {
+	// 	registrationAccept.ConfiguredNSSAI = nasType.NewConfiguredNSSAI(nasMessage.RegistrationAcceptConfiguredNSSAIType)
+	// 	var buf []uint8
+	// 	for _, snssai := range ue.ConfiguredNssai {
+	// 		buf = append(buf, nasConvert.SnssaiToNas(*snssai.ConfiguredSnssai)...)
+	// 	}
+	// 	registrationAccept.ConfiguredNSSAI.SetLen(uint8(len(buf)))
+	// 	registrationAccept.ConfiguredNSSAI.SetSNSSAIValue(buf)
+	// }
+
 	// 5gs network feature support
 	if factory.AmfConfig.Configuration.Get5gsNwFeatSuppEnable() {
 		registrationAccept.NetworkFeatureSupport5GS = nasType.NewNetworkFeatureSupport5GS(nasMessage.RegistrationAcceptNetworkFeatureSupport5GSType)
