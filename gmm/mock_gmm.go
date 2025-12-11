@@ -6,9 +6,9 @@
 package gmm
 
 import (
+	"github.com/5GC-DEV/util-cdac/fsm"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/util/fsm"
 )
 
 var (

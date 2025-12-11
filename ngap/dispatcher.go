@@ -13,13 +13,13 @@ import (
 	"reflect"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
+	"github.com/5GC-DEV/ngap-cdac"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/msgtypes/ngapmsgtypes"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
-	"github.com/omec-project/ngap"
-	"github.com/omec-project/ngap/ngapType"
 )
 
 func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *sdcoreAmfServer.AmfMessage) {

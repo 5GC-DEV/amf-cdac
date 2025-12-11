@@ -10,11 +10,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Nudm_SubscriberDataManagement"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/antihax/optional"
 	amf_context "github.com/omec-project/amf/context"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Nudm_SubscriberDataManagement"
-	"github.com/omec-project/openapi/models"
 )
 
 func PutUpuAck(ue *amf_context.AmfUe, upuMacIue string) error {

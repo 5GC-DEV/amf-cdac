@@ -13,9 +13,6 @@ require (
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/omec-project/aper v1.3.1
 	github.com/omec-project/config5g v1.6.2
-	github.com/omec-project/ngap v1.4.2
-	github.com/omec-project/openapi v1.5.0
-	github.com/omec-project/util v1.3.2
 	github.com/prometheus/client_golang v1.22.0
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
@@ -26,7 +23,13 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/5GC-DEV/nas-cdac v0.0.0-20250813100025-99b91f6fa95a
+require (
+	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6
+	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8
+	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
+)
+
+require github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 // indirect
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
@@ -51,7 +54,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect

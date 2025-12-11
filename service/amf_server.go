@@ -10,13 +10,13 @@ import (
 	"net"
 	"os"
 
+	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/ngap"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
-	mi "github.com/omec-project/util/metricinfo"
 	"google.golang.org/grpc"
 )
 

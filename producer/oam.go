@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/5GC-DEV/openapi-cdac/models"
+	"github.com/5GC-DEV/util-cdac/fsm"
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/gmm"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi/models"
-	"github.com/omec-project/util/fsm"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 type PduSession struct {

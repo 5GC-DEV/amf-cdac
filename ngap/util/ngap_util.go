@@ -9,9 +9,9 @@ import (
 	"net"
 	"time"
 
+	"github.com/5GC-DEV/ngap-cdac"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/aper"
-	"github.com/omec-project/ngap"
-	"github.com/omec-project/ngap/ngapType"
 )
 
 // ASN.1 Basic-PER encoded values

@@ -14,6 +14,11 @@ import (
 	"strconv"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	libngap "github.com/5GC-DEV/ngap-cdac"
+	"github.com/5GC-DEV/ngap-cdac/ngapConvert"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
@@ -25,11 +30,6 @@ import (
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 	"github.com/omec-project/amf/util"
 	"github.com/omec-project/aper"
-	libngap "github.com/omec-project/ngap"
-	"github.com/omec-project/ngap/ngapConvert"
-	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
-	mi "github.com/omec-project/util/metricinfo"
 )
 
 func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context.RanUe, *ngapType.AMFUENGAPID) {

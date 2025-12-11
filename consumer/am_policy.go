@@ -10,11 +10,11 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/5GC-DEV/openapi-cdac"
+	"github.com/5GC-DEV/openapi-cdac/Npcf_AMPolicy"
+	"github.com/5GC-DEV/openapi-cdac/models"
 	amf_context "github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/openapi"
-	"github.com/omec-project/openapi/Npcf_AMPolicy"
-	"github.com/omec-project/openapi/models"
 )
 
 func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*models.ProblemDetails, error) {

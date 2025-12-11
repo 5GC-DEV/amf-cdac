@@ -14,6 +14,10 @@ import (
 
 	"github.com/5GC-DEV/nas-cdac/nasConvert"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
+	"github.com/5GC-DEV/openapi-cdac/models"
+	nrfCache "github.com/5GC-DEV/openapi-cdac/nrfcache"
+	"github.com/5GC-DEV/util-cdac/httpwrapper"
 	"github.com/mohae/deepcopy"
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
@@ -22,10 +26,6 @@ import (
 	"github.com/omec-project/amf/nas"
 	ngap_message "github.com/omec-project/amf/ngap/message"
 	"github.com/omec-project/amf/util"
-	"github.com/omec-project/ngap/ngapType"
-	"github.com/omec-project/openapi/models"
-	nrfCache "github.com/omec-project/openapi/nrfcache"
-	"github.com/omec-project/util/httpwrapper"
 )
 
 func SmContextHandler(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{}) {

@@ -14,8 +14,8 @@ import (
 	"syscall"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
+	"github.com/5GC-DEV/ngap-cdac"
 	"github.com/omec-project/amf/logger"
-	"github.com/omec-project/ngap"
 )
 
 type NGAPHandler struct {
