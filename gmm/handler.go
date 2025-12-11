@@ -1225,7 +1225,6 @@ func getSubscribedNssai(ue *context.AmfUe) {
 // TS 23.502 4.2.2.2.3 Registration with AMF Re-allocation
 func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	amfSelf := context.AMF_Self()
-	disableSliceSelection := true
 
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
@@ -1236,6 +1235,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 		ue.GmmLog.Infof("RequestedNssai: %+v", requestedNssai)
 
 		needSliceSelection := false
+		disableSliceSelection := false
 		for _, requestedSnssai := range requestedNssai {
 			ue.GmmLog.Debug("reg req Sst: ", requestedSnssai.ServingSnssai.Sst)
 			ue.GmmLog.Debug("reg req Sd: ", requestedSnssai.ServingSnssai.Sd)
@@ -1251,11 +1251,7 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Debug("allowedSnssai: ", allowedSnssai)
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
-				break
-			} else {
-				ue.GmmLog.Info("slices are not identical")
-				disableSliceSelection = false
-				// needSliceSelection = true
+				continue
 			}
 		}
 		if !disableSliceSelection {

@@ -577,9 +577,10 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai *models.Snssai) bool {
 	for _, sNssai := range ue.SubscribedNssai {
 		logger.ContextLog.Info("sst:", sNssai.SubscribedSnssai.Sst, ", sd:", sNssai.SubscribedSnssai.Sd, "in core")
 		logger.ContextLog.Info("sst:", targetSNssai.Sst, ", sd:", targetSNssai.Sd, "from gNB")
-		if reflect.DeepEqual(*sNssai.SubscribedSnssai, targetSNssai) {
+		if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst &&
+			sNssai.SubscribedSnssai.Sd == targetSNssai.Sd {
 			return true
-		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst {
+		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst && targetSNssai.Sd == "" {
 			targetSNssai.Sd = sNssai.SubscribedSnssai.Sd
 			return true
 		}
