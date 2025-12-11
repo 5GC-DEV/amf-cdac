@@ -174,11 +174,14 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 				}
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
-			if ranUe != nil && ranUe.Ran.GnbId != "" {
-				if ranUe.Ran.GnbId == ran.GnbId {
-					ranUe.Ran = ran
+			if ranUe != nil {
+				if ranUe.Ran != nil {
+					if ranUe.Ran.GnbId == ran.GnbId {
+						ranUe.Ran = ran
+					}
 				}
 			} else {
+				ran.Log.Warnln("RanUe NOT found by AMF_UE_NGAP_ID, Trying RAN_UE_NGAP_ID")
 				ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			}
 		case ngapType.ProcedureCodeNASNonDeliveryIndication:
