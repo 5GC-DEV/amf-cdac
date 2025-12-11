@@ -4,6 +4,8 @@ github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6 h1:Lxsv/n+2zpvlBE
 github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6/go.mod h1:5pLUEpSbRMY3org3mxHjjvX60KzjKWnr9a5iFyeTvHw=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211063814-37e26c700d90 h1:xZLknQ5SWp1mifNHKrS/pxX5rrIktoV6k2f7qXnBfO8=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211063814-37e26c700d90/go.mod h1:f8IDKdSzArBRybHVqiz611IFFkZJT9A5HwAlzktNAQw=
+github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 h1:EQu1JPd1A7x5xQNw53wXTE5slWvCE3cttWFyqMMm4EQ=
+github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31/go.mod h1:0RoJ2GgMzm+tqwCasiGq9FmD6mhTG6uznEB24VzneuA=
 github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8 h1:QXEkID4P7RbR1YIkmiiUuIdFc9UagBIYedLHIN4xZGc=
 github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
 github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085 h1:KLL6S+ytEGgr3dX0sg6xDQ2TXZMtVt9TboPcu1j2nes=
