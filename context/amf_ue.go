@@ -581,7 +581,6 @@ func (ue *AmfUe) InSubscribedNssai(targetSNssai *models.Snssai) bool {
 		} else if sNssai.SubscribedSnssai.Sst == targetSNssai.Sst && targetSNssai.Sd == "" {
 			targetSNssai.Sd = sNssai.SubscribedSnssai.Sd
 			return true
-
 		}
 	}
 	return false
