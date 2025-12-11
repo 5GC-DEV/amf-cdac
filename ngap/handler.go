@@ -1201,9 +1201,12 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 	}
 	// Skip SM context update during N2 handover
-	procedure := amfUe.GetOnGoing(amfUe.GetAnType()).Procedure
-	if procedure == context.OnGoingProcedureNothing {
+	if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure == context.OnGoingProcedureN2Handover {
 		ranUe.Log.Infoln("Handover ongoing: releasing source gNB UE context")
+		ranUe.Log.Infof("Setting target UE on going procedure to nothing after N2 Handover")
+		amfUe.SetOnGoing(amfUe.GetAnType(), &context.OnGoingProcedureWithPrio{
+			Procedure: context.OnGoingProcedureNothing,
+		})
 	} else {
 		if amfUe.State[ran.AnType] != nil {
 			ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
@@ -3199,14 +3202,6 @@ func HandleHandoverNotify(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			ngapType.CauseRadioNetworkPresentSuccessfulHandover)
 	}
 
-	// Modified to Set target UE ongoing procedure to nothing after N2 Handover is finished
-	if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure == context.OnGoingProcedureN2Handover {
-		targetUe.Log.Infof("Setting target UE on going procedure to nothing after N2 Handover")
-		amfUe.SetOnGoing(amfUe.GetAnType(), &context.OnGoingProcedureWithPrio{
-			Procedure: context.OnGoingProcedureNothing,
-		})
-	}
-	// End of modification
 	// ContextSetup is set to true for the target gNB in case of N2 handover.
 	targetUe.SentInitialContextSetupRequest = true
 	// TODO: The UE initiates Mobility Registration Update procedure as described in clause 4.2.2.2.2.
