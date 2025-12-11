@@ -9,8 +9,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/ashithacdac/ngap-cdac"
-	"github.com/ashithacdac/ngap-cdac/ngapType"
+	"github.com/5GC-DEV/ngap-cdac"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/aper"
 )
 

@@ -7,7 +7,7 @@
 package ngapmsgtypes
 
 import (
-	"github.com/ashithacdac/ngap-cdac/ngapType"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 )
 
 var NgapMsg map[int64]string

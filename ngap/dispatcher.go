@@ -13,8 +13,8 @@ import (
 	"reflect"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
-	"github.com/ashithacdac/ngap-cdac"
-	"github.com/ashithacdac/ngap-cdac/ngapType"
+	"github.com/5GC-DEV/ngap-cdac"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"

@@ -8,9 +8,9 @@ package message
 import (
 	"encoding/hex"
 
+	"github.com/5GC-DEV/ngap-cdac/ngapConvert"
+	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/5GC-DEV/openapi-cdac/models"
-	"github.com/ashithacdac/ngap-cdac/ngapConvert"
-	"github.com/ashithacdac/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/logger"
 )
