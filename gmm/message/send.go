@@ -60,11 +60,21 @@ func SendNotification(ue *context.RanUe, nasMsg []byte) {
 }
 
 func SendIdentityRequest(ue *context.RanUe, typeOfIdentity uint8) {
-	ue.AmfUe.GmmLog.Infoln("send Identity Request")
+	// [LOG MODIFIED] Add SUPI and Identity Type to the log
+	if ue.AmfUe != nil {
+		ue.AmfUe.GmmLog.Infof("send Identity Request - SUPI: %s, Requesting Identity Type: %d (1=SUCI, 2=GUTI, 3=IMEI, 4=IMEISV)", ue.AmfUe.Supi, typeOfIdentity)
+	} else {
+		// Fallback logging if AmfUe context is somehow missing (rare in this flow)
+		logger.GmmLog.Infof("send Identity Request - RanUeNgapID: %d, Requesting Identity Type: %d", ue.RanUeNgapId, typeOfIdentity)
+	}
 
 	nasMsg, err := BuildIdentityRequest(typeOfIdentity)
 	if err != nil {
-		ue.AmfUe.GmmLog.Errorln(err.Error())
+		if ue.AmfUe != nil {
+			ue.AmfUe.GmmLog.Errorf("BuildIdentityRequest Error: %v", err)
+		} else {
+			logger.GmmLog.Errorln(err.Error())
+		}
 		return
 	}
 	ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)

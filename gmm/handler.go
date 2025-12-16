@@ -768,7 +768,8 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 }
 
 func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType models.AccessType) error {
-	ue.GmmLog.Infoln("Handle MobilityAndPeriodicRegistrationUpdating")
+	// [LOG ADDED] Identify which UE is processing this request
+	ue.GmmLog.Infof("Handle MobilityAndPeriodicRegistrationUpdating - SUPI: %s", ue.Supi)
 
 	amfSelf := context.AMF_Self()
 
@@ -814,9 +815,17 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 	// 	If the AMF has changed the new AMF notifies the old AMF that the registration of the UE in the new AMF is completed
 	// }
 
+	// [LOG ADDED] Check PEI status before decision
+	ue.GmmLog.Infof("DEBUG CHECK: Checking PEI for SUPI: %s. Current PEI: '%s', Length: %d", ue.Supi, ue.Pei, len(ue.Pei))
+
 	if len(ue.Pei) == 0 {
+		// [LOG ADDED] Log if we hit the condition causing the Identity Request
+		ue.GmmLog.Warnf("DEBUG CHECK: PEI is empty (Length 0). Triggering SendIdentityRequest for SUPI: %s", ue.Supi)
 		gmm_message.SendIdentityRequest(ue.RanUe[anType], nasMessage.MobileIdentity5GSTypeImei)
 		return nil
+	} else {
+		// [LOG ADDED] Log if we pass the check
+		ue.GmmLog.Infof("DEBUG CHECK: PEI is present. Proceeding with flow for SUPI: %s", ue.Supi)
 	}
 
 	// TODO (step 12 optional): the new AMF initiates ME identity check by invoking the
