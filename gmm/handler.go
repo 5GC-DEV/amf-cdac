@@ -1478,10 +1478,14 @@ func HandleIdentityResponse(ue *context.AmfUe, identityResponse *nasMessage.Iden
 		}
 		ue.GmmLog.Debugf("get 5G-S-TMSI: %s", sTmsi)
 	case nasMessage.MobileIdentity5GSTypeImei:
+		ue.GmmLog.Infof("Processing Identity Response (IMEI) for SUPI: %s", ue.Supi)
 		if ue.MacFailed {
+			ue.GmmLog.Warnf("Integrity check failed during Identity Response for SUPI: %s", ue.Supi)
 			return fmt.Errorf("NAS message integrity check failed")
 		}
+		ue.GmmLog.Infof("Raw mobileIdentityContents for SUPI %s: %v (Length: %d)", ue.Supi, mobileIdentityContents, len(mobileIdentityContents))
 		imei := nasConvert.PeiToString(mobileIdentityContents)
+		ue.GmmLog.Infof("Converted PEI/IMEI for SUPI %s: '%s' (String Length: %d)", ue.Supi, imei, len(imei))
 		ue.Pei = imei
 		ue.GmmLog.Infof("get PEI: %s", imei)
 	case nasMessage.MobileIdentity5GSTypeImeisv:
