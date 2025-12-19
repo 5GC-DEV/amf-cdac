@@ -1742,7 +1742,16 @@ func BuildHandoverRequest(ue *context.RanUe, cause ngapType.Cause,
 	ie.Criticality.Value = ngapType.CriticalityPresentReject
 	ie.Value.Present = ngapType.HandoverRequestIEsPresentSecurityContext
 	ie.Value.SecurityContext = new(ngapType.SecurityContext)
-
+	fmt.Printf("---[HO-DEBUG] BuildHandoverRequest AMF_UE_NGAP_ID=%d NCC=%d NH_len=%d", ue.AmfUeNgapId, ue.AmfUe.NCC, len(amfUe.NH))
+	if len(amfUe.NH) > 0 {
+		fmt.Printf("---[HO-DEBUG] NH value (hex)=%x", ue.AmfUe.NH)
+	}
+	if ue.AmfUe.NCC > 7 {
+		fmt.Printf("---[HO-ERROR] NCC out of range before encoding: %d", amfUe.NCC)
+	}
+	if len(amfUe.NH) != 32 {
+		fmt.Printf("[HO-ERROR] Invalid NH length before encoding: %d (expected 32)", len(amfUe.NH))
+	}
 	securityContext := ie.Value.SecurityContext
 	securityContext.NextHopChainingCount.Value = int64(ue.AmfUe.NCC)
 	securityContext.NextHopNH.Value = ngapConvert.HexToBitString(hex.EncodeToString(ue.AmfUe.NH), 256)
