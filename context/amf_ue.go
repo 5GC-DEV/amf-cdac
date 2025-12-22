@@ -752,7 +752,10 @@ func (ue *AmfUe) UpdateSecurityContext(anType models.AccessType) {
 }
 
 func (ue *AmfUe) UpdateNH() {
-	ue.NCC++
+	// ue.NCC++
+	logger.ContextLog.Info("---NCC: ", ue.NCC)
+	ue.NCC = (ue.NCC + 1) % 8
+	logger.ContextLog.Info("---updated NCC: ", ue.NCC)
 	ue.DerivateNH(ue.NH)
 }
 
