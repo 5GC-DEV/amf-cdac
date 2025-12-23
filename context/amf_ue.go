@@ -748,7 +748,9 @@ func (ue *AmfUe) UpdateSecurityContext(anType models.AccessType) {
 }
 
 func (ue *AmfUe) UpdateNH() {
-	ue.NCC++
+	// NCC valid range is 0–7
+	ue.NCC = (ue.NCC + 1) % 8
+	logger.ContextLog.Debug("NCC: %d", ue.NCC)
 	ue.DerivateNH(ue.NH)
 }
 
