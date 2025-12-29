@@ -225,7 +225,7 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 					if len(dnnData) > 0 {
 						dnn = string(dnnData)
 					} else {
-						return errors.New("empty DNN recieved from UE")
+						return errors.New("empty DNN received from UE")
 					}
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
