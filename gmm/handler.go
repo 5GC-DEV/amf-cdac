@@ -221,7 +221,12 @@ func transport5GSMMessage(ue *context.AmfUe, anType models.AccessType,
 				}
 
 				if ulNasTransport.DNN != nil {
-					dnn = string(ulNasTransport.GetDNN())
+					dnnData := ulNasTransport.GetDNN()
+					if len(dnnData) > 0 {
+						dnn = string(dnnData)
+					} else {
+						return errors.New("empty DNN recieved from UE")
+					}
 				} else {
 					// if user's subscription context obtained from UDM does not contain the default DNN for the,
 					// S-NSSAI, the AMF shall use a locally configured DNN as the DNN
