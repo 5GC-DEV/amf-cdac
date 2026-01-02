@@ -518,6 +518,35 @@ func BuildRegistrationAccept(
 		registrationAccept.AllowedNSSAI.SetLen(uint8(len(buf)))
 		registrationAccept.AllowedNSSAI.SetSNSSAIValue(buf)
 	}
+
+	// Check for rejected slices and encode them into the Registration Accept message
+	if len(ue.RejectedNssai[anType]) > 0 {
+		registrationAccept.RejectedNSSAI = nasType.NewRejectedNSSAI(nasMessage.RegistrationAcceptRejectedNSSAIType)
+		var buf []uint8
+
+		for _, item := range ue.RejectedNssai[anType] {
+			// 1. Get raw bytes for SST+SD (same helper as AllowedNssai)
+			snssaiBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
+
+			// 2. Map rejection reason to 4-bit integer
+			var cause uint8
+			if item.RejectCause == models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_TA {
+				cause = 0x01 // Not available in Tracking Area
+			} else {
+				cause = 0x00 // Default: Not available in PLMN
+			}
+
+			// 3. Create Header Byte: [Cause (4 bits) | Length (4 bits)]
+			// TS 24.501 9.11.3.46 requires this specific format
+			headerByte := (cause << 4) | (uint8(len(snssaiBytes)) & 0x0F)
+
+			buf = append(buf, headerByte)
+			buf = append(buf, snssaiBytes...)
+		}
+
+		registrationAccept.RejectedNSSAI.SetLen(uint8(len(buf)))
+		registrationAccept.RejectedNSSAI.SetRejectedNSSAIContents(buf)
+	}
 	/* TODO: DT-Trial: Commented below code because UE is not allowing rejected Nssais */
 	/*
 		if ue.NetworkSliceInfo != nil {
