@@ -526,9 +526,15 @@ func BuildRegistrationAccept(
 
 		for _, item := range ue.RejectedNssai[anType] {
 			// 1. Get raw bytes for SST+SD (same helper as AllowedNssai)
-			snssaiBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
+			rawBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
 
-			// 2. Map rejection reason to 4-bit integer
+			// 2. STRIP THE LENGTH BYTE (Index 0). We only need [SST, SD...]
+			// Rejected NSSAI embeds the length in the header nibble, not as a separate byte.
+			var snssaiBytes []byte
+			if len(rawBytes) > 0 {
+				snssaiBytes = rawBytes[1:]
+			}
+			// 3. Map rejection reason to 4-bit integer
 			var cause uint8
 			if item.RejectCause == models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_TA {
 				cause = 0x01 // Not available in Tracking Area
@@ -536,7 +542,7 @@ func BuildRegistrationAccept(
 				cause = 0x00 // Default: Not available in PLMN
 			}
 
-			// 3. Create Header Byte: [Cause (4 bits) | Length (4 bits)]
+			// 4. Create Header Byte: [Cause (4 bits) | Length (4 bits)]
 			// TS 24.501 9.11.3.46 requires this specific format
 			headerByte := (cause << 4) | (uint8(len(snssaiBytes)) & 0x0F)
 
