@@ -2,6 +2,8 @@ git.cs.nctu.edu.tw/calee/sctp v1.1.0 h1:caiPJ0g2sH1QmDkC7x2yklKrc01Fuo1rqYW68Tq4
 git.cs.nctu.edu.tw/calee/sctp v1.1.0/go.mod h1:NeOuBXO1iJBtldmNhkfSH8yFbnxlhI8eEJdUd7DZvws=
 github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6 h1:Lxsv/n+2zpvlBEnkGBO5aDE/TYN520bwxF4vKOo5b9g=
 github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6/go.mod h1:5pLUEpSbRMY3org3mxHjjvX60KzjKWnr9a5iFyeTvHw=
+github.com/5GC-DEV/nas-cdac v0.0.0-20260105091124-3ab4938bc9e2 h1:kMVIzyY1l+1pZ3CTBRJoOIVszZNxaQFA3DUXFaMEFZw=
+github.com/5GC-DEV/nas-cdac v0.0.0-20260105091124-3ab4938bc9e2/go.mod h1:5pLUEpSbRMY3org3mxHjjvX60KzjKWnr9a5iFyeTvHw=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 h1:EQu1JPd1A7x5xQNw53wXTE5slWvCE3cttWFyqMMm4EQ=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31/go.mod h1:0RoJ2GgMzm+tqwCasiGq9FmD6mhTG6uznEB24VzneuA=
 github.com/5GC-DEV/openapi-cdac v1.0.0/go.mod h1:TFxV/NlwA7waEk3BqH6baTQ8oWpPMRDFC1YCEpPjl04=
@@ -9,6 +11,8 @@ github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260102095647-06d9618009e3 h1:JRy7ALmj
 github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260102095647-06d9618009e3/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
 github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260102104821-09810eecf690 h1:uDTC7U/Ko/cOLm0ky72dgablkhKfKLJxjAyDFr2znG4=
 github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260102104821-09810eecf690/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260105091346-82ca86b96efa h1:ey8Af1MehsCLY43hPU4APtdd1Deb9jN2WsKacUgLdvU=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260105091346-82ca86b96efa/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
 github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085 h1:KLL6S+ytEGgr3dX0sg6xDQ2TXZMtVt9TboPcu1j2nes=
 github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=

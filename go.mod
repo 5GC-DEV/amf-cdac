@@ -24,8 +24,8 @@ require (
 )
 
 require (
-	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6
-	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260102104821-09810eecf690
+	github.com/5GC-DEV/nas-cdac v0.0.0-20260105091124-3ab4938bc9e2
+	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260105091346-82ca86b96efa
 	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
 )
 

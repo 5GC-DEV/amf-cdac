@@ -8,6 +8,7 @@ package message
 
 import (
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 
 	"github.com/5GC-DEV/nas-cdac"
@@ -522,57 +523,144 @@ func BuildRegistrationAccept(
 	// Check for rejected slices and encode them into the Registration Accept message
 	// --- Rejected NSSAI Logic ---
 	if len(ue.RejectedNssai[anType]) > 0 {
-		ue.GmmLog.Infof("Encoding Rejected NSSAI IE. Count: %d", len(ue.RejectedNssai[anType]))
+		ue.GmmLog.Infof("======= ENCODING REJECTED NSSAI =======")
+		ue.GmmLog.Infof("Number of rejected S-NSSAIs: %d", len(ue.RejectedNssai[anType]))
 
 		registrationAccept.RejectedNSSAI = nasType.NewRejectedNSSAI(nasMessage.RegistrationAcceptRejectedNSSAIType)
 		var buf []uint8
 
 		for i, item := range ue.RejectedNssai[anType] {
-			// 1. Get raw bytes from helper: [Length, SST, SD...]
-			// Example output for SST=1, SD=010203: [0x04, 0x01, 0x01, 0x02, 0x03]
+			ue.GmmLog.Infof("--- Processing Rejected S-NSSAI [%d] ---", i)
+
+			// Log the raw data from the model
+			ue.GmmLog.Infof("Raw model data:")
+			ue.GmmLog.Infof("  - SST: %d (decimal), 0x%02x (hex)",
+				item.RejectedSnssai.Sst, item.RejectedSnssai.Sst)
+			ue.GmmLog.Infof("  - SD: '%s'", item.RejectedSnssai.Sd)
+			ue.GmmLog.Infof("  - RejectCause: %v", item.RejectCause)
+
+			// Convert S-NSSAI to NAS format
 			rawBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
+			ue.GmmLog.Infof("nasConvert.SnssaiToNas() returned: %x", rawBytes)
+			ue.GmmLog.Infof("Bytes breakdown:")
+			for j, b := range rawBytes {
+				ue.GmmLog.Infof("  Byte[%d]: 0x%02x (decimal %d)", j, b, b)
+			}
 
-			ue.GmmLog.Debugf("Rejected Item [%d] Raw Bytes from nasConvert: %x", i, rawBytes)
-
-			// 2. CRITICAL FIX: STRIP THE LENGTH BYTE (Index 0)
-			// The Rejected NSSAI IE packs the length into the Header Byte (lower 4 bits).
-			// We cannot include the standalone length byte, or it offsets the whole structure.
-			var snssaiContent []byte
-			if len(rawBytes) > 1 {
-				snssaiContent = rawBytes[1:] // Keep only [SST, SD...]
-			} else {
-				// Should not happen for valid S-NSSAI, but safety first
-				ue.GmmLog.Warnf("Rejected Item [%d] Invalid raw bytes length: %d", i, len(rawBytes))
+			// Validate the raw bytes
+			if len(rawBytes) < 2 {
+				ue.GmmLog.Errorf("Invalid raw bytes from SnssaiToNas: length %d < 2", len(rawBytes))
 				continue
 			}
 
-			// 3. Determine Cause (4 bits)
+			expectedLength := rawBytes[0]
+			actualLength := len(rawBytes) - 1 // Excluding length byte
+			if int(expectedLength) != actualLength {
+				ue.GmmLog.Warnf("Length mismatch: Expected %d bytes, got %d bytes",
+					expectedLength, actualLength)
+			}
+
+			sstByte := rawBytes[1]
+			ue.GmmLog.Infof("Extracted SST byte: 0x%02x (decimal %d)", sstByte, sstByte)
+
+			// Verify SST matches expected
+			if sstByte != uint8(item.RejectedSnssai.Sst) {
+				ue.GmmLog.Warnf("SST MISMATCH: Model has %d (0x%02x), but byte is %d (0x%02x)",
+					item.RejectedSnssai.Sst, item.RejectedSnssai.Sst, sstByte, sstByte)
+			}
+
+			// Prepare S-NSSAI content (strip the length byte)
+			var snssaiContent []byte
+			if len(rawBytes) > 1 {
+				snssaiContent = rawBytes[1:] // SST and optional SD
+				ue.GmmLog.Infof("S-NSSAI content (without length): %x", snssaiContent)
+				ue.GmmLog.Infof("Content length: %d bytes", len(snssaiContent))
+			} else {
+				ue.GmmLog.Errorf("Invalid raw bytes from SnssaiToNas")
+				continue
+			}
+
+			// Map reject cause to NAS cause value
 			var cause uint8
 			switch item.RejectCause {
 			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_TA:
 				cause = 0x01
+				ue.GmmLog.Infof("Cause mapping: S_NSSAI_NOT_AVAILABLE_IN_TA -> 0x01")
 			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_CURRENT_PLMN_OR_SNPN:
-				cause = 0x00 // Usually maps to 0 in this specific NAS field (Check TS 24.501)
+				cause = 0x04 // CORRECTED: Was 0x00
+				ue.GmmLog.Infof("Cause mapping: S_NSSAI_NOT_AVAILABLE_IN_CURRENT_PLMN_OR_SNPN -> 0x04")
+			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_DUE_TO_FAILED_OR_REVOKED_NSAA:
+				cause = 0x02
+				ue.GmmLog.Infof("Cause mapping: S_NSSAI_NOT_AVAILABLE_DUE_TO_FAILED_OR_REVOKED_NSAA -> 0x02")
+			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_DUE_TO_MAXIMUM_NUMBER_OF_UE_REACHED:
+				cause = 0x03
+				ue.GmmLog.Infof("Cause mapping: S_NSSAI_NOT_AVAILABLE_DUE_TO_MAXIMUM_NUMBER_OF_UE_REACHED -> 0x03")
 			default:
-				cause = 0x00
+				cause = 0x00 // S-NSSAI not available due to unspecified reason
+				ue.GmmLog.Infof("Cause mapping: Unknown -> 0x00")
 			}
 
-			// 4. Create Header Byte: [Cause (4 bits) | Length (4 bits)]
-			// len(snssaiContent) will be 1 (SST only) or 4 (SST+SD)
-			headerByte := (cause << 4) | (uint8(len(snssaiContent)) & 0x0F)
+			// Create header byte: [Cause (4 bits) | Length (4 bits)]
+			// Length is the length of snssaiContent (SST + optional SD)
+			contentLength := uint8(len(snssaiContent))
+			headerByte := (cause << 4) | (contentLength & 0x0F)
 
-			ue.GmmLog.Debugf("Rejected Item [%d] Header: 0x%02x (Cause: %d, Len: %d) Content: %x",
-				i, headerByte, cause, len(snssaiContent), snssaiContent)
+			ue.GmmLog.Infof("Header byte calculation:")
+			ue.GmmLog.Infof("  - Cause: 0x%01x (binary: %04b)", cause, cause)
+			ue.GmmLog.Infof("  - Content length: %d (binary: %04b)", contentLength, contentLength)
+			ue.GmmLog.Infof("  - Header byte: 0x%02x (binary: %08b)", headerByte, headerByte)
 
-			// 5. Append Header + Content
+			// Append to buffer
+			oldBufLen := len(buf)
 			buf = append(buf, headerByte)
 			buf = append(buf, snssaiContent...)
+
+			ue.GmmLog.Infof("Added to buffer: %x", buf[oldBufLen:])
+			ue.GmmLog.Infof("Current buffer state: %x", buf)
+			ue.GmmLog.Infof("--- End Rejected S-NSSAI [%d] ---", i)
 		}
 
-		ue.GmmLog.Infof("Final Rejected NSSAI Buffer (Hex): %x", buf)
+		ue.GmmLog.Infof("======= FINAL REJECTED NSSAI BUFFER =======")
+		ue.GmmLog.Infof("Total length: %d bytes", len(buf))
+		ue.GmmLog.Infof("Hex dump: %x", buf)
+
+		// Log byte-by-byte interpretation for debugging
+		ue.GmmLog.Infof("Byte-by-byte interpretation:")
+		pos := 0
+		for pos < len(buf) {
+			if pos+1 > len(buf) {
+				break
+			}
+			headerByte := buf[pos]
+			cause := (headerByte >> 4) & 0x0F
+			length := headerByte & 0x0F
+
+			ue.GmmLog.Infof("  Entry at position %d:", pos)
+			ue.GmmLog.Infof("    Header: 0x%02x (Cause: 0x%01x, Length: %d)",
+				headerByte, cause, length)
+
+			if pos+1+int(length) <= len(buf) {
+				content := buf[pos+1 : pos+1+int(length)]
+				ue.GmmLog.Infof("    Content: %x", content)
+
+				if length >= 1 {
+					sst := content[0]
+					ue.GmmLog.Infof("      SST: 0x%02x (decimal %d)", sst, sst)
+
+					if length == 4 {
+						sd := content[1:]
+						ue.GmmLog.Infof("      SD: %x (decimal %d)", sd, binary.BigEndian.Uint32(append([]byte{0}, sd...)))
+					}
+				}
+			}
+
+			pos += 1 + int(length)
+		}
 
 		registrationAccept.RejectedNSSAI.SetLen(uint8(len(buf)))
 		registrationAccept.SetRejectedNSSAIContents(buf)
+
+		ue.GmmLog.Infof("======= END REJECTED NSSAI ENCODING =======")
 	}
 	/* TODO: DT-Trial: Commented below code because UE is not allowing rejected Nssais */
 	/*
