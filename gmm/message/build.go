@@ -521,34 +521,49 @@ func BuildRegistrationAccept(
 
 	// Check for rejected slices and encode them into the Registration Accept message
 	if len(ue.RejectedNssai[anType]) > 0 {
+		ue.GmmLog.Debugf("Encoding Rejected NSSAI List (Count: %d)", len(ue.RejectedNssai[anType]))
+
 		registrationAccept.RejectedNSSAI = nasType.NewRejectedNSSAI(nasMessage.RegistrationAcceptRejectedNSSAIType)
 		var buf []uint8
 
-		for _, item := range ue.RejectedNssai[anType] {
-			// 1. Get raw bytes for SST+SD (same helper as AllowedNssai)
+		for i, item := range ue.RejectedNssai[anType] {
+			ue.GmmLog.Debugf("[%d] Processing Rejected S-NSSAI: %+v Cause: %s", i, item.RejectedSnssai, item.RejectCause)
+
+			// 1. Get raw bytes from helper: [Length, SST, SD...]
 			rawBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
 
-			// 2. STRIP THE LENGTH BYTE (Index 0). We only need [SST, SD...]
-			// Rejected NSSAI embeds the length in the header nibble, not as a separate byte.
-			var snssaiBytes []byte
-			if len(rawBytes) > 0 {
-				snssaiBytes = rawBytes[1:]
+			// 2. STRIP THE LENGTH BYTE (Index 0)
+			// The NAS helper adds a length byte at index 0, but Rejected NSSAI
+			// encodes length in the lower nibble of the header byte instead.
+			var snssaiContent []byte
+			if len(rawBytes) > 1 {
+				snssaiContent = rawBytes[1:] // Keep only [SST, SD...]
+			} else {
+				ue.GmmLog.Warnf("[%d] Invalid S-NSSAI byte generation, skipping", i)
+				continue
 			}
-			// 3. Map rejection reason to 4-bit integer
+
+			// 3. Determine Cause (4 bits)
 			var cause uint8
 			if item.RejectCause == models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_TA {
-				cause = 0x01 // Not available in Tracking Area
+				cause = 0x01
 			} else {
-				cause = 0x00 // Default: Not available in PLMN
+				cause = 0x00 // Default: S-NSSAI not available in the current PLMN or SNPN
 			}
 
 			// 4. Create Header Byte: [Cause (4 bits) | Length (4 bits)]
-			// TS 24.501 9.11.3.46 requires this specific format
-			headerByte := (cause << 4) | (uint8(len(snssaiBytes)) & 0x0F)
+			// len(snssaiContent) will be 1 (SST only) or 4 (SST+SD)
+			headerByte := (cause << 4) | (uint8(len(snssaiContent)) & 0x0F)
 
+			ue.GmmLog.Debugf("[%d] Encoded Header: 0x%02x (Cause: %d, Len: %d) Content: %x",
+				i, headerByte, cause, len(snssaiContent), snssaiContent)
+
+			// 5. Append Header + Content
 			buf = append(buf, headerByte)
-			buf = append(buf, snssaiBytes...)
+			buf = append(buf, snssaiContent...)
 		}
+
+		ue.GmmLog.Debugf("Final Rejected NSSAI Buffer: %x", buf)
 
 		registrationAccept.RejectedNSSAI.SetLen(uint8(len(buf)))
 		registrationAccept.RejectedNSSAI.SetRejectedNSSAIContents(buf)
