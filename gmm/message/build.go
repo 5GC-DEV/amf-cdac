@@ -572,7 +572,7 @@ func BuildRegistrationAccept(
 		ue.GmmLog.Infof("Final Rejected NSSAI Buffer (Hex): %x", buf)
 
 		registrationAccept.RejectedNSSAI.SetLen(uint8(len(buf)))
-		registrationAccept.RejectedNSSAI.SetRejectedNSSAIContents(buf)
+		registrationAccept.SetRejectedNSSAIContents(buf)
 	}
 	/* TODO: DT-Trial: Commented below code because UE is not allowing rejected Nssais */
 	/*
