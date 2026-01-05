@@ -520,6 +520,7 @@ func BuildRegistrationAccept(
 	}
 
 	// Check for rejected slices and encode them into the Registration Accept message
+	// Rejected NSSAI Logic
 	if len(ue.RejectedNssai[anType]) > 0 {
 		ue.GmmLog.Debugf("Encoding Rejected NSSAI List (Count: %d)", len(ue.RejectedNssai[anType]))
 
