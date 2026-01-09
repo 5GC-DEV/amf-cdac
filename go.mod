@@ -29,7 +29,7 @@ require (
 )
 
 require (
-	github.com/5GC-DEV/nas-cdac v0.0.0-20251229100418-ca73304601fc // indirect
+	github.com/5GC-DEV/nas-cdac v0.0.0-20260109082720-e4d08f762ecb // indirect
 	github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 // indirect
 )
 
