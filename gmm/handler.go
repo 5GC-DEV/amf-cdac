@@ -817,6 +817,9 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 	if len(ue.Pei) == 0 {
 		gmm_message.SendIdentityRequest(ue.RanUe[anType], nasMessage.MobileIdentity5GSTypeImei)
 		return nil
+	} else {
+		// Log If it pass the check
+		ue.GmmLog.Infof("DEBUG CHECK: PEI is present. Proceeding with flow for SUPI: %s", ue.Supi)
 	}
 
 	// TODO (step 12 optional): the new AMF initiates ME identity check by invoking the
@@ -1225,6 +1228,11 @@ func getSubscribedNssai(ue *context.AmfUe) {
 // TS 23.502 4.2.2.2.3 Registration with AMF Re-allocation
 func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 	amfSelf := context.AMF_Self()
+	// 1. Initialize the rejected list for this access type to avoid stale data
+	if ue.RejectedNssai == nil {
+		ue.RejectedNssai = make(map[models.AccessType][]models.RejectedSnssai)
+	}
+	ue.RejectedNssai[anType] = []models.RejectedSnssai{}
 
 	if ue.RegistrationRequest.RequestedNSSAI != nil {
 		requestedNssai, err := nasConvert.RequestedNssaiToModels(ue.RegistrationRequest.RequestedNSSAI)
@@ -1252,6 +1260,18 @@ func handleRequestedNssai(ue *context.AmfUe, anType models.AccessType) error {
 				ue.GmmLog.Info("slices are identical")
 				disableSliceSelection = true
 				continue
+			} else {
+				// If slice is not in subscription, add to Rejected list with a specific Cause Code
+				rejectedItem := models.RejectedSnssai{
+					RejectedSnssai: &models.Snssai{
+						Sst: requestedSnssai.ServingSnssai.Sst,
+						Sd:  requestedSnssai.ServingSnssai.Sd,
+					},
+					RejectCause: models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_CURRENT_PLMN_OR_SNPN,
+				}
+
+				ue.RejectedNssai[anType] = append(ue.RejectedNssai[anType], rejectedItem)
+				ue.GmmLog.Warnf("S-NSSAI %v rejected: Not in subscription", requestedSnssai.ServingSnssai)
 			}
 		}
 		if !disableSliceSelection {
