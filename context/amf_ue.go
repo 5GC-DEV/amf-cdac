@@ -298,6 +298,8 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 }
 
 func (ue *AmfUe) UnmarshalJSON(data []byte) error {
+	ue.Mutex.Lock()
+	defer ue.Mutex.Unlock()
 	type Alias AmfUe
 	auxCustom := &struct {
 		CustomAmfUe CustomFieldsAmfUe `json:"customFieldsAmfUe"`
@@ -315,7 +317,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)
 	}
-	ue.StateMu.RLock()
+	ue.StateMu.Lock()
 	for index, states := range aux.State {
 		ue.State[index] = fsm.NewState(fsm.StateType(states))
 		if ue.RanUe[index] == nil {
@@ -329,7 +331,7 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 			ue.RanUe[index].Ran = ran
 		}
 	}
-	ue.StateMu.RUnlock()
+	ue.StateMu.Unlock()
 	for key, val := range aux.SmCtxList {
 		keyVal, err := strconv.ParseInt(key, 10, 32)
 		if err != nil {
