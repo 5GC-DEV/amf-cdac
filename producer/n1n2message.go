@@ -342,6 +342,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 	// Case A (UE is CM-IDLE in 3GPP access and the associated access type is 3GPP access)
 	// in subclause 5.2.2.3.1.2 of TS29518
 	if anType == models.AccessType__3_GPP_ACCESS {
+		logger.NgapLog.Info("---accesstype 3gpp access")
 		if requestData.SkipInd && n2Info == nil {
 			n1n2MessageTransferRspData.Cause = models.N1N2MessageTransferCause_N1_MSG_NOT_TRANSFERRED
 		} else {
