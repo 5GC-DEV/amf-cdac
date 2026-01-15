@@ -621,6 +621,10 @@ func (ue *AmfUe) HasWildCardSubscribedDNN() bool {
 }
 
 func (ue *AmfUe) SecurityContextIsValid() bool {
+	logger.ContextLog.Info("---ue.SecurityContextAvailable: ", ue.SecurityContextAvailable)
+	logger.ContextLog.Info("---ue.NgKsi.Ksi: ", ue.NgKsi.Ksi)
+	logger.ContextLog.Info("---nasMessage.NasKeySetIdentifierNoKeyIsAvailable: ", nasMessage.NasKeySetIdentifierNoKeyIsAvailable)
+	logger.ContextLog.Info("---ue.MacFailed: ", ue.MacFailed)
 	return ue.SecurityContextAvailable && ue.NgKsi.Ksi != nasMessage.NasKeySetIdentifierNoKeyIsAvailable && !ue.MacFailed
 }
 

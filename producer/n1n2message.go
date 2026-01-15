@@ -345,6 +345,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		if requestData.SkipInd && n2Info == nil {
 			n1n2MessageTransferRspData.Cause = models.N1N2MessageTransferCause_N1_MSG_NOT_TRANSFERRED
 		} else {
+			logger.NgapLog.Info("---n2 info present - paging")
 			n1n2MessageTransferRspData.Cause = models.N1N2MessageTransferCause_ATTEMPTING_TO_REACH_UE
 			message := context.N1N2Message{
 				Request:     n1n2MessageTransferRequest,
@@ -360,6 +361,9 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 			if onGoing.Ppi != 0 {
 				pagingPriority = new(ngapType.PagingPriority)
 				pagingPriority.Value = aper.Enumerated(onGoing.Ppi)
+			}
+			if ue.CmIdle(anType) {
+				logger.NgapLog.Info("---ue is in cm idle")
 			}
 			pkg, err := ngap_message.BuildPaging(ue, pagingPriority, false)
 			if err != nil {
