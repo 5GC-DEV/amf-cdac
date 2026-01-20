@@ -361,6 +361,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 			if ue.CmIdle(anType) {
 				logger.NgapLog.Info("---ue is in cm idle")
 			}
+			logger.NgapLog.Info("---ue.guti: %v", ue.Guti)
 			if onGoing.Ppi != 0 {
 				pagingPriority = new(ngapType.PagingPriority)
 				pagingPriority.Value = aper.Enumerated(onGoing.Ppi)

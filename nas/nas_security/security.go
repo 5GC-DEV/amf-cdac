@@ -101,10 +101,14 @@ func StmsiToGuti(buf [7]byte) (guti string) {
 
 	tmpReginID := servedGuami.AmfId[:2]
 	amfID := hex.EncodeToString(buf[1:3])
-	tmsi5G := hex.EncodeToString(buf[3:])
+
+	tmsi := make([]byte, 4)
+	copy(tmsi, buf[3:])
+	tmsi5G := hex.EncodeToString(tmsi)
+	// tmsi5G := hex.EncodeToString(buf[3:])
 
 	guti = servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + tmpReginID + amfID + tmsi5G
-
+	logger.CommLog.Debugf("---guti after Stmsitoguti: %v", guti)
 	return
 }
 

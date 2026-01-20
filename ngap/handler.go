@@ -98,6 +98,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					tmsi := hex.EncodeToString(fiveGSTMSI.FiveGTMSI.Value)
 
 					guti := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + amfID + tmsi
+					ran.Log.Info("---guti while fetchranue context %v", guti)
 
 					// TODO: invoke Namf_Communication_UEContextTransfer if serving AMF has changed since
 					// last Registration Request procedure
@@ -1715,6 +1716,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			tmsi := hex.EncodeToString(fiveGSTMSI.FiveGTMSI.Value)
 
 			guti := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + amfID + tmsi
+			ranUe.Log.Debugf("---guti while handling initial ue msg: %v", guti)
 
 			// TODO: invoke Namf_Communication_UEContextTransfer if serving AMF has changed since
 			// last Registration Request procedure

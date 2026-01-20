@@ -478,9 +478,13 @@ func mapToByte(data map[string]interface{}) (ret []byte) {
 }
 
 func (context *AMFContext) AmfUeFindByGutiLocal(guti string) (ue *AmfUe, ok bool) {
+	logger.ContextLog.Info("---In AmfUeFindByGutiLocal()")
+	logger.ContextLog.Info("---guti: %v", guti)
 	context.UePool.Range(func(key, value interface{}) bool {
 		candidate := value.(*AmfUe)
+		logger.ContextLog.Info("---stored guti=%s lookup guti=%s for supi=%s", candidate.Guti, guti, candidate.Supi)
 		if ok = (candidate.Guti == guti); ok {
+			logger.ContextLog.Info("---guti matches")
 			ue = candidate
 			return false
 		}
@@ -504,6 +508,8 @@ func (context *AMFContext) AmfUeFindBySupiLocal(supi string) (ue *AmfUe, ok bool
 }
 
 func (context *AMFContext) AmfUeFindByGuti(guti string) (ue *AmfUe, ok bool) {
+	logger.ContextLog.Infoln("---In AmfUeFindByGuti()")
+	logger.ContextLog.Infoln("---finding amfue of guti %v", guti)
 	ue, ok = context.AmfUeFindByGutiLocal(guti)
 	if ok {
 		logger.ContextLog.Infoln("Guti found locally : ", guti)
