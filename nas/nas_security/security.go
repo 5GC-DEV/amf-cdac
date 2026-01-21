@@ -96,17 +96,25 @@ func Encode(ue *context.AmfUe, msg *nas.Message) ([]byte, error) {
 }
 
 func StmsiToGuti(buf [7]byte) (guti string) {
+	logger.CommLog.Info("---raw buf: ", buf)
 	amfSelf := context.AMF_Self()
 	servedGuami := amfSelf.ServedGuamiList[0]
 
 	tmpReginID := servedGuami.AmfId[:2]
-	amfID := hex.EncodeToString(buf[1:3])
+	// amfID := hex.EncodeToString(buf[1:3])
 
-	tmsi := make([]byte, 4)
-	copy(tmsi, buf[3:])
-	tmsi5G := hex.EncodeToString(tmsi)
-	// tmsi5G := hex.EncodeToString(buf[3:])
+	setID := (uint16(buf[1]) << 2) | (uint16(buf[2]) >> 6)
 
+	pointer := buf[2] & 0x3F
+
+	// Reconstruct AMF ID bytes (Set ID + Pointer)
+	amfIDBytes := []byte{byte(setID >> 2), byte((setID&0x03)<<6 | uint16(pointer))}
+
+	amfID := hex.EncodeToString(amfIDBytes)
+	logger.CommLog.Debugf("---amfid: %v", amfID)
+
+	tmsi5G := hex.EncodeToString(buf[3:7])
+	logger.CommLog.Debugf("---STMSI decode: setID=%d pointer=%d tmsi=%x", setID, pointer, buf[3:7])
 	guti = servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + tmpReginID + amfID + tmsi5G
 	logger.CommLog.Debugf("---guti after Stmsitoguti: %v", guti)
 	return

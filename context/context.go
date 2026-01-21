@@ -158,7 +158,9 @@ func (context *AMFContext) AllocateGutiToUe(ue *AmfUe) {
 
 	plmnID := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc
 	tmsiStr := fmt.Sprintf("%08x", ue.Tmsi)
+	logger.ContextLog.Info("---amfid: %v", servedGuami.AmfId)
 	ue.Guti = plmnID + servedGuami.AmfId + tmsiStr
+	logger.ContextLog.Info("---guti allocated to UE by core: %v", ue.Guti)
 }
 
 func (context *AMFContext) ReAllocateGutiToUe(ue *AmfUe) {

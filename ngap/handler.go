@@ -1712,8 +1712,10 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			// 5G-GUTI := <GUAMI><5G-TMSI>
 			tmpReginID, _, _ := ngapConvert.AmfIdToNgap(servedGuami.AmfId)
 			amfID := ngapConvert.AmfIdToModels(tmpReginID, fiveGSTMSI.AMFSetID.Value, fiveGSTMSI.AMFPointer.Value)
+			ranUe.Log.Debugf("---amfid while handling initial ue msg: %v", amfID)
 
 			tmsi := hex.EncodeToString(fiveGSTMSI.FiveGTMSI.Value)
+			ranUe.Log.Debugf("---tmsi while handling initial ue msg: %v", tmsi)
 
 			guti := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + amfID + tmsi
 			ranUe.Log.Debugf("---guti while handling initial ue msg: %v", guti)
