@@ -483,8 +483,11 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 		guamiFromUeGuti = guamiFromUeGutiTmp
 		ue.Guti = guti
 		ue.GmmLog.Debugf("GUTI: %s", guti)
-
+		ue.GmmLog.Debugf("guamiFromUeGuti: %s", guamiFromUeGuti)
 		servedGuami := amfSelf.ServedGuamiList[0]
+		ue.GmmLog.Debugf("---amfSelf.ServedGuamiList: ", amfSelf.ServedGuamiList)
+		ue.GmmLog.Debugf("---servedGuami.AmfId: ", servedGuami.AmfId)
+		ue.GmmLog.Debugf("---guamiFromUeGuti.AmfId: ", guamiFromUeGuti.AmfId)
 		if reflect.DeepEqual(guamiFromUeGuti, servedGuami) {
 			ue.ServingAmfChanged = false
 		} else {

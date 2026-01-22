@@ -98,6 +98,8 @@ func Encode(ue *context.AmfUe, msg *nas.Message) ([]byte, error) {
 func StmsiToGuti(buf [7]byte) (guti string) {
 	logger.CommLog.Info("---raw buf: ", buf)
 	amfSelf := context.AMF_Self()
+	logger.CommLog.Debugf("---ServedGuamiList while stmsitoguti: %+v", amfSelf.ServedGuamiList)
+
 	servedGuami := amfSelf.ServedGuamiList[0]
 
 	tmpReginID := servedGuami.AmfId[:2]
@@ -149,11 +151,21 @@ func FetchUeContextWithMobileIdentity(payload []byte) *context.AmfUe {
 	}
 	var ue *context.AmfUe = nil
 	var guti string
+	var guami models.Guami
+	amfSelf := context.AMF_Self()
 	if msg.GmmHeader.GetMessageType() == nas.MsgTypeRegistrationRequest {
 		mobileIdentity5GSContents := msg.RegistrationRequest.GetMobileIdentity5GSContents()
 		if nasMessage.MobileIdentity5GSType5gGuti == nasConvert.GetTypeOfIdentity(mobileIdentity5GSContents[0]) {
-			_, guti = nasConvert.GutiToString(mobileIdentity5GSContents)
+			guami, guti = nasConvert.GutiToString(mobileIdentity5GSContents)
 			logger.CommLog.Debugf("Guti received in Registration Request Message: %v", guti)
+			logger.CommLog.Debugf("---Amfid from the received guami: %v", guami.AmfId)
+			servedGuami := amfSelf.ServedGuamiList[0]
+			if reflect.DeepEqual(guami, servedGuami) {
+				logger.CommLog.Warnf("---GUAMI equal")
+			} else {
+				logger.CommLog.Warnf("---GUAMI not equal")
+				guti = ""
+			}
 		} else if nasMessage.MobileIdentity5GSTypeSuci == nasConvert.GetTypeOfIdentity(mobileIdentity5GSContents[0]) {
 			suci, _ := nasConvert.SuciToString(mobileIdentity5GSContents)
 			// UeContext found based on SUCI which means context is exist in Network
