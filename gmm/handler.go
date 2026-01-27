@@ -819,7 +819,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 		return nil
 	} else {
 		// Log If it pass the check
-		ue.GmmLog.Infof("DEBUG CHECK: PEI is present. Proceeding with flow for SUPI: %s", ue.Supi)
+		ue.GmmLog.Debugf("PEI is present. Proceeding with flow for SUPI: %s", ue.Supi)
 	}
 
 	// TODO (step 12 optional): the new AMF initiates ME identity check by invoking the
