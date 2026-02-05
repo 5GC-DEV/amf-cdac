@@ -518,6 +518,59 @@ func BuildRegistrationAccept(
 		registrationAccept.AllowedNSSAI.SetLen(uint8(len(buf)))
 		registrationAccept.AllowedNSSAI.SetSNSSAIValue(buf)
 	}
+
+	// Check for rejected slices and encode them into the Registration Accept message
+	// --- Rejected NSSAI Logic ---
+	if len(ue.RejectedNssai[anType]) > 0 {
+		registrationAccept.RejectedNSSAI = nasType.NewRejectedNSSAI(nasMessage.RegistrationAcceptRejectedNSSAIType)
+		var buf []uint8
+
+		for i, item := range ue.RejectedNssai[anType] {
+			// Convert S-NSSAI to NAS format
+			rawBytes := nasConvert.SnssaiToNas(*item.RejectedSnssai)
+
+			// Validate the raw bytes
+			if len(rawBytes) < 2 {
+				ue.GmmLog.Errorf("Rejected Item [%d] Invalid raw bytes length %d, skipping", i, len(rawBytes))
+				continue
+			}
+
+			// Prepare S-NSSAI content (strip the length byte)
+			var snssaiContent []byte
+			if len(rawBytes) > 1 {
+				snssaiContent = rawBytes[1:] // SST and optional SD
+			} else {
+				continue
+			}
+
+			// Map reject cause to NAS cause value
+			var cause uint8
+			switch item.RejectCause {
+			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_TA:
+				cause = 0x01
+			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_DUE_TO_FAILED_OR_REVOKED_NSAA:
+				cause = 0x02
+			case models.RejectCause_S_NSSAI_NOT_AVAILABLE_IN_CURRENT_PLMN_OR_SNPN:
+				cause = 0x00
+			default:
+				cause = 0x00 // Default fallback
+			}
+
+			// Bits 8-5: Length of rejected S-NSSAI
+			// Bits 4-1: Cause value
+			contentLength := uint8(len(snssaiContent)) & 0x0F
+			causeNibble := cause & 0x0F
+			headerByte := (contentLength << 4) | causeNibble
+
+			// Append to buffer
+			buf = append(buf, headerByte)
+			buf = append(buf, snssaiContent...)
+		}
+
+		// Set final length and contents
+		registrationAccept.RejectedNSSAI.SetLen(uint8(len(buf)))
+		registrationAccept.SetRejectedNSSAIContents(buf)
+	}
 	/* TODO: DT-Trial: Commented below code because UE is not allowing rejected Nssais */
 	/*
 		if ue.NetworkSliceInfo != nil {

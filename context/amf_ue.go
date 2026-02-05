@@ -181,12 +181,13 @@ type AmfUe struct {
 	RegistrationArea map[models.AccessType][]models.Tai `json:"registrationArea,omitempty"`
 	LadnInfo         []LADN                             `json:"ladnInfo,omitempty"`
 	/* Network Slicing related context and Nssf */
-	NssfId                            string                                       `json:"nssfId,omitempty"`
-	NssfUri                           string                                       `json:"nssfUri,omitempty"`
-	NetworkSliceInfo                  *models.AuthorizedNetworkSliceInfo           `json:"networkSliceInfo,omitempty"`
-	AllowedNssai                      map[models.AccessType][]models.AllowedSnssai `json:"allowedNssai,omitempty"`
-	ConfiguredNssai                   []models.ConfiguredSnssai                    `json:"configuredNssai,omitempty"`
-	NetworkSlicingSubscriptionChanged bool                                         `json:"networkSlicingSubscriptionChanged,omitempty"`
+	NssfId                            string                                        `json:"nssfId,omitempty"`
+	NssfUri                           string                                        `json:"nssfUri,omitempty"`
+	NetworkSliceInfo                  *models.AuthorizedNetworkSliceInfo            `json:"networkSliceInfo,omitempty"`
+	AllowedNssai                      map[models.AccessType][]models.AllowedSnssai  `json:"allowedNssai,omitempty"`
+	RejectedNssai                     map[models.AccessType][]models.RejectedSnssai `json:"rejectedNssai,omitempty"` // Store slices rejected during registration to inform the UE
+	ConfiguredNssai                   []models.ConfiguredSnssai                     `json:"configuredNssai,omitempty"`
+	NetworkSlicingSubscriptionChanged bool                                          `json:"networkSlicingSubscriptionChanged,omitempty"`
 	/* T3513(Paging) */
 	T3513 *Timer `json:"t3513Value,omitempty"` // for paging
 	/* T3565(Notification) */
@@ -459,6 +460,7 @@ func (ue *AmfUe) init() {
 	ue.RanUe = make(map[models.AccessType]*RanUe)
 	ue.RegistrationArea = make(map[models.AccessType][]models.Tai)
 	ue.AllowedNssai = make(map[models.AccessType][]models.AllowedSnssai)
+	ue.RejectedNssai = make(map[models.AccessType][]models.RejectedSnssai) // Initialize the map for Rejected Slices to prevent nil pointer errors
 	ue.N1N2MessageIDGenerator = idgenerator.NewGenerator(1, 2147483647)
 	ue.N1N2MessageSubscribeIDGenerator = idgenerator.NewGenerator(1, 2147483647)
 	ue.OnGoing = make(map[models.AccessType]*OnGoingProcedureWithPrio)
