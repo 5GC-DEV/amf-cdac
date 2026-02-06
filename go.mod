@@ -24,12 +24,14 @@ require (
 )
 
 require (
-	github.com/5GC-DEV/nas-cdac v0.0.0-20251003065343-87d9d21b06f6
 	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260109140746-44d5650a6474
 	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
 )
 
-require github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 // indirect
+require (
+	github.com/5GC-DEV/nas-cdac v0.4.1 // indirect
+	github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 // indirect
+)
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
