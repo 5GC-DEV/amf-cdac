@@ -312,6 +312,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		return nil, "", nil, transferErr
 	}
 	// 504: the UE in MICO mode or the UE is only registered over Non-3GPP access and its state is CM-IDLE
+	ue.StateMu.RLock()
 	if !ue.State[models.AccessType__3_GPP_ACCESS].Is(context.Registered) {
 		transferErr = new(models.N1N2MessageTransferError)
 		transferErr.Error = &models.ProblemDetails{
@@ -320,6 +321,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		}
 		return nil, "", nil, transferErr
 	}
+	ue.StateMu.RUnlock()
 
 	n1n2MessageTransferRspData = new(models.N1N2MessageTransferRspData)
 

@@ -513,7 +513,9 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		}
 		amfUe.T3550.Stop()
 		amfUe.T3550 = nil
+		amfUe.StateMu.Lock()
 		amfUe.State[accessType].Set(context.Registered)
+		amfUe.StateMu.Unlock()
 		if err := NetworkInitiatedDeregistrationProcedure(amfUe, accessType); err != nil {
 			logger.GmmLog.Errorln(err)
 		}
@@ -584,14 +586,22 @@ func SetDeregisteredState(amfUe *context.AmfUe, anType uint8) {
 	switch anType {
 	case nasMessage.AccessType3GPP:
 		amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
+		amfUe.StateMu.Lock()
 		amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
+		amfUe.StateMu.Unlock()
 	case nasMessage.AccessTypeNon3GPP:
 		amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
+		amfUe.StateMu.Lock()
 		amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+		amfUe.StateMu.Unlock()
 	default:
 		amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
+		amfUe.StateMu.Lock()
 		amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
+		amfUe.StateMu.Unlock()
 		amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
+		amfUe.StateMu.Lock()
 		amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+		amfUe.StateMu.Unlock()
 	}
 }

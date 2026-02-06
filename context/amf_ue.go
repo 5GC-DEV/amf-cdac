@@ -67,9 +67,9 @@ const (
 )
 
 type AmfUe struct {
-	Mutex       sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
-	StateMu     sync.RWMutex
-	SmctxlistMu sync.RWMutex
+	Mutex   sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
+	StateMu sync.RWMutex
+	RanUeMu sync.RWMutex
 	// Mutex sync.RWMutex `json:"-"`
 	/* the AMF which serving this AmfUe now */
 	ServingAMF *AMFContext `json:"servingAMF,omitempty"` // never nil
@@ -226,6 +226,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 	smCtxListVal := make(map[string]SmContext)
 	var ranUeNgapIDVal, amfUeNgapIDVal int64
 	var gnbId string
+	ue.RanUeMu.RLock()
 	if ue.RanUe != nil && ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
 		gnbId = ue.RanUe[models.AccessType__3_GPP_ACCESS].Ran.GnbId
 		if ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
@@ -233,6 +234,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 			amfUeNgapIDVal = ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId
 		}
 	}
+	ue.RanUeMu.RUnlock()
 	ue.StateMu.RLock()
 	for access, state := range ue.State {
 		stateVal[access] = string(state.Current())
@@ -272,9 +274,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 		newSmCtx.SetNsInstance(smContext.NsInstance())
 
 		pduSessIdStr := strconv.FormatInt(int64(pduSessId), 10)
-		ue.SmctxlistMu.RLock()
 		smCtxListVal[pduSessIdStr] = *newSmCtx
-		ue.SmctxlistMu.RUnlock()
 		return true
 	})
 
@@ -316,7 +316,8 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)
 	}
-	ue.StateMu.RLock()
+	ue.StateMu.Lock()
+	ue.RanUeMu.Lock()
 	for index, states := range aux.State {
 		ue.State[index] = fsm.NewState(fsm.StateType(states))
 		if ue.RanUe[index] == nil {
@@ -330,7 +331,8 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 			ue.RanUe[index].Ran = ran
 		}
 	}
-	ue.StateMu.RUnlock()
+	ue.RanUeMu.Unlock()
+	ue.StateMu.Unlock()
 	for key, val := range aux.SmCtxList {
 		keyVal, err := strconv.ParseInt(key, 10, 32)
 		if err != nil {

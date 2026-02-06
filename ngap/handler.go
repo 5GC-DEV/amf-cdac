@@ -1213,6 +1213,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			Procedure: context.OnGoingProcedureNothing,
 		})
 	} else {
+		amfUe.StateMu.RLock()
 		if amfUe.State[ran.AnType] != nil {
 			ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
 			if amfUe.State[ran.AnType].Is(context.Registered) {
@@ -1250,6 +1251,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 				}
 			}
 		}
+		amfUe.StateMu.RUnlock()
 	}
 
 	// Remove UE N2 Connection
@@ -2648,7 +2650,9 @@ func HandleInitialContextSetupFailure(ran *context.AmfRan, message *ngapType.NGA
 	if amfUe.T3550 != nil {
 		amfUe.T3550.Stop()
 		amfUe.T3550 = nil
+		amfUe.StateMu.Lock()
 		amfUe.State[ran.AnType].Set(context.Deregistered)
+		amfUe.StateMu.Unlock()
 		amfUe.ClearRegistrationRequestData(ran.AnType)
 	}
 	if pDUSessionResourceFailedToSetupList != nil {
@@ -2795,6 +2799,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 				Value: int32(causeValue),
 			},
 		}
+		amfUe.StateMu.RLock()
 		if amfUe.State[ran.AnType] != nil {
 			ranUe.Log.Info("Ue state: ", amfUe.State[ran.AnType])
 			if amfUe.State[ran.AnType].Is(context.Registered) {
@@ -2847,6 +2852,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 				return
 			}
 		}
+		amfUe.StateMu.RUnlock()
 	}
 	ngap_message.SendUEContextReleaseCommand(ranUe, context.UeContextN2NormalRelease, causeGroup, causeValue)
 }

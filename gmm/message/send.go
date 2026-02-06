@@ -246,17 +246,25 @@ func SendDeregistrationRequest(ue *context.RanUe, accessType uint8, reRegistrati
 			switch accessType {
 			case nasMessage.AccessType3GPP:
 				amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
+				amfUe.StateMu.Lock()
 				amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.StateMu.Unlock()
 				amfUe.Remove()
 			case nasMessage.AccessTypeNon3GPP:
 				amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
+				amfUe.StateMu.Lock()
 				amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.StateMu.Unlock()
 				amfUe.Remove()
 			default:
 				amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
+				amfUe.StateMu.Lock()
 				amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.StateMu.Unlock()
 				amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
+				amfUe.StateMu.Lock()
 				amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.StateMu.Unlock()
 				amfUe.Remove()
 			}
 		})
@@ -319,7 +327,9 @@ func SendRegistrationAccept(
 			ue.GmmLog.Warnf("T3550 Expires %d times, abort retransmission of Registration Accept", cfg.MaxRetryTimes)
 			ue.T3550 = nil // clear the timer
 			// TS 24.501 5.5.1.2.8 case c, 5.5.1.3.8 case c
+			ue.StateMu.Lock()
 			ue.State[anType].Set(context.Registered)
+			ue.StateMu.Unlock()
 			ue.ClearRegistrationRequestData(anType)
 		})
 	}

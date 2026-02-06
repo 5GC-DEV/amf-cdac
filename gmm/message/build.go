@@ -471,6 +471,7 @@ func BuildRegistrationAccept(
 
 	registrationAccept.RegistrationResult5GS.SetLen(1)
 	registrationResult := uint8(0)
+	ue.StateMu.RLock()
 	if anType == models.AccessType__3_GPP_ACCESS {
 		registrationResult |= nasMessage.AccessType3GPP
 		if ue.State[models.AccessType_NON_3_GPP_ACCESS].Is(context.Registered) {
@@ -482,6 +483,7 @@ func BuildRegistrationAccept(
 			registrationResult |= nasMessage.AccessType3GPP
 		}
 	}
+	ue.StateMu.RUnlock()
 	registrationAccept.SetRegistrationResultValue5GS(registrationResult)
 	// TODO: set smsAllowed value of RegistrationResult5GS if need
 
