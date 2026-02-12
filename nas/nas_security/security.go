@@ -287,6 +287,9 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 
 		ue.NASLog.Debugf("calculate NAS MAC (algorithm: %+v, ULCount: 0x%0x)", ue.IntegrityAlg, ue.ULCount.Get())
 		ue.NASLog.Debugf("NAS integrity key0x: %0x", ue.KnasInt)
+		ue.NASLog.Debugf("---security.Bearer3GPP: ", security.Bearer3GPP)
+		ue.NASLog.Debugf("---security.DirectionUplink: ", security.DirectionUplink)
+		ue.NASLog.Debugf("---payload: ", payload)
 		mutex.Lock()
 		defer mutex.Unlock()
 		mac32, err := security.NASMacCalculate(ue.IntegrityAlg, ue.KnasInt, ue.ULCount.Get(), security.Bearer3GPP,
