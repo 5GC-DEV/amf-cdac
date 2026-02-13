@@ -83,6 +83,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 				}
 			}
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
+			// ranUe = ran.RanUeFindByRanUeNgapIDLocal(rANUENGAPID.Value)
 			if ranUe == nil {
 				var err error
 
@@ -1267,6 +1268,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 
 		amfUe.PublishUeCtxtInfo()
+		amfUe.RanUe[models.AccessType__3_GPP_ACCESS] = nil
 		context.StoreContextInDB(amfUe)
 	case context.UeContextReleaseUeContext:
 		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
