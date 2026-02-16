@@ -1268,7 +1268,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 
 		amfUe.PublishUeCtxtInfo()
-		amfUe.RanUe[models.AccessType__3_GPP_ACCESS] = nil
+		amfUe.RanUe = nil
+		if amfUe.RanUe == nil {
+			ran.Log.Infof("---RanUe cleared before DB store")
+		}
 		context.StoreContextInDB(amfUe)
 	case context.UeContextReleaseUeContext:
 		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
