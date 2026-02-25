@@ -159,6 +159,7 @@ func (context *AMFContext) AllocateGutiToUe(ue *AmfUe) {
 	plmnID := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc
 	tmsiStr := fmt.Sprintf("%08x", ue.Tmsi)
 	ue.Guti = plmnID + servedGuami.AmfId + tmsiStr
+	logger.ContextLog.Info("---ue.guti after AllocateGutiToUe: ", ue.Guti)
 }
 
 func (context *AMFContext) ReAllocateGutiToUe(ue *AmfUe) {
@@ -177,6 +178,7 @@ func (context *AMFContext) ReAllocateGutiToUe(ue *AmfUe) {
 	plmnID := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc
 	tmsiStr := fmt.Sprintf("%08x", ue.Tmsi)
 	ue.Guti = plmnID + servedGuami.AmfId + tmsiStr
+	logger.ContextLog.Info("---ue.guti after ReAllocateGutiToUe: ", ue.Guti)
 }
 
 func (context *AMFContext) AllocateRegistrationArea(ue *AmfUe, anType models.AccessType) {
