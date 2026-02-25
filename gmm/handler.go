@@ -1776,6 +1776,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 
 	// Send Authtication / Security Procedure not support
 	// Rejecting ServiceRequest if it is received in Deregistered State
+	ue.GmmLog.Info("---ue.state: ", ue.State[anType].Current())
 	if !ue.SecurityContextIsValid() || ue.State[anType].Current() == context.Deregistered {
 		ue.GmmLog.Warnf("No Security Context : SUPI[%s]", ue.Supi)
 		gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMUEIdentityCannotBeDerivedByTheNetwork)
@@ -1818,6 +1819,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	}
 
 	serviceType := serviceRequest.GetServiceTypeValue()
+	ue.GmmLog.Info("---service type: ", serviceType)
 	var reactivationResult, acceptPduSessionPsi *[16]bool
 	var errPduSessionId, errCause []uint8
 	var targetPduSessionId int32
@@ -2041,6 +2043,39 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			ue.ConfigurationUpdateMessage = nil
 		}
 	case nasMessage.ServiceTypeData:
+		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
+		if !plmnAccept {
+			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
+			return nil
+		}
+		if anType == models.AccessType__3_GPP_ACCESS {
+			if ue.AmPolicyAssociation != nil && ue.AmPolicyAssociation.ServAreaRes != nil {
+				var accept bool
+				switch ue.AmPolicyAssociation.ServAreaRes.RestrictionType {
+				case models.RestrictionType_ALLOWED_AREAS:
+					accept = context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
+				case models.RestrictionType_NOT_ALLOWED_AREAS:
+					accept = !context.TacInAreas(ue.Tai.Tac, ue.AmPolicyAssociation.ServAreaRes.Areas)
+				}
+
+				if !accept {
+					gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMRestrictedServiceArea)
+					return nil
+				}
+			}
+			err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
+				reactivationResult, errPduSessionId, errCause)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := sendServiceAccept(ue, anType, ctxList, suList, acceptPduSessionPsi,
+				reactivationResult, errPduSessionId, errCause)
+			if err != nil {
+				return err
+			}
+		}
+	case nasMessage.ServiceTypeHighPriorityAccess:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
