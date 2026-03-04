@@ -39,6 +39,7 @@ func InitDrsm() (drsm.DrsmInterface, error) {
 }
 
 func InitAmfContext(context *context.AMFContext) {
+	logger.UtilLog.Infof("---In InitAmfContext()")
 	config := factory.AmfConfig
 	logger.UtilLog.Infof("amfconfig Info: Version[%s] Description[%s]", config.Info.Version, config.Info.Description)
 	configuration := config.Configuration
@@ -93,6 +94,7 @@ func InitAmfContext(context *context.AMFContext) {
 	}
 	serviceNameList := configuration.ServiceNameList
 	context.InitNFService(serviceNameList, config.Info.Version)
+	logger.UtilLog.Info("ServedGuamiList: %+v", configuration.ServedGumaiList)
 	context.ServedGuamiList = configuration.ServedGumaiList
 	context.SupportTaiLists = configuration.SupportTAIList
 	// Tac value not converting into 3bytes hex string.

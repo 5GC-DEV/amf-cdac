@@ -154,10 +154,13 @@ func (context *AMFContext) AllocateAmfUeNgapID() (int64, error) {
 
 func (context *AMFContext) AllocateGutiToUe(ue *AmfUe) {
 	servedGuami := context.ServedGuamiList[0]
+	logger.ContextLog.Info("---servedguami: ", servedGuami)
+	logger.ContextLog.Info("---servedguami.Amfid: ", servedGuami.AmfId)
 	ue.Tmsi = context.TmsiAllocate()
 
 	plmnID := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc
 	tmsiStr := fmt.Sprintf("%08x", ue.Tmsi)
+	logger.ContextLog.Info("---ue.Tmsi: ", tmsiStr)
 	ue.Guti = plmnID + servedGuami.AmfId + tmsiStr
 	logger.ContextLog.Info("---ue.guti after AllocateGutiToUe: ", ue.Guti)
 }

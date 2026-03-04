@@ -646,6 +646,7 @@ func (amf *AMF) UpdateAmfConfiguration(plmn factory.PlmnSupportItem, taiList []m
 	}
 
 	guami := models.Guami{PlmnId: &plmn.PlmnId, AmfId: "cafe00"}
+	logger.GrpcLog.Infof("---guami: ", guami)
 	if !plmnFound && opType != protos.OpType_SLICE_DELETE {
 		factory.AmfConfig.Configuration.PlmnSupportList = append(factory.AmfConfig.Configuration.PlmnSupportList, plmn)
 		factory.AmfConfig.Configuration.ServedGumaiList = append(factory.AmfConfig.Configuration.ServedGumaiList, guami)
