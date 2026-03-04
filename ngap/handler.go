@@ -84,24 +84,24 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			if ranUe == nil {
-				ranUe.Log.Info("---ranue nil while fetchranuecontext")
+				ran.Log.Info("---ranue nil while fetchranuecontext")
 				var err error
 
 				if fiveGSTMSI != nil {
-					ranUe.Log.Info("---fiveGSTMSI not nil while fetchranuecontext")
+					ran.Log.Info("---fiveGSTMSI not nil while fetchranuecontext")
 					servedGuami := amfSelf.ServedGuamiList[0]
 
 					// <5G-S-TMSI> := <AMF Set ID><AMF Pointer><5G-TMSI>
 					// GUAMI := <MCC><MNC><AMF Region ID><AMF Set ID><AMF Pointer>
 					// 5G-GUTI := <GUAMI><5G-TMSI>
 					tmpReginID, _, _ := ngapConvert.AmfIdToNgap(servedGuami.AmfId)
-					ranUe.Log.Info("---tmpReginID while fetchranuecontext: ", tmpReginID)
-					ranUe.Log.Info("---fiveGSTMSI.AMFSetID.Value while fetchranuecontext: ", fiveGSTMSI.AMFSetID.Value)
-					ranUe.Log.Info("---fiveGSTMSI.AMFPointer.Value while fetchranuecontext: ", fiveGSTMSI.AMFPointer.Value)
+					ran.Log.Info("---tmpReginID while fetchranuecontext: ", tmpReginID)
+					ran.Log.Info("---fiveGSTMSI.AMFSetID.Value while fetchranuecontext: ", fiveGSTMSI.AMFSetID.Value)
+					ran.Log.Info("---fiveGSTMSI.AMFPointer.Value while fetchranuecontext: ", fiveGSTMSI.AMFPointer.Value)
 					amfID := ngapConvert.AmfIdToModels(tmpReginID, fiveGSTMSI.AMFSetID.Value, fiveGSTMSI.AMFPointer.Value)
 
 					tmsi := hex.EncodeToString(fiveGSTMSI.FiveGTMSI.Value)
-					ranUe.Log.Info("---amfid while fetchranuecontext: ", amfID)
+					ran.Log.Info("---amfid while fetchranuecontext: ", amfID)
 					guti := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + amfID + tmsi
 
 					// TODO: invoke Namf_Communication_UEContextTransfer if serving AMF has changed since
@@ -109,7 +109,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
 
 					if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); ok {
-						ranUe.Log.Info("---amfue found with guti while fetchranuecontext ")
+						ran.Log.Info("---amfue found with guti while fetchranuecontext ")
 						ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 						if err != nil {
 							ran.Log.Errorf("NewRanUe Error: %+v", err)
