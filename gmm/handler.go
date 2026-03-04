@@ -338,8 +338,12 @@ func forward5GSMMessageToSMF(
 	} else if errResponse != nil {
 		errJSON := errResponse.JsonData
 		n1Msg := errResponse.BinaryDataN1SmMessage
-		ue.GmmLog.Warnf("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
-			pduSessionID, errJSON.Error.Cause)
+		if errJSON != nil {
+			ue.GmmLog.Warnf("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
+				pduSessionID, errJSON.Error.Cause)
+		} else {
+			ue.GmmLog.Errorf("---errJSON recieved nil")
+		}
 		if n1Msg != nil {
 			gmm_message.SendDLNASTransport(ue.RanUe[accessType], nasMessage.PayloadContainerTypeN1SMInfo,
 				errResponse.BinaryDataN1SmMessage, pduSessionID, 0, nil, 0)
