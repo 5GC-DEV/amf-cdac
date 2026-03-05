@@ -1717,11 +1717,15 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 			// GUAMI := <MCC><MNC><AMF Region ID><AMF Set ID><AMF Pointer>
 			// 5G-GUTI := <GUAMI><5G-TMSI>
 			tmpReginID, _, _ := ngapConvert.AmfIdToNgap(servedGuami.AmfId)
+			ran.Log.Debugln("---tmpReginID while handling IUE: ", tmpReginID)
+
 			amfID := ngapConvert.AmfIdToModels(tmpReginID, fiveGSTMSI.AMFSetID.Value, fiveGSTMSI.AMFPointer.Value)
+			ran.Log.Debugln("---amfID while handling IUE: ", amfID)
 
 			tmsi := hex.EncodeToString(fiveGSTMSI.FiveGTMSI.Value)
 
 			guti := servedGuami.PlmnId.Mcc + servedGuami.PlmnId.Mnc + amfID + tmsi
+			ran.Log.Debugln("---guti while handling IUE: ", guti)
 
 			// TODO: invoke Namf_Communication_UEContextTransfer if serving AMF has changed since
 			// last Registration Request procedure
