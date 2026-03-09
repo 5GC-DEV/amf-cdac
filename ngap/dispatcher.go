@@ -139,32 +139,36 @@ func Dispatch(conn net.Conn, msg []byte) {
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
-	if ranUe != nil && ranUe.AmfUe != nil {
-		ranUe.AmfUe.SetEventChannel(NgapMsgHandler)
-		ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
-		if ranUe.AmfUe.EventChannel == nil {
-			logger.NgapLog.Error("Eventchannel nil while dispatching the message")
-			return
-		} else {
-			ranUe.AmfUe.EventChannel.UpdateNgapHandler(NgapMsgHandler)
-		}
-		ngapMsg := context.NgapMsg{
-			Ran:       ran,
-			NgapMsg:   pdu,
-			SctplbMsg: nil,
-		}
-		if ranUe.Ran != nil {
-			if ranUe.Ran.GnbId == ran.GnbId {
-				ranUe.AmfUe.TxLog.Infoln("gnbid match")
-				ranUe.Ran.Conn = conn
+	if ranUe != nil {
+		amfUe := ranUe.AmfUe
+		if amfUe != nil {
+			amfUe.SetEventChannel(NgapMsgHandler)
+			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+			eventChannel := amfUe.EventChannel
+			if eventChannel == nil {
+				logger.NgapLog.Error("Eventchannel nil while dispatching the message")
+				return
 			} else {
-				ranUe.AmfUe.TxLog.Infoln("gnbid differ")
-				ranUe.AmfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				eventChannel.UpdateNgapHandler(NgapMsgHandler)
 			}
-		} else {
-			ranUe.AmfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			ngapMsg := context.NgapMsg{
+				Ran:       ran,
+				NgapMsg:   pdu,
+				SctplbMsg: nil,
+			}
+			if ranUe.Ran != nil {
+				if ranUe.Ran.GnbId == ran.GnbId {
+					amfUe.TxLog.Infoln("gnbid match")
+					ranUe.Ran.Conn = conn
+				} else {
+					amfUe.TxLog.Infoln("gnbid differ")
+					amfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				}
+			} else {
+				amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			}
+			eventChannel.SubmitMessage(ngapMsg)
 		}
-		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
 	}
