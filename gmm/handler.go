@@ -338,8 +338,12 @@ func forward5GSMMessageToSMF(
 	} else if errResponse != nil {
 		errJSON := errResponse.JsonData
 		n1Msg := errResponse.BinaryDataN1SmMessage
-		ue.GmmLog.Warnf("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
-			pduSessionID, errJSON.Error.Cause)
+		if errJSON != nil && errJSON.Error != nil {
+			ue.GmmLog.Warnf("PDU Session Modification Procedure is rejected by SMF[pduSessionId:%d], Error[%s]",
+				pduSessionID, errJSON.Error.Cause)
+		} else {
+			ue.GmmLog.Errorf("received json error as nil from SMF")
+		}
 		if n1Msg != nil {
 			gmm_message.SendDLNASTransport(ue.RanUe[accessType], nasMessage.PayloadContainerTypeN1SMInfo,
 				errResponse.BinaryDataN1SmMessage, pduSessionID, 0, nil, 0)
@@ -486,13 +490,17 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	case nasMessage.MobileIdentity5GSType5gGuti:
 		guamiFromUeGutiTmp, guti := nasConvert.GutiToString(mobileIdentity5GSContents)
 		guamiFromUeGuti = guamiFromUeGutiTmp
-		ue.Guti = guti
 		ue.GmmLog.Debugf("GUTI: %s", guti)
 
 		servedGuami := amfSelf.ServedGuamiList[0]
 		if reflect.DeepEqual(guamiFromUeGuti, servedGuami) {
+			ue.Guti = guti
 			ue.ServingAmfChanged = false
 		} else {
+			ue.GmmLog.Warnf("Invalid GUAMI received from UE")
+			if ue.Guti != "" {
+				ue.GmmLog.Debugf("Proceeding with core allocated GUTI: ", ue.Guti)
+			}
 			ue.GmmLog.Debugf("Serving AMF has changed but 5G-Core is not supporting for now")
 			ue.ServingAmfChanged = false
 		}
