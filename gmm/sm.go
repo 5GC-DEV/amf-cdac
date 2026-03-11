@@ -363,10 +363,8 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		// stopping security mode command timer
 		amfUe.SecurityContextAvailable = false
-		if amfUe.T3560 != nil {
-			amfUe.T3560.Stop()
-			amfUe.T3560 = nil
-		}
+		amfUe.T3560.Stop()
+		amfUe.T3560 = nil
 	case NwInitiatedDeregistrationEvent:
 		logger.GmmLog.Debugln(event)
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
