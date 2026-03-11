@@ -497,6 +497,9 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 			ue.Guti = guti
 			ue.ServingAmfChanged = false
 		} else {
+			if ue.Guti != "" {
+				ue.GmmLog.Debugf("Allocated GUTI: ", ue.Guti)
+			}
 			ue.GmmLog.Debugf("Serving AMF has changed but 5G-Core is not supporting for now")
 			ue.ServingAmfChanged = false
 		}
