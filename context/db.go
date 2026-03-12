@@ -175,8 +175,10 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
 
+	ue.RanUeMu.Lock()
 	ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUe = ue
 	AMF_Self().RanUePool.Store(ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId, ue.RanUe[models.AccessType__3_GPP_ACCESS])
+	ue.RanUeMu.Unlock()
 	AMF_Self().UePool.Store(ue.Supi, ue)
 	ue.EventChannel = nil
 	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
