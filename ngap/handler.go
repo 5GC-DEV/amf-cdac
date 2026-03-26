@@ -1919,6 +1919,7 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 					ranUe.Log.Errorf("SendUpdateSmContextN2Info[PDUSessionResourceSetupResponseTransfer] Error: received error response from SMF")
 					if errResponse != nil {
 						responseData := errResponse.JsonData
+						ranUe.Log.Info("---responsedata: ", responseData)
 						n1Msg := errResponse.BinaryDataN1SmMessage
 						n2Info := errResponse.BinaryDataN2SmInformation
 						if responseData != nil && responseData.N2SmInfoType != "" {
