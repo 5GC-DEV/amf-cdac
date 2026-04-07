@@ -67,6 +67,11 @@ func HandleN1N2MessageTransferRequest(request *httpwrapper.Request) *httpwrapper
 	}
 	var n1n2MessageTransferRspData *models.N1N2MessageTransferRspData
 	var transferErr *models.N1N2MessageTransferError
+	if ue.EventChannel == nil {
+		logger.ProducerLog.Infof("ue eventchannel nil while handling n1n2, creating new")
+		ue.EventChannel = ue.NewEventChannel()
+		ue.EventChannel.AmfUe = ue
+	}
 	ue.EventChannel.UpdateSbiHandler(ProducerHandler)
 	ue.EventChannel.SubmitMessage(sbiMsg)
 	msg := <-sbiMsg.Result

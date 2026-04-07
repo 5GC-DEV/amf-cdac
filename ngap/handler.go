@@ -1906,7 +1906,11 @@ func HandlePDUSessionResourceSetupResponse(ran *context.AmfRan, message *ngapTyp
 						responseData := errResponse.JsonData
 						n1Msg := errResponse.BinaryDataN1SmMessage
 						n2Info := errResponse.BinaryDataN2SmInformation
-						BuildAndSendN1N2Msg(ranUe, n1Msg, n2Info, responseData.N2SmInfoType, pduSessionID)
+						if responseData != nil && responseData.N2SmInfoType != "" {
+							BuildAndSendN1N2Msg(ranUe, n1Msg, n2Info, responseData.N2SmInfoType, pduSessionID)
+						} else {
+							ranUe.Log.Errorf("Received jsondata of response data as nil from SMF")
+						}
 					}
 				}
 			}
