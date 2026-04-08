@@ -1872,6 +1872,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			smContext := value.(*context.SmContext)
 
 			if pduSessionID != targetPduSessionId {
+				ue.GmmLog.Info("---pdusessionid: ", pduSessionID)
+				ue.GmmLog.Info("---targetPduSessionId: ", targetPduSessionId)
 				if uplinkDataPsi[pduSessionID] && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
 					response, errRes, _, err := consumer.SendUpdateSmContextActivateUpCnxState(
 						ue, smContext, models.AccessType__3_GPP_ACCESS)
@@ -2082,6 +2084,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			}
 		}
 	case nasMessage.ServiceTypeHighPriorityAccess:
+		ue.GmmLog.Info("---ue.tai: ", ue.Tai)
+		ue.GmmLog.Info("---ue.RanUe[anType].Tai: ", ue.RanUe[anType].Tai)
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
