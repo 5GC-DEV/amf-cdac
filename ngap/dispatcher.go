@@ -139,34 +139,36 @@ func Dispatch(conn net.Conn, msg []byte) {
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
-	amfUe := ranUe.AmfUe
-	if ranUe != nil && amfUe != nil {
-		amfUe.SetEventChannel(NgapMsgHandler)
-		amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
-		eventChan := amfUe.EventChannel
-		if eventChan == nil {
-			logger.NgapLog.Error("Eventchannel nil while dispatching the message")
-			return
-		} else {
-			eventChan.UpdateNgapHandler(NgapMsgHandler)
-		}
-		ngapMsg := context.NgapMsg{
-			Ran:       ran,
-			NgapMsg:   pdu,
-			SctplbMsg: nil,
-		}
-		if ranUe.Ran != nil {
-			if ranUe.Ran.GnbId == ran.GnbId {
-				amfUe.TxLog.Infoln("gnbid match")
-				ranUe.Ran.Conn = conn
+	if ranUe != nil {
+		amfUe := ranUe.AmfUe
+		if amfUe != nil {
+			amfUe.SetEventChannel(NgapMsgHandler)
+			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+			eventChan := amfUe.EventChannel
+			if eventChan == nil {
+				logger.NgapLog.Error("Eventchannel nil while dispatching the message")
+				return
 			} else {
-				amfUe.TxLog.Infoln("gnbid differ")
-				amfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				eventChan.UpdateNgapHandler(NgapMsgHandler)
 			}
-		} else {
-			amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			ngapMsg := context.NgapMsg{
+				Ran:       ran,
+				NgapMsg:   pdu,
+				SctplbMsg: nil,
+			}
+			if ranUe.Ran != nil {
+				if ranUe.Ran.GnbId == ran.GnbId {
+					amfUe.TxLog.Infoln("gnbid match")
+					ranUe.Ran.Conn = conn
+				} else {
+					amfUe.TxLog.Infoln("gnbid differ")
+					amfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				}
+			} else {
+				amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			}
+			eventChan.SubmitMessage(ngapMsg)
 		}
-		eventChan.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
 	}
