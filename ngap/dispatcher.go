@@ -139,14 +139,16 @@ func Dispatch(conn net.Conn, msg []byte) {
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
-	if ranUe != nil && ranUe.AmfUe != nil {
-		ranUe.AmfUe.SetEventChannel(NgapMsgHandler)
-		ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
-		if ranUe.AmfUe.EventChannel == nil {
+	amfUe := ranUe.AmfUe
+	if ranUe != nil && amfUe != nil {
+		amfUe.SetEventChannel(NgapMsgHandler)
+		amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+		eventChan := amfUe.EventChannel
+		if eventChan == nil {
 			logger.NgapLog.Error("Eventchannel nil while dispatching the message")
 			return
 		} else {
-			ranUe.AmfUe.EventChannel.UpdateNgapHandler(NgapMsgHandler)
+			eventChan.UpdateNgapHandler(NgapMsgHandler)
 		}
 		ngapMsg := context.NgapMsg{
 			Ran:       ran,
@@ -155,16 +157,16 @@ func Dispatch(conn net.Conn, msg []byte) {
 		}
 		if ranUe.Ran != nil {
 			if ranUe.Ran.GnbId == ran.GnbId {
-				ranUe.AmfUe.TxLog.Infoln("gnbid match")
+				amfUe.TxLog.Infoln("gnbid match")
 				ranUe.Ran.Conn = conn
 			} else {
-				ranUe.AmfUe.TxLog.Infoln("gnbid differ")
-				ranUe.AmfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				amfUe.TxLog.Infoln("gnbid differ")
+				amfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
 			}
 		} else {
-			ranUe.AmfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
 		}
-		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
+		eventChan.SubmitMessage(ngapMsg)
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
 	}
