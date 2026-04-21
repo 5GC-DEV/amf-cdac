@@ -34,6 +34,7 @@ type AmfStats struct {
 	nfNonReachable    *prometheus.CounterVec
 	noOfUeConnect     *prometheus.GaugeVec
 	noOfGnbConnect    *prometheus.GaugeVec
+	noOfActiveSub     prometheus.Gauge
 }
 
 var amfStats *AmfStats
@@ -104,7 +105,13 @@ func initAmfStats() *AmfStats {
 			Name: "gnb_connected_total",
 			Help: "GNB connections total",
 		}, []string{"id", "gnb_id", "gnb_ip"}),
+
+		noOfActiveSub: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "active_subscribers_total",
+			Help: "current number of active subscribers in the core",
+		}),
 	}
+
 }
 
 func (ps *AmfStats) register() error {
@@ -147,6 +154,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.noOfGnbConnect); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.noOfActiveSub); err != nil {
 		return err
 	}
 	return nil
@@ -231,4 +241,9 @@ func SetNoOfUeConnectionStats(id, suci, guti string, count uint64) {
 // SetNoOfGnbConnectionStats maintains total gNB connections info
 func SetNoOfGnbConnectionStats(id, gnbid, gnbip string, count uint64) {
 	amfStats.noOfGnbConnect.WithLabelValues(id, gnbid, gnbip).Set(float64(count))
+}
+
+// SetNoOfActiveSubStats maintains total active subscribers info
+func SetNoOfActiveSubStats(count uint64) {
+	amfStats.noOfActiveSub.Set(float64(count))
 }
