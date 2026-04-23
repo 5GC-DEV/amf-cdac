@@ -1769,6 +1769,8 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	if userLocationInformation != nil {
 		ranUe.Log.Info("---Request contains userLocationInformation ")
 		ranUe.UpdateLocation(userLocationInformation)
+	} else {
+		ranUe.Log.Warn("---Request not contains userLocationInformation ")
 	}
 
 	if rRCEstablishmentCause != nil {

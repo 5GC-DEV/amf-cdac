@@ -2053,6 +2053,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	case nasMessage.ServiceTypeData:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
+			ue.GmmLog.Warnf("---TAI received as nil")
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}
@@ -2084,10 +2085,9 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			}
 		}
 	case nasMessage.ServiceTypeHighPriorityAccess:
-		ue.GmmLog.Info("---ue.tai: ", ue.Tai)
-		ue.GmmLog.Info("---ue.RanUe[anType].Tai: ", ue.RanUe[anType].Tai)
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
+			ue.GmmLog.Warnf("---TAI received as nil")
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}

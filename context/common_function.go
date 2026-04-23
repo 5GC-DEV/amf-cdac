@@ -99,21 +99,13 @@ func ConvertHexToOctalbytes(hexstring string) []byte {
 }
 
 func IsTaiEqual(servedTai models.Tai, targetTai models.Tai) bool {
-	if servedTai.PlmnId.Mcc != "" && servedTai.PlmnId.Mnc != "" {
-		logger.ContextLog.Info("---servedTai.PlmnId.Mcc: ", servedTai.PlmnId.Mcc)
-		logger.ContextLog.Info("---servedTai.PlmnId.Mnc: ", servedTai.PlmnId.Mnc)
-		if targetTai.PlmnId.Mcc != "" && targetTai.PlmnId.Mnc != "" {
-			logger.ContextLog.Info("---targetTai.PlmnId.Mcc: ", targetTai.PlmnId.Mcc)
-			logger.ContextLog.Info("---targetTai.PlmnId.Mnc: ", targetTai.PlmnId.Mnc)
-			if servedTai.Tac != "" && targetTai.Tac != "" {
-				logger.ContextLog.Info("---servedTai.Tac: ", servedTai.Tac)
-				logger.ContextLog.Info("---targetTai.Tac: ", targetTai.Tac)
-			}
-		}
-		return servedTai.PlmnId.Mcc == targetTai.PlmnId.Mcc && servedTai.PlmnId.Mnc == targetTai.PlmnId.Mnc && servedTai.Tac == targetTai.Tac
-	} else {
+	if servedTai.PlmnId == nil || servedTai.Tac == "" {
 		return false
 	}
+	if targetTai.PlmnId == nil || targetTai.Tac == "" {
+		return false
+	}
+	return servedTai.PlmnId.Mcc == targetTai.PlmnId.Mcc && servedTai.PlmnId.Mnc == targetTai.PlmnId.Mnc && servedTai.Tac == targetTai.Tac
 }
 
 func TacInAreas(targetTac string, areas []models.Area) bool {
