@@ -771,6 +771,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 			return true
 		})
 		metrics.SetNoOfActiveSubStats(uint64(count))
+		UpdateSubscriberMetricsPerSlice()
 	} else {
 		// TS 23.502 4.12.2.2 10a ~ 13: if non-3gpp, AMF should send initial context setup request to N3IWF first,
 		// and send registration accept after receiving initial context setup response
@@ -2640,37 +2641,41 @@ func HandleAuthenticationError(ue *context.AmfUe, anType models.AccessType) erro
 	return nil
 }
 
-// func UpdateSubscriberMetricsPerSlice() {
-// 	amfSelf := context.AMF_Self()
+func UpdateSubscriberMetricsPerSlice() {
+	amfSelf := context.AMF_Self()
 
-// 	sliceCount := make(map[SliceKey]int)
+	sliceCount := make(map[context.SliceKey]int)
 
-// 	amfSelf.UePool.Range(func(key, value interface{}) bool {
+	amfSelf.UePool.Range(func(key, value interface{}) bool {
 
-// 		ue := value.(*context.AmfUe)
+		ue := value.(*context.AmfUe)
 
-// 		allowedList, ok := ue.AllowedNssai[models.AccessType__3_GPP_ACCESS]
-// 		if ok {
-// 			for _, allowed := range allowedList {
-// 				snssai := allowed.AllowedSnssai
-// 				if snssai == nil {
-// 					continue
-// 				}
+		allowedList, ok := ue.AllowedNssai[models.AccessType__3_GPP_ACCESS]
+		if ok {
+			for _, allowed := range allowedList {
+				snssai := allowed.AllowedSnssai
+				if snssai == nil {
+					continue
+				}
 
-// 				sk := context.SliceKey{
-// 					Sst: snssai.Sst,
-// 					Sd:  snssai.Sd,
-// 				}
+				sk := context.SliceKey{
+					Sst: snssai.Sst,
+					Sd:  snssai.Sd,
+				}
 
-// 				sliceCount[sk]++
-// 			}
-// 		}
+				sliceCount[sk]++
+			}
+		}
 
-// 		return true
-// 	})
+		return true
+	})
 
-// 	// ✅ Set per-slice subscribers
-// 	for sk, count := range sliceCount {
-// 		metrics.SetActiveSubPerSliceStats(Sst, Sd).Set(float64(count))
-// 	}
-// }
+	// Set per-slice subscribers
+	for sk, count := range sliceCount {
+		metrics.SetActiveSubPerSliceStats(
+			strconv.Itoa(int(sk.Sst)),
+			sk.Sd,
+			uint64(count),
+		)
+	}
+}
