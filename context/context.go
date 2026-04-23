@@ -110,6 +110,11 @@ type SecurityAlgorithm struct {
 	CipheringOrder []uint8 // slice of security.AlgCipheringXXX
 }
 
+type SliceKey struct {
+	Sst int32
+	Sd  string
+}
+
 func NewPlmnSupportItem() (item factory.PlmnSupportItem) {
 	item.SNssaiList = make([]models.Snssai, 0, MaxNumOfSlice)
 	return

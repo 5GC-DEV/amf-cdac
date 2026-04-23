@@ -2639,3 +2639,38 @@ func HandleAuthenticationError(ue *context.AmfUe, anType models.AccessType) erro
 	}
 	return nil
 }
+
+// func UpdateSubscriberMetricsPerSlice() {
+// 	amfSelf := context.AMF_Self()
+
+// 	sliceCount := make(map[SliceKey]int)
+
+// 	amfSelf.UePool.Range(func(key, value interface{}) bool {
+
+// 		ue := value.(*context.AmfUe)
+
+// 		allowedList, ok := ue.AllowedNssai[models.AccessType__3_GPP_ACCESS]
+// 		if ok {
+// 			for _, allowed := range allowedList {
+// 				snssai := allowed.AllowedSnssai
+// 				if snssai == nil {
+// 					continue
+// 				}
+
+// 				sk := context.SliceKey{
+// 					Sst: snssai.Sst,
+// 					Sd:  snssai.Sd,
+// 				}
+
+// 				sliceCount[sk]++
+// 			}
+// 		}
+
+// 		return true
+// 	})
+
+// 	// ✅ Set per-slice subscribers
+// 	for sk, count := range sliceCount {
+// 		metrics.SetActiveSubPerSliceStats(Sst, Sd).Set(float64(count))
+// 	}
+// }
