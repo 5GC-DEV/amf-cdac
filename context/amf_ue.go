@@ -508,6 +508,7 @@ func (ue *AmfUe) Remove() {
 			return true
 		})
 		metrics.SetNoOfActiveSubStats(uint64(count))
+		// UpdateSubscriberMetricsPerSlice()
 	}
 	if ue.EventChannel != nil {
 		ue.EventChannel.Event <- "quit"
