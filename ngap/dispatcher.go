@@ -16,6 +16,7 @@ import (
 	"github.com/5GC-DEV/ngap-cdac"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/gmm"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/msgtypes/ngapmsgtypes"
@@ -84,6 +85,7 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 				ran.Amf2RanMsgChan <- rsp
 				if ranUe != nil && ranUe.AmfUe != nil {
 					ranUe.AmfUe.Remove()
+					gmm.UpdateSubscriberMetricsPerSlice()
 				}
 				if ranUe != nil {
 					if err := ranUe.Remove(); err != nil {

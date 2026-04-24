@@ -11,6 +11,7 @@ import (
 
 	"github.com/5GC-DEV/openapi-cdac/models"
 	"github.com/omec-project/amf/context"
+	"github.com/omec-project/amf/gmm"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/nas/nas_security"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
@@ -51,6 +52,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 					rsp.Msg = ue.SctplbMsg
 					if ue.AmfUe != nil {
 						ue.AmfUe.Remove()
+						gmm.UpdateSubscriberMetricsPerSlice()
 					} else {
 						if err := ue.Remove(); err != nil {
 							logger.NasLog.Errorf("error removing ue: %v", err)

@@ -22,6 +22,7 @@ import (
 	"github.com/omec-project/amf/consumer"
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
+	"github.com/omec-project/amf/gmm"
 	gmm_message "github.com/omec-project/amf/gmm/message"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -1283,6 +1284,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			ran.Log.Infof("Valid Security is not exist for the UE[%s], so deleting AmfUe Context", amfUe.Supi)
 			amfUe.PublishUeCtxtInfo()
 			amfUe.Remove()
+			gmm.UpdateSubscriberMetricsPerSlice()
 			context.DeleteContextFromDB(amfUe)
 		} else {
 			amfUe.PublishUeCtxtInfo()
@@ -1296,6 +1298,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 		amfUe.PublishUeCtxtInfo()
 		amfUe.Remove()
+		gmm.UpdateSubscriberMetricsPerSlice()
 		context.DeleteContextFromDB(amfUe)
 	case context.UeContextReleaseHandover:
 		ran.Log.Infof("Release UE[%s] Context : Release for Handover", amfUe.Supi)
@@ -1741,6 +1744,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 						rsp.Msg = sctplbMsg.Msg
 						if ranUe != nil && ranUe.AmfUe != nil {
 							ranUe.AmfUe.Remove()
+							gmm.UpdateSubscriberMetricsPerSlice()
 						} else if ranUe != nil {
 							if err := ranUe.Remove(); err != nil {
 								ranUe.Log.Errorf("could not remove ranUe: %v", err)
