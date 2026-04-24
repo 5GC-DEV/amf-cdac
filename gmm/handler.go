@@ -2647,7 +2647,6 @@ func UpdateSubscriberMetricsPerSlice() {
 	sliceCount := make(map[context.SliceKey]int)
 
 	amfSelf.UePool.Range(func(key, value interface{}) bool {
-
 		ue := value.(*context.AmfUe)
 
 		allowedList, ok := ue.AllowedNssai[models.AccessType__3_GPP_ACCESS]

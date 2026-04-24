@@ -117,7 +117,6 @@ func initAmfStats() *AmfStats {
 			Help: "current number of active subscribers per slice",
 		}, []string{"sst", "sd"}),
 	}
-
 }
 
 func (ps *AmfStats) register() error {
