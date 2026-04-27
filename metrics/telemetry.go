@@ -253,10 +253,12 @@ func SetNoOfGnbConnectionStats(id, gnbid, gnbip string, count uint64) {
 
 // SetNoOfActiveSubStats maintains total active subscribers info
 func SetNoOfActiveSubStats(count uint64) {
+	logger.InitLog.Info("---in SetNoOfActiveSubStats()")
 	amfStats.noOfActiveSub.Set(float64(count))
 }
 
 // SetActiveSubPerSliceStats maintains active subscribers per slice info
 func SetActiveSubPerSliceStats(sst, sd string, count uint64) {
+	logger.InitLog.Info("---in SetActiveSubPerSliceStats()")
 	amfStats.activeSubPerSlice.WithLabelValues(sst, sd).Set(float64(count))
 }

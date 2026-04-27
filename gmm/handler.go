@@ -770,6 +770,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 			count++
 			return true
 		})
+		logger.GmmLog.Info("---active subs when ue registered")
 		metrics.SetNoOfActiveSubStats(uint64(count))
 		UpdateSubscriberMetricsPerSlice()
 	} else {
@@ -2642,6 +2643,7 @@ func HandleAuthenticationError(ue *context.AmfUe, anType models.AccessType) erro
 }
 
 func UpdateSubscriberMetricsPerSlice() {
+	logger.GmmLog.Info("---in UpdateSubscriberMetricsPerSlice()")
 	amfSelf := context.AMF_Self()
 
 	sliceCount := make(map[context.SliceKey]int)
@@ -2671,6 +2673,7 @@ func UpdateSubscriberMetricsPerSlice() {
 
 	// Set per-slice subscribers
 	for sk, count := range sliceCount {
+		logger.GmmLog.Info("---calling SetActiveSubPerSliceStats")
 		metrics.SetActiveSubPerSliceStats(
 			strconv.Itoa(int(sk.Sst)),
 			sk.Sd,
