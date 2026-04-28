@@ -221,7 +221,7 @@ type AmfUe struct {
 }
 
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {
-	type Alias AmfUe
+	// type Alias AmfUe
 	stateVal := make(map[models.AccessType]string)
 	smCtxListVal := make(map[string]SmContext)
 	var ranUeNgapIDVal, amfUeNgapIDVal int64
@@ -289,12 +289,193 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 		RanId:       gnbId,
 	}
 
+	// return json.Marshal(&struct {
+	// 	CustomAmfUe CustomFieldsAmfUe `json:"customFieldsAmfUe"`
+	// 	*Alias
+	// }{
+	// 	CustomAmfUe: customAmfUe,
+	// 	Alias:       (*Alias)(ue),
+	// })
 	return json.Marshal(&struct {
-		CustomAmfUe CustomFieldsAmfUe `json:"customFieldsAmfUe"`
-		*Alias
+		CustomAmfUe                     CustomFieldsAmfUe `json:"customFieldsAmfUe"`
+		RegistrationType5GS             uint8             `json:"registrationType5GS,omitempty"`
+		IdentityTypeUsedForRegistration uint8             `json:"identityTypeUsedForRegistration,omitempty"`
+		// RegistrationRequest                *nasMessage.RegistrationRequest `json:"registrationRequest,omitempty"`
+		ServingAmfChanged                  bool   `json:"servingAmfChanged,omitempty"`
+		DeregistrationTargetAccessType     uint8  `json:"deregistrationTargetAccessType,omitempty"` // only used when deregistration procedure is initialized by the network
+		RegistrationAcceptForNon3GPPAccess []byte `json:"registrationAcceptForNon3GPPAccess,omitempty"`
+		RetransmissionOfInitialNASMsg      bool   `json:"retransmissionOfInitialNASMsg,omitempty"`
+		// TargetAmfProfile *models.NfProfile `json:"targetAmfProfile,omitempty"`
+		TargetAmfUri             string                `json:"targetAmfUri,omitempty"`
+		PlmnId                   models.PlmnId         `json:"plmnId,omitempty"`
+		Suci                     string                `json:"suci,omitempty"`
+		Supi                     string                `json:"supi,omitempty"`
+		UnauthenticatedSupi      bool                  `json:"unauthenticatedSupi,omitempty"`
+		Gpsi                     string                `json:"gpsi,omitempty"`
+		Pei                      string                `json:"pei,omitempty"`
+		Tmsi                     int32                 `json:"tmsi,omitempty"` // 5G-Tmsi
+		Guti                     string                `json:"guti,omitempty"`
+		GroupID                  string                `json:"groupID,omitempty"`
+		EBI                      int32                 `json:"ebi,omitempty"`
+		RatType                  models.RatType        `json:"ratType,omitempty"`
+		Location                 models.UserLocation   `json:"location,omitempty"`
+		Tai                      models.Tai            `json:"tai,omitempty"`
+		LocationChanged          bool                  `json:"locationChanged,omitempty"`
+		LastVisitedRegisteredTai models.Tai            `json:"lastVisitedRegisteredTai,omitempty"`
+		TimeZone                 string                `json:"timezone,omitempty"`
+		UdmId                    string                `json:"udmId,omitempty"`
+		NudmUECMUri              string                `json:"nudmUECMUri,omitempty"`
+		NudmSDMUri               string                `json:"nudmSDMUri,omitempty"`
+		SubscriptionDataValid    bool                  `json:"subscriptionDataValid,omitempty"`
+		Reachability             models.UeReachability `json:"reachability,omitempty"`
+		SubscribedData           models.SubscribedData `json:"subscribedData,omitempty"`
+		// SmfSelectionData                  *models.SmfSelectionSubscriptionData      `json:"smfSelectionData,omitempty"`
+		// UeContextInSmfData                *models.UeContextInSmfData                `json:"ueContextInSmfData,omitempty"`
+		// TraceData                         *models.TraceData                         `json:"traceData,omitempty"`
+		UdmGroupId string `json:"udmGroupId,omitempty"`
+		// SubscribedNssai                   []models.SubscribedSnssai                 `json:"subscribeNssai,omitempty"`
+		// AccessAndMobilitySubscriptionData *models.AccessAndMobilitySubscriptionData `json:"accessAndMobilitySubscriptionData,omitempty"`
+		AusfGroupId      string `json:"ausfGroupId,omitempty"`
+		AusfId           string `json:"ausfId,omitempty"`
+		AusfUri          string `json:"ausfUri,omitempty"`
+		RoutingIndicator string `json:"routingIndicator,omitempty"`
+		// AuthenticationCtx                 *models.UeAuthenticationCtx               `json:"authenticationCtx,omitempty"`
+		AuthFailureCauseSynchFailureTimes int     `json:"authFailureCauseSynchFailureTimes,omitempty"`
+		ABBA                              []uint8 `json:"abba,omitempty"`
+		Kseaf                             string  `json:"kseaf,omitempty"`
+		Kamf                              string  `json:"kamf,omitempty"`
+		PcfId                             string  `json:"pcfId,omitempty"`
+		PcfUri                            string  `json:"pcfUri,omitempty"`
+		PolicyAssociationId               string  `json:"policyAssociationId,omitempty"`
+		AmPolicyUri                       string  `json:"amPolicyUri,omitempty"`
+		// AmPolicyAssociation               *models.PolicyAssociation `json:"amPolicyAssociation,omitempty"`
+		RequestTriggerLocationChange bool   `json:"requestTriggerLocationChange,omitempty"` // true if AmPolicyAssociation.Trigger contains RequestTrigger_LOC_CH
+		ConfigurationUpdateMessage   []byte `json:"configurationUpdateMessage,omitempty"`
+		HandoverNotifyUri            string `json:"handoverNotifyUri,omitempty"`
+		// N1N2MessageIDGenerator          *idgenerator.IDGenerator `json:"n1n2MessageIDGenerator,omitempty"`
+		// N1N2Message                     *N1N2Message             `json:"-"`
+		// N1N2MessageSubscribeIDGenerator *idgenerator.IDGenerator `json:"n1n2MessageSubscribeIDGenerator,omitempty"`
+		// N1N2MessageSubscription sync.Map `json:"n1n2MessageSubscription,omitempty"`
+		// SmContextList           sync.Map `json:"-"` // map[int32]*SmContext, pdu session id as key
+		// RanUe map[models.AccessType]*RanUe `json:"-"`
+		// OnGoing                       map[models.AccessType]*OnGoingProcedureWithPrio `json:"onGoing,omitempty"`
+		UeRadioCapability             string                                `json:"ueRadioCapability,omitempty"` // OCTET string
+		Capability5GMM                nasType.Capability5GMM                `json:"capability5GMM,omitempty"`
+		ConfigurationUpdateIndication nasType.ConfigurationUpdateIndication `json:"configurationUpdateIndication,omitempty"`
+		// UeRadioCapabilityForPaging *UERadioCapabilityForPaging `json:"ueRadioCapabilityForPaging,omitempty"`
+		// InfoOnRecommendedCellsAndRanNodesForPaging *InfoOnRecommendedCellsAndRanNodesForPaging `json:"infoOnRecommendedCellsAndRanNodesForPaging,omitempty"`
+		UESpecificDRX            uint8                        `json:"ueSpecificDRX,omitempty"`
+		SecurityContextAvailable bool                         `json:"securityContextAvailable,omitempty"`
+		UESecurityCapability     nasType.UESecurityCapability `json:"ueSecurityCapability,omitempty"` // for security command
+		NgKsi                    models.NgKsi                 `json:"ngKsi,omitempty"`
+		MacFailed                bool                         `json:"macFailed,omitempty"` // set to true if the integrity check of current NAS message is failed
+		KnasInt                  [16]uint8                    `json:"knasInt,omitempty"`   // 16 byte
+		KnasEnc                  [16]uint8                    `json:"knasEnc,omitempty"`   // 16 byte
+		Kgnb                     []uint8                      `json:"kgnb,omitempty"`      // 32 byte
+		Kn3iwf                   []uint8                      `json:"kn3iwf,omitempty"`    // 32 byte
+		NH                       []uint8                      `json:"nh,omitempty"`        // 32 byte
+		NCC                      uint8                        `json:"ncc,omitempty"`       // 0..7
+		// ULCount                  security.Count               `json:"-"`
+		// DLCount                  security.Count               `json:"-"`
+		CipheringAlg uint8 `json:"cipheringAlg,omitempty"`
+		IntegrityAlg uint8 `json:"integrityAlg,omitempty"`
+		// RegistrationArea map[models.AccessType][]models.Tai `json:"registrationArea,omitempty"`
+		LadnInfo []LADN `json:"ladnInfo,omitempty"`
+		NssfId   string `json:"nssfId,omitempty"`
+		NssfUri  string `json:"nssfUri,omitempty"`
+		// NetworkSliceInfo                  *models.AuthorizedNetworkSliceInfo            `json:"networkSliceInfo,omitempty"`
+		// AllowedNssai                      map[models.AccessType][]models.AllowedSnssai  `json:"allowedNssai,omitempty"`
+		// RejectedNssai                     map[models.AccessType][]models.RejectedSnssai `json:"rejectedNssai,omitempty"` // Store slices rejected during registration to inform the UE
+		// ConfiguredNssai                   []models.ConfiguredSnssai `json:"configuredNssai,omitempty"`
+		NetworkSlicingSubscriptionChanged bool `json:"networkSlicingSubscriptionChanged,omitempty"`
+		// T3513                             *Timer                    `json:"t3513Value,omitempty"` // for paging
+		// T3565                             *Timer                    `json:"t3565Value,omitempty"` // for NAS Notification
+		// T3560 *Timer `json:"t3560Value,omitempty"`
+		// T3550 *Timer `json:"t3550Value,omitempty"`
+		// T3522 *Timer `json:"t3522Value,omitempty"`
+		// ReleaseCause map[models.AccessType]*CauseAll `json:"releaseCause,omitempty"`
+		T3502Value                      int    `json:"t3502Value,omitempty"`                      // Second
+		T3512Value                      int    `json:"t3512Value,omitempty"`                      // default 54 min
+		Non3gppDeregistrationTimerValue int    `json:"non3gppDeregistrationTimerValue,omitempty"` // default 54 min
+		AmfInstanceName                 string `json:"amfInstanceName,omitempty"`
+		AmfInstanceIp                   string `json:"amfInstanceIp,omitempty"`
+		// EventChannel    *EventChannel `json:"-"`
+		// NASLog      *zap.SugaredLogger `json:"-"`
+		// GmmLog      *zap.SugaredLogger `json:"-"`
+		// TxLog       *zap.SugaredLogger `json:"-"`
+		// ProducerLog *zap.SugaredLogger `json:"-"`
 	}{
-		CustomAmfUe: customAmfUe,
-		Alias:       (*Alias)(ue),
+		CustomAmfUe:                        customAmfUe,
+		RegistrationType5GS:                ue.RegistrationType5GS,
+		IdentityTypeUsedForRegistration:    ue.IdentityTypeUsedForRegistration,
+		ServingAmfChanged:                  ue.ServingAmfChanged,
+		DeregistrationTargetAccessType:     ue.DeregistrationTargetAccessType,
+		RegistrationAcceptForNon3GPPAccess: ue.RegistrationAcceptForNon3GPPAccess,
+		RetransmissionOfInitialNASMsg:      ue.RetransmissionOfInitialNASMsg,
+		TargetAmfUri:                       ue.TargetAmfUri,
+		PlmnId:                             ue.PlmnId,
+		Suci:                               ue.Suci,
+		Supi:                               ue.Supi,
+		UnauthenticatedSupi:                ue.UnauthenticatedSupi,
+		Gpsi:                               ue.Gpsi,
+		Pei:                                ue.Pei,
+		Tmsi:                               ue.Tmsi,
+		Guti:                               ue.Guti,
+		GroupID:                            ue.GroupID,
+		EBI:                                ue.EBI,
+		RatType:                            ue.RatType,
+		Location:                           ue.Location,
+		Tai:                                ue.Tai,
+		LocationChanged:                    ue.LocationChanged,
+		LastVisitedRegisteredTai:           ue.LastVisitedRegisteredTai,
+		TimeZone:                           ue.TimeZone,
+		UdmId:                              ue.UdmId,
+		NudmUECMUri:                        ue.NudmUECMUri,
+		NudmSDMUri:                         ue.NudmSDMUri,
+		SubscriptionDataValid:              ue.SubscriptionDataValid,
+		Reachability:                       ue.Reachability,
+		SubscribedData:                     ue.SubscribedData,
+		UdmGroupId:                         ue.UdmGroupId,
+		AusfGroupId:                        ue.AusfGroupId,
+		AusfId:                             ue.AusfId,
+		AusfUri:                            ue.AusfUri,
+		RoutingIndicator:                   ue.RoutingIndicator,
+		AuthFailureCauseSynchFailureTimes:  ue.AuthFailureCauseSynchFailureTimes,
+		ABBA:                               ue.ABBA,
+		Kseaf:                              ue.Kseaf,
+		Kamf:                               ue.Kamf,
+		PcfId:                              ue.PcfId,
+		PcfUri:                             ue.PcfUri,
+		PolicyAssociationId:                ue.PolicyAssociationId,
+		AmPolicyUri:                        ue.AmPolicyUri,
+		RequestTriggerLocationChange:       ue.RequestTriggerLocationChange,
+		ConfigurationUpdateMessage:         ue.ConfigurationUpdateMessage,
+		HandoverNotifyUri:                  ue.HandoverNotifyUri,
+		UeRadioCapability:                  ue.UeRadioCapability,
+		Capability5GMM:                     ue.Capability5GMM,
+		ConfigurationUpdateIndication:      ue.ConfigurationUpdateIndication,
+		UESpecificDRX:                      ue.UESpecificDRX,
+		SecurityContextAvailable:           ue.SecurityContextAvailable,
+		UESecurityCapability:               ue.UESecurityCapability,
+		NgKsi:                              ue.NgKsi,
+		MacFailed:                          ue.MacFailed,
+		KnasInt:                            ue.KnasInt,
+		KnasEnc:                            ue.KnasEnc,
+		Kgnb:                               ue.Kgnb,
+		Kn3iwf:                             ue.Kn3iwf,
+		NH:                                 ue.NH,
+		NCC:                                ue.NCC,
+		CipheringAlg:                       ue.CipheringAlg,
+		IntegrityAlg:                       ue.IntegrityAlg,
+		LadnInfo:                           ue.LadnInfo,
+		NssfId:                             ue.NssfId,
+		NssfUri:                            ue.NssfUri,
+		NetworkSlicingSubscriptionChanged:  ue.NetworkSlicingSubscriptionChanged,
+		T3502Value:                         ue.T3502Value,
+		T3512Value:                         ue.T3512Value,
+		Non3gppDeregistrationTimerValue:    ue.Non3gppDeregistrationTimerValue,
+		AmfInstanceName:                    ue.AmfInstanceName,
+		AmfInstanceIp:                      ue.AmfInstanceIp,
 	})
 }
 
