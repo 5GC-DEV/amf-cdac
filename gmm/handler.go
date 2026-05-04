@@ -1878,7 +1878,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 				ue.GmmLog.Info("---pdusessionid: ", pduSessionID)
 				ue.GmmLog.Info("---targetPduSessionId: ", targetPduSessionId)
 				if uplinkDataPsi[pduSessionID] && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
-					ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d)", pduSessionId)
+					ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d)", pduSessionID)
 					response, errRes, _, err := consumer.SendUpdateSmContextActivateUpCnxState(
 						ue, smContext, models.AccessType__3_GPP_ACCESS)
 					if err != nil {
