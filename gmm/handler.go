@@ -884,7 +884,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 							reactivationResult[pduSessionId] = true
 							errPduSessionId = append(errPduSessionId, uint8(pduSessionId))
 							cause := nasMessage.Cause5GMMProtocolErrorUnspecified
-							if errResponse != nil {
+							if errResponse != nil && errResponse.JsonData != nil && errResponse.JsonData.Error != nil {
 								switch errResponse.JsonData.Error.Cause {
 								case OUT_OF_LADN_SERVICE_AREA:
 									cause = nasMessage.Cause5GMMLADNNotAvailable
@@ -893,6 +893,8 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 								case DNN_CONGESTION, S_NSSAI_CONGESTION:
 									cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 								}
+							} else {
+							ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionID)
 							}
 							errCause = append(errCause, cause)
 
@@ -1884,7 +1886,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 						reactivationResult[pduSessionID] = true
 						errPduSessionId = append(errPduSessionId, uint8(pduSessionID))
 						cause := nasMessage.Cause5GMMProtocolErrorUnspecified
-						if errRes != nil {
+						if errRes != nil && errRes.JsonData != nil && errRes.JsonData.Error != nil {
 							switch errRes.JsonData.Error.Cause {
 							case OUT_OF_LADN_SERVICE_AREA:
 								cause = nasMessage.Cause5GMMLADNNotAvailable
@@ -1893,6 +1895,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 							case DNN_CONGESTION, S_NSSAI_CONGESTION:
 								cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 							}
+						} else {
+							ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionID)
 						}
 						errCause = append(errCause, cause)
 					} else if ue.RanUe[anType].UeContextRequest {
