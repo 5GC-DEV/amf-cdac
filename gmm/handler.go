@@ -894,7 +894,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 									cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 								}
 							} else {
-							ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionID)
+							ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionId)
 							}
 							errCause = append(errCause, cause)
 
