@@ -878,6 +878,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 				if smContext, ok := ue.SmContextFindByPDUSessionID(pduSessionId); ok {
 					// uplink data are pending for the corresponding PDU session identity
 					if hasUplinkData && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
+						ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d)", pduSessionId)
 						response, errResponse, problemDetail, err := consumer.SendUpdateSmContextActivateUpCnxState(
 							ue, smContext, anType)
 						if response == nil {
@@ -894,7 +895,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 									cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 								}
 							} else {
-								ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionId)
+								ue.GmmLog.Warnf("UpdateSmContext failed with errRes (pduSessionID=%d)", pduSessionId)
 							}
 							errCause = append(errCause, cause)
 
@@ -1877,6 +1878,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 				ue.GmmLog.Info("---pdusessionid: ", pduSessionID)
 				ue.GmmLog.Info("---targetPduSessionId: ", targetPduSessionId)
 				if uplinkDataPsi[pduSessionID] && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
+					ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d)", pduSessionId)
 					response, errRes, _, err := consumer.SendUpdateSmContextActivateUpCnxState(
 						ue, smContext, models.AccessType__3_GPP_ACCESS)
 					if err != nil {
@@ -1896,7 +1898,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 								cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 							}
 						} else {
-							ue.GmmLog.Warnf("UpdateSmContext failed: response and errRes both nil (pduSessionID=%d)", pduSessionID)
+							ue.GmmLog.Errorf("UpdateSmContext failed with errRes (pduSessionID=%d)", pduSessionID)
 						}
 						errCause = append(errCause, cause)
 					} else if ue.RanUe[anType].UeContextRequest {
