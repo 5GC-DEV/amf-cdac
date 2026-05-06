@@ -810,7 +810,6 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
-		metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 0)
 	}
 }
 
