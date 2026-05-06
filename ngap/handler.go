@@ -1237,6 +1237,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 							// PDU session, the network shall ignore the message.
 							continue
 						}
+						ranUe.Log.Infof("send update smcontext deactivate request (pduSessionID=%d)", pduSessionID)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
 						if err != nil {
 							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
@@ -1248,6 +1249,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 					ranUe.Log.Infoln("Pdu Session IDs not received from gNB, Releasing the UE Context with SMF using local context")
 					amfUe.SmContextList.Range(func(key, value interface{}) bool {
 						smContext := value.(*context.SmContext)
+						ranUe.Log.Infof("send update smcontext deactivate request")
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
 						if err != nil {
 							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
@@ -2819,6 +2821,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							ranUe.Log.Errorf("SmContext[PDU Session ID:%d] not found", pduSessionID)
 							continue
 						}
+						ranUe.Log.Infof("send update smcontext deactivate request (pduSessionID=%d)", pduSessionID)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
 						if err != nil {
 							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
@@ -2834,6 +2837,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							ranUe.Log.Infoln("Pdu Session is inactive so not sending deactivate to SMF")
 							return false
 						}
+						ranUe.Log.Infof("send update smcontext deactivate request ")
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
 						if err != nil {
 							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
