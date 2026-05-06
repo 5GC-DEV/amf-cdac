@@ -104,11 +104,20 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
 
 					if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); ok {
+						// 	ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
+						// 	if err != nil {
+						// 		ran.Log.Errorf("NewRanUe Error: %+v", err)
+						// 	}
+						// 	ranUe.Log.Warnf("known UE [GUTI: %s]", guti)
+						// 	amfUe.AttachRanUe(ranUe)
+						if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure != context.OnGoingProcedureNothing {
+							ran.Log.Warnf("---Skip AttachRanUe due to ongoing procedure")
+							return ranUe, aMFUENGAPID
+						}
 						ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 						if err != nil {
 							ran.Log.Errorf("NewRanUe Error: %+v", err)
 						}
-						ranUe.Log.Warnf("known UE [GUTI: %s]", guti)
 						amfUe.AttachRanUe(ranUe)
 					}
 				}

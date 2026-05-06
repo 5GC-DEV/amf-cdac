@@ -39,11 +39,12 @@ import (
 type OnGoingProcedure string
 
 const (
-	OnGoingProcedureNothing      OnGoingProcedure = "Nothing"
-	OnGoingProcedurePaging       OnGoingProcedure = "Paging"
-	OnGoingProcedureN2Handover   OnGoingProcedure = "N2Handover"
-	OnGoingProcedureRegistration OnGoingProcedure = "Registration"
-	OnGoingProcedureAbort        OnGoingProcedure = "Abort"
+	OnGoingProcedureNothing        OnGoingProcedure = "Nothing"
+	OnGoingProcedurePaging         OnGoingProcedure = "Paging"
+	OnGoingProcedureN2Handover     OnGoingProcedure = "N2Handover"
+	OnGoingProcedureRegistration   OnGoingProcedure = "Registration"
+	OnGoingProcedureAbort          OnGoingProcedure = "Abort"
+	OnGoingProcedureServiceRequest OnGoingProcedure = "ServiceRequest"
 )
 
 const (

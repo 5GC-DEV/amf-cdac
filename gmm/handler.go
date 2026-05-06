@@ -1781,7 +1781,9 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	} else if procedure != context.OnGoingProcedureNothing {
 		ue.GmmLog.Warnf("UE should not in OnGoing[%s]", procedure)
 	}
-
+	ue.SetOnGoing(anType, &context.OnGoingProcedureWithPrio{
+		Procedure: context.OnGoingProcedureServiceRequest,
+	})
 	// Send Authtication / Security Procedure not support
 	// Rejecting ServiceRequest if it is received in Deregistered State
 	if !ue.SecurityContextIsValid() || ue.State[anType].Current() == context.Deregistered {
@@ -2125,6 +2127,9 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		ue.GmmLog.Info(errPduSessionId, errCause)
 	}
 	ue.N1N2Message = nil
+	ue.SetOnGoing(anType, &context.OnGoingProcedureWithPrio{
+		Procedure: context.OnGoingProcedureNothing,
+	})
 	return nil
 }
 
