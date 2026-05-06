@@ -82,6 +82,8 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					ran.Log.Debugln("decode IE 5G-S-TMSI")
 				}
 			}
+			ran.Log.Debugln("---ran gnbid: ", ran.GnbId)
+			ran.Log.Debugln("---ran gnbip: ", ran.GnbIp)
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			if ranUe == nil {
 				var err error
