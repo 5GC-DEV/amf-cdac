@@ -16,7 +16,6 @@ import (
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/5GC-DEV/openapi-cdac/models"
 	mi "github.com/5GC-DEV/util-cdac/metricinfo"
-	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
@@ -82,7 +81,7 @@ func (ran *AmfRan) Remove() {
 	}
 
 	ran.SetRanStats(RanDisconnected)
-	metrics.SetNoOfGnbConnectionStats(context.AMF_Self().NfId, ran.GnbId, ran.GnbIp, 0)
+	metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 0)
 	ran.Log.Infof("remove RAN Context[ID: %+v]", ran.RanID())
 	metrics.IncrementGnbDisconnStats(ran.Name, ran.GnbIp, "success")
 	ran.RemoveAllUeInRan()

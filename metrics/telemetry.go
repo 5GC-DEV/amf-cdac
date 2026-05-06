@@ -105,7 +105,7 @@ func initAmfStats() *AmfStats {
 		noOfGnbConnect: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Name: "gnb_connected_total",
 			Help: "GNB connections total",
-		}, []string{"id", "gnb_id", "gnb_ip"}),
+		}, []string{"name", "gnb_id", "gnb_ip"}),
 
 		noOfActiveSub: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "active_subscribers_total",
@@ -247,8 +247,8 @@ func SetNoOfUeConnectionStats(id, suci, guti string, count uint64) {
 }
 
 // SetNoOfGnbConnectionStats maintains total gNB connections info
-func SetNoOfGnbConnectionStats(id, gnbid, gnbip string, count uint64) {
-	amfStats.noOfGnbConnect.WithLabelValues(id, gnbid, gnbip).Set(float64(count))
+func SetNoOfGnbConnectionStats(name, gnbid, gnbip string, count uint64) {
+	amfStats.noOfGnbConnect.WithLabelValues(name, gnbid, gnbip).Set(float64(count))
 }
 
 // SetNoOfActiveSubStats maintains total active subscribers info
