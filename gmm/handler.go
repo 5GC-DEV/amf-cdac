@@ -1758,7 +1758,6 @@ func HandleUeSliceInfoAdd(ue *context.AmfUe, accessType models.AccessType, nssai
 
 // TS 24501 5.6.1
 func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType, serviceRequest *nasMessage.ServiceRequest) error {
-
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
