@@ -1761,6 +1761,10 @@ func HandleUeSliceInfoAdd(ue *context.AmfUe, accessType models.AccessType, nssai
 func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	serviceRequest *nasMessage.ServiceRequest,
 ) error {
+
+	ue.Mutex.Lock()
+	defer ue.Mutex.Unlock()
+
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
@@ -1784,9 +1788,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	} else if procedure != context.OnGoingProcedureNothing {
 		ue.GmmLog.Warnf("UE should not in OnGoing[%s]", procedure)
 	}
-	ue.SetOnGoing(anType, &context.OnGoingProcedureWithPrio{
-		Procedure: context.OnGoingProcedureServiceRequest,
-	})
+
 	// Send Authtication / Security Procedure not support
 	// Rejecting ServiceRequest if it is received in Deregistered State
 	if !ue.SecurityContextIsValid() || ue.State[anType].Current() == context.Deregistered {
@@ -1877,8 +1879,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			smContext := value.(*context.SmContext)
 
 			if pduSessionID != targetPduSessionId {
-				ue.GmmLog.Info("---pdusessionid: ", pduSessionID)
-				ue.GmmLog.Info("---targetPduSessionId: ", targetPduSessionId)
+				ue.GmmLog.Debug("pdusessionid: ", pduSessionID)
+				ue.GmmLog.Debug("targetPduSessionId: ", targetPduSessionId)
 				if uplinkDataPsi[pduSessionID] && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
 					ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d)", pduSessionID)
 					response, errRes, _, err := consumer.SendUpdateSmContextActivateUpCnxState(
@@ -2061,7 +2063,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	case nasMessage.ServiceTypeData:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
-			ue.GmmLog.Warnf("---TAI received as nil")
+			ue.GmmLog.Warnf("TAI received as nil")
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}
@@ -2095,7 +2097,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	case nasMessage.ServiceTypeHighPriorityAccess:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
-			ue.GmmLog.Warnf("---TAI received as nil")
+			ue.GmmLog.Warnf("TAI received as nil")
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}
@@ -2133,9 +2135,6 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 		ue.GmmLog.Info(errPduSessionId, errCause)
 	}
 	ue.N1N2Message = nil
-	ue.SetOnGoing(anType, &context.OnGoingProcedureWithPrio{
-		Procedure: context.OnGoingProcedureNothing,
-	})
 	return nil
 }
 

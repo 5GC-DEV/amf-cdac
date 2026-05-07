@@ -175,7 +175,9 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
 
+	ue.Mutex.Lock()
 	ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUe = ue
+	ue.Mutex.Unlock()
 	AMF_Self().RanUePool.Store(ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId, ue.RanUe[models.AccessType__3_GPP_ACCESS])
 	AMF_Self().UePool.Store(ue.Supi, ue)
 	ue.EventChannel = nil

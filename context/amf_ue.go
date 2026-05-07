@@ -39,12 +39,11 @@ import (
 type OnGoingProcedure string
 
 const (
-	OnGoingProcedureNothing        OnGoingProcedure = "Nothing"
-	OnGoingProcedurePaging         OnGoingProcedure = "Paging"
-	OnGoingProcedureN2Handover     OnGoingProcedure = "N2Handover"
-	OnGoingProcedureRegistration   OnGoingProcedure = "Registration"
-	OnGoingProcedureAbort          OnGoingProcedure = "Abort"
-	OnGoingProcedureServiceRequest OnGoingProcedure = "ServiceRequest"
+	OnGoingProcedureNothing      OnGoingProcedure = "Nothing"
+	OnGoingProcedurePaging       OnGoingProcedure = "Paging"
+	OnGoingProcedureN2Handover   OnGoingProcedure = "N2Handover"
+	OnGoingProcedureRegistration OnGoingProcedure = "Registration"
+	OnGoingProcedureAbort        OnGoingProcedure = "Abort"
 )
 
 const (
@@ -517,7 +516,9 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
+	ue.Mutex.Lock()
 	ranUe.AmfUe = ue
+	ue.Mutex.Unlock()
 
 	go func() {
 		time.Sleep(time.Second * 2)
@@ -525,7 +526,9 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 			// Modified to detach the old RanUe without affecting the current AmfUe
 			// TODO:The scenario of testing with different gNBs for the same UE has not been conducted.
 			if oldRanUe != ranUe {
+				ue.Mutex.Lock()
 				oldRanUe.AmfUe = nil
+				ue.Mutex.Unlock()
 				logger.ContextLog.Info("Detached UeContext from OldRanUe")
 			}
 			// Modification END
@@ -1054,7 +1057,9 @@ func (ue *AmfUe) SetEventChannel(handler func(*AmfUe, NgapMsg)) {
 	if ue.EventChannel == nil {
 		ue.TxLog.Errorf("Creating new AmfUe EventChannel")
 		ue.EventChannel = ue.NewEventChannel()
+		ue.Mutex.Lock()
 		ue.EventChannel.AmfUe = ue
+		ue.Mutex.Unlock()
 		ue.EventChannel.UpdateNgapHandler(handler)
 		go ue.EventChannel.Start()
 	}

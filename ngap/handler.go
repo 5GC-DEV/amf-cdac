@@ -82,8 +82,8 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					ran.Log.Debugln("decode IE 5G-S-TMSI")
 				}
 			}
-			ran.Log.Debugln("---ran gnbid: ", ran.GnbId)
-			ran.Log.Debugln("---ran gnbip: ", ran.GnbIp)
+			ran.Log.Debugln("ran gnbid: ", ran.GnbId)
+			ran.Log.Debugln("ran gnbip: ", ran.GnbIp)
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			if ranUe == nil {
 				var err error
@@ -106,20 +106,13 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
 
 					if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); ok {
-						// 	ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
-						// 	if err != nil {
-						// 		ran.Log.Errorf("NewRanUe Error: %+v", err)
-						// 	}
-						// 	ranUe.Log.Warnf("known UE [GUTI: %s]", guti)
-						// 	amfUe.AttachRanUe(ranUe)
-						if amfUe.GetOnGoing(amfUe.GetAnType()).Procedure != context.OnGoingProcedureNothing {
-							ran.Log.Warnf("---Skip AttachRanUe due to ongoing procedure")
-							return ranUe, aMFUENGAPID
-						}
+						amfUe.Mutex.Lock()
+						defer amfUe.Mutex.Unlock()
 						ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 						if err != nil {
 							ran.Log.Errorf("NewRanUe Error: %+v", err)
 						}
+						ranUe.Log.Warnf("known UE [GUTI: %s]", guti)
 						amfUe.AttachRanUe(ranUe)
 					}
 				}
@@ -1241,6 +1234,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 						}
 						ranUe.Log.Infof("send update smcontext deactivate request (pduSessionID=%d)", pduSessionID)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+						ran.Log.Debugf("RanUeNgapId: ", amfUe.RanUe[ran.AnType].RanUeNgapId)
+						ran.Log.Debugf("AmfUeNgapId: ", amfUe.RanUe[ran.AnType].AmfUeNgapId)
+						ran.Log.Debugf("Supi: ", amfUe.Supi)
 						if err != nil {
 							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
 						} else if response == nil {
@@ -1253,6 +1249,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 						smContext := value.(*context.SmContext)
 						ranUe.Log.Infof("send update smcontext deactivate request")
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
+						ran.Log.Debugf("RanUeNgapId: ", amfUe.RanUe[ran.AnType].RanUeNgapId)
+						ran.Log.Debugf("AmfUeNgapId: ", amfUe.RanUe[ran.AnType].AmfUeNgapId)
+						ran.Log.Debugf("Supi: ", amfUe.Supi)
 						if err != nil {
 							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
 						} else if response == nil {
@@ -1780,10 +1779,10 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	}
 
 	if userLocationInformation != nil {
-		ranUe.Log.Info("---Request contains userLocationInformation ")
+		ranUe.Log.Debugf("Request contains userLocationInformation ")
 		ranUe.UpdateLocation(userLocationInformation)
 	} else {
-		ranUe.Log.Warn("---Request not contains userLocationInformation ")
+		ranUe.Log.Warn("Request not contains userLocationInformation ")
 	}
 
 	if rRCEstablishmentCause != nil {
@@ -2824,6 +2823,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							continue
 						}
 						ranUe.Log.Infof("send update smcontext deactivate request (pduSessionID=%d)", pduSessionID)
+						ranUe.Log.Debugf("RanUeNgapId: ", amfUe.RanUe[ran.AnType].RanUeNgapId)
+						ranUe.Log.Debugf("AmfUeNgapId: ", amfUe.RanUe[ran.AnType].AmfUeNgapId)
+						ranUe.Log.Debugf("Supi: ", amfUe.Supi)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
 						if err != nil {
 							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
@@ -2840,6 +2842,9 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							return false
 						}
 						ranUe.Log.Infof("send update smcontext deactivate request ")
+						ranUe.Log.Debugf("RanUeNgapId: ", amfUe.RanUe[ran.AnType].RanUeNgapId)
+						ranUe.Log.Debugf("AmfUeNgapId: ", amfUe.RanUe[ran.AnType].AmfUeNgapId)
+						ranUe.Log.Debugf("Supi: ", amfUe.Supi)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, causeAll)
 						if err != nil {
 							ranUe.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())

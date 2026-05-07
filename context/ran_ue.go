@@ -161,7 +161,6 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 	curTime := time.Now().UTC()
 	switch userLocationInformation.Present {
 	case ngapType.UserLocationInformationPresentUserLocationInformationEUTRA:
-		logger.ContextLog.Info("---userlocinfo EUTRA")
 		locationInfoEUTRA := userLocationInformation.UserLocationInformationEUTRA
 		if ranUe.Location.EutraLocation == nil {
 			ranUe.Location.EutraLocation = new(models.EutraLocation)
@@ -177,7 +176,6 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 		ranUe.Location.EutraLocation.Tai.PlmnId = &plmnID
 		ranUe.Location.EutraLocation.Tai.Tac = tac
 		ranUe.Tai = *ranUe.Location.EutraLocation.Tai
-		logger.ContextLog.Info("---ranue.Tai: %v", ranUe.Tai)
 
 		eUTRACGI := locationInfoEUTRA.EUTRACGI
 		ePlmnID := ngapConvert.PlmnIdToModels(eUTRACGI.PLMNIdentity)
@@ -199,10 +197,9 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 			}
 			ranUe.AmfUe.Location = deepcopy.Copy(ranUe.Location).(models.UserLocation)
 			ranUe.AmfUe.Tai = deepcopy.Copy(*ranUe.AmfUe.Location.EutraLocation.Tai).(models.Tai)
-			logger.ContextLog.Info("---ranUe.AmfUe.Tai: %v", ranUe.AmfUe.Tai)
 		}
 	case ngapType.UserLocationInformationPresentUserLocationInformationNR:
-		logger.ContextLog.Info("---userlocinfo NR")
+		logger.ContextLog.Debug("userlocinfo NR")
 		locationInfoNR := userLocationInformation.UserLocationInformationNR
 		if ranUe.Location.NrLocation == nil {
 			ranUe.Location.NrLocation = new(models.NrLocation)
@@ -218,7 +215,7 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 		ranUe.Location.NrLocation.Tai.PlmnId = &plmnID
 		ranUe.Location.NrLocation.Tai.Tac = tac
 		ranUe.Tai = deepcopy.Copy(*ranUe.Location.NrLocation.Tai).(models.Tai)
-		logger.ContextLog.Info("---ranue.Tai: %v", ranUe.Tai)
+		logger.ContextLog.Debug("ranue Tai: %v", ranUe.Tai)
 
 		nRCGI := locationInfoNR.NRCGI
 		nRPlmnID := ngapConvert.PlmnIdToModels(nRCGI.PLMNIdentity)
@@ -234,12 +231,14 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 			ranUe.Location.NrLocation.AgeOfLocationInformation = ngapConvert.TimeStampToInt32(locationInfoNR.TimeStamp.Value)
 		}
 		if ranUe.AmfUe != nil {
+			ranUe.AmfUe.Mutex.Lock()
+			defer ranUe.AmfUe.Mutex.Unlock()
 			if ranUe.AmfUe.Tai != ranUe.Tai {
 				ranUe.AmfUe.LocationChanged = true
 			}
 			ranUe.AmfUe.Location = deepcopy.Copy(ranUe.Location).(models.UserLocation)
 			ranUe.AmfUe.Tai = deepcopy.Copy(*ranUe.AmfUe.Location.NrLocation.Tai).(models.Tai)
-			logger.ContextLog.Info("---ranUe.AmfUe.Tai: %v", ranUe.AmfUe.Tai)
+			logger.ContextLog.Debug("ranUe.AmfUe.Tai: %v", ranUe.AmfUe.Tai)
 		}
 	case ngapType.UserLocationInformationPresentUserLocationInformationN3IWF:
 		locationInfoN3IWF := userLocationInformation.UserLocationInformationN3IWF
