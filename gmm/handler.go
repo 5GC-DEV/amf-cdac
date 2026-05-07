@@ -1761,12 +1761,11 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	serviceRequest *nasMessage.ServiceRequest,
 ) error {
 
-	ue.Mutex.Lock()
-	defer ue.Mutex.Unlock()
-
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
+	ue.Mutex.Lock()
+	defer ue.Mutex.Unlock()
 
 	ue.GmmLog.Info("Handle Service Request")
 
