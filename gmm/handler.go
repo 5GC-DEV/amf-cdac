@@ -760,7 +760,6 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 	} else {
 		ue.Non3gppDeregistrationTimerValue = amfSelf.Non3gppDeregistrationTimerValue
 	}
-
 	if anType == models.AccessType__3_GPP_ACCESS {
 		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
