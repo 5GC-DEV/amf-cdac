@@ -99,6 +99,12 @@ func ConvertHexToOctalbytes(hexstring string) []byte {
 }
 
 func IsTaiEqual(servedTai models.Tai, targetTai models.Tai) bool {
+	if servedTai.PlmnId == nil || servedTai.Tac == "" {
+		return false
+	}
+	if targetTai.PlmnId == nil || targetTai.Tac == "" {
+		return false
+	}
 	return servedTai.PlmnId.Mcc == targetTai.PlmnId.Mcc && servedTai.PlmnId.Mnc == targetTai.PlmnId.Mnc && servedTai.Tac == targetTai.Tac
 }
 

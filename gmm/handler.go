@@ -530,7 +530,9 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 
 	// Copy UserLocation from ranUe
 	ue.Location = ue.RanUe[anType].Location
+	ue.Mutex.Lock()
 	ue.Tai = ue.RanUe[anType].Tai
+	ue.Mutex.Unlock()
 
 	// Check TAI
 	taiList := make([]models.Tai, len(amfSelf.SupportTaiLists))
@@ -878,13 +880,14 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 				if smContext, ok := ue.SmContextFindByPDUSessionID(pduSessionId); ok {
 					// uplink data are pending for the corresponding PDU session identity
 					if hasUplinkData && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
+						ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d),(Amfuengapid:%d)", pduSessionId, ue.RanUe[anType].AmfUeNgapId)
 						response, errResponse, problemDetail, err := consumer.SendUpdateSmContextActivateUpCnxState(
 							ue, smContext, anType)
 						if response == nil {
 							reactivationResult[pduSessionId] = true
 							errPduSessionId = append(errPduSessionId, uint8(pduSessionId))
 							cause := nasMessage.Cause5GMMProtocolErrorUnspecified
-							if errResponse != nil {
+							if errResponse != nil && errResponse.JsonData != nil && errResponse.JsonData.Error != nil {
 								switch errResponse.JsonData.Error.Cause {
 								case OUT_OF_LADN_SERVICE_AREA:
 									cause = nasMessage.Cause5GMMLADNNotAvailable
@@ -893,6 +896,8 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 								case DNN_CONGESTION, S_NSSAI_CONGESTION:
 									cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 								}
+							} else {
+								ue.GmmLog.Warnf("UpdateSmContext failed with errRes (pduSessionID=%d), (Amfuengapid:%d)", pduSessionId, ue.RanUe[anType].AmfUeNgapId)
 							}
 							errCause = append(errCause, cause)
 
@@ -1761,7 +1766,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
-
+	ue.Mutex.Lock()
+	defer ue.Mutex.Unlock()
 	ue.GmmLog.Info("Handle Service Request")
 
 	if ue.T3513 != nil {
@@ -1872,7 +1878,10 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 			smContext := value.(*context.SmContext)
 
 			if pduSessionID != targetPduSessionId {
+				ue.GmmLog.Debugf("pdusessionid: %d, Ranuengapid: %d", pduSessionID, ue.RanUe[anType].RanUeNgapId)
+				ue.GmmLog.Debugf("targetPduSessionId: %d, Ranuengapid: %d", targetPduSessionId, ue.RanUe[anType].RanUeNgapId)
 				if uplinkDataPsi[pduSessionID] && smContext.AccessType() == models.AccessType__3_GPP_ACCESS {
+					ue.GmmLog.Infof("send update smcontext activate request (pduSessionID=%d), (Amfuengapid:%d)", pduSessionID, ue.RanUe[anType].AmfUeNgapId)
 					response, errRes, _, err := consumer.SendUpdateSmContextActivateUpCnxState(
 						ue, smContext, models.AccessType__3_GPP_ACCESS)
 					if err != nil {
@@ -1882,7 +1891,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 						reactivationResult[pduSessionID] = true
 						errPduSessionId = append(errPduSessionId, uint8(pduSessionID))
 						cause := nasMessage.Cause5GMMProtocolErrorUnspecified
-						if errRes != nil {
+						if errRes != nil && errRes.JsonData != nil && errRes.JsonData.Error != nil {
 							switch errRes.JsonData.Error.Cause {
 							case OUT_OF_LADN_SERVICE_AREA:
 								cause = nasMessage.Cause5GMMLADNNotAvailable
@@ -1891,6 +1900,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 							case DNN_CONGESTION, S_NSSAI_CONGESTION:
 								cause = nasMessage.Cause5GMMInsufficientUserPlaneResourcesForThePDUSession
 							}
+						} else {
+							ue.GmmLog.Errorf("UpdateSmContext failed with errRes (pduSessionID=%d), (Amfuengapid:%d)", pduSessionID, ue.RanUe[anType].AmfUeNgapId)
 						}
 						errCause = append(errCause, cause)
 					} else if ue.RanUe[anType].UeContextRequest {
@@ -2051,6 +2062,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	case nasMessage.ServiceTypeData:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
+			ue.GmmLog.Warnf("TAI received as nil for Ranuengapid: %d", ue.RanUe[anType].RanUeNgapId)
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}
@@ -2084,6 +2096,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	case nasMessage.ServiceTypeHighPriorityAccess:
 		plmnAccept := context.IsTaiEqual(ue.Tai, ue.RanUe[anType].Tai)
 		if !plmnAccept {
+			ue.GmmLog.Warnf("TAI received as nil for Ranuengapid: %d", ue.RanUe[anType].RanUeNgapId)
 			gmm_message.SendServiceReject(ue.RanUe[anType], nil, nasMessage.Cause5GMMTrackingAreaNotAllowed)
 			return nil
 		}

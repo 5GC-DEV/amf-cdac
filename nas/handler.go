@@ -23,6 +23,8 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		logger.NasLog.Errorln("RanUe is nil")
 		return
 	}
+	ue.AmfUe.Mutex.Lock()
+	defer ue.AmfUe.Mutex.Unlock()
 
 	if nasPdu == nil {
 		ue.Log.Errorln("nasPdu is nil")
