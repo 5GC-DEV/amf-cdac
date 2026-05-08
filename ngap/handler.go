@@ -104,6 +104,8 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
 
 					if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); ok {
+						amfUe.Mutex.Lock()
+						defer amfUe.Mutex.Unlock()
 						ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 						if err != nil {
 							ran.Log.Errorf("NewRanUe Error: %+v", err)

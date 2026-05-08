@@ -530,7 +530,9 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 
 	// Copy UserLocation from ranUe
 	ue.Location = ue.RanUe[anType].Location
+	ue.Mutex.Lock()
 	ue.Tai = ue.RanUe[anType].Tai
+	ue.Mutex.Unlock()
 
 	// Check TAI
 	taiList := make([]models.Tai, len(amfSelf.SupportTaiLists))
@@ -1761,7 +1763,8 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	if ue == nil {
 		return fmt.Errorf("AmfUe is nil")
 	}
-
+	ue.Mutex.Lock()
+	defer ue.Mutex.Unlock()
 	ue.GmmLog.Info("Handle Service Request")
 
 	if ue.T3513 != nil {

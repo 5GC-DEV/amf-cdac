@@ -229,6 +229,8 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 			ranUe.Location.NrLocation.AgeOfLocationInformation = ngapConvert.TimeStampToInt32(locationInfoNR.TimeStamp.Value)
 		}
 		if ranUe.AmfUe != nil {
+			ranUe.AmfUe.Mutex.Lock()
+			defer ranUe.AmfUe.Mutex.Unlock()
 			if ranUe.AmfUe.Tai != ranUe.Tai {
 				ranUe.AmfUe.LocationChanged = true
 			}
