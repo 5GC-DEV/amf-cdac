@@ -199,6 +199,7 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 			ranUe.AmfUe.Tai = deepcopy.Copy(*ranUe.AmfUe.Location.EutraLocation.Tai).(models.Tai)
 		}
 	case ngapType.UserLocationInformationPresentUserLocationInformationNR:
+		logger.ContextLog.Debugf("userlocinfo NR, RanUeNgapId: %d", ranUe.RanUeNgapId)
 		locationInfoNR := userLocationInformation.UserLocationInformationNR
 		if ranUe.Location.NrLocation == nil {
 			ranUe.Location.NrLocation = new(models.NrLocation)
@@ -214,7 +215,7 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 		ranUe.Location.NrLocation.Tai.PlmnId = &plmnID
 		ranUe.Location.NrLocation.Tai.Tac = tac
 		ranUe.Tai = deepcopy.Copy(*ranUe.Location.NrLocation.Tai).(models.Tai)
-
+		logger.ContextLog.Debugf("ranue Tai: %v, Ranuengapid: %d", ranUe.Tai, ranUe.RanUeNgapId)
 		nRCGI := locationInfoNR.NRCGI
 		nRPlmnID := ngapConvert.PlmnIdToModels(nRCGI.PLMNIdentity)
 		nRCellID := ngapConvert.BitStringToHex(&nRCGI.NRCellIdentity.Value)
@@ -236,6 +237,7 @@ func (ranUe *RanUe) UpdateLocation(userLocationInformation *ngapType.UserLocatio
 			}
 			ranUe.AmfUe.Location = deepcopy.Copy(ranUe.Location).(models.UserLocation)
 			ranUe.AmfUe.Tai = deepcopy.Copy(*ranUe.AmfUe.Location.NrLocation.Tai).(models.Tai)
+			logger.ContextLog.Debugf("ranUe.AmfUe.Tai: %v, Ranuengapid: %d", ranUe.AmfUe.Tai, ranUe.RanUeNgapId)
 		}
 	case ngapType.UserLocationInformationPresentUserLocationInformationN3IWF:
 		locationInfoN3IWF := userLocationInformation.UserLocationInformationN3IWF
