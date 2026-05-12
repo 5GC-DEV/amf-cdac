@@ -37,6 +37,7 @@ type AmfStats struct {
 	noOfActiveSub     prometheus.Gauge
 	activeSubPerSlice *prometheus.GaugeVec
 	noOfActiveGnb     prometheus.Gauge
+	gnbConnect        *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -119,9 +120,14 @@ func initAmfStats() *AmfStats {
 		}, []string{"sst", "sd"}),
 
 		noOfActiveGnb: prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "active_gNB_total_amf",
+			Name: "amf_active_gNB",
 			Help: "current number of active gNB's in the core",
 		}),
+
+		gnbConnect: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_gnb_connected_total",
+			Help: "Counter of total gNB connections",
+		}, []string{"gnb_id", "gnb_ip", "name"}),
 	}
 }
 
@@ -174,6 +180,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.noOfActiveGnb); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.gnbConnect); err != nil {
 		return err
 	}
 	return nil
@@ -274,6 +283,12 @@ func SetActiveSubPerSliceStats(sst, sd string, count uint64) {
 
 // SetNoOfActiveSubStats maintains total active subscribers info
 func SetNoOfActiveGnbStats(count uint64) {
-	logger.InitLog.Info("---in SetNoOfActiveSubStats()")
+	logger.InitLog.Info("---in SetNoOfActiveGnbStats()")
 	amfStats.noOfActiveGnb.Set(float64(count))
+}
+
+// IncrementGnbConnStats maintains gnb connection level stats
+func IncrementGnbConnStats(gnbid, gnbip, name string) {
+	logger.InitLog.Info("---in IncrementGnbConnStats()")
+	amfStats.gnbConnect.WithLabelValues(gnbid, gnbip, name).Inc()
 }

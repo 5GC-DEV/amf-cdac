@@ -801,6 +801,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		})
 		logger.GmmLog.Info("---active gnb when gnb connected")
 		metrics.SetNoOfActiveGnbStats(uint64(count))
+		metrics.IncrementGnbConnStats(ran.GnbId, ran.GnbIp, ran.Name)
 		// send nf(gnb) status notification
 		gnbStatus := mi.MetricEvent{
 			EventType: mi.CNfStatusEvt,
