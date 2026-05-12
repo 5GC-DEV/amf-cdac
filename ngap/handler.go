@@ -794,6 +794,13 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
 		metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 1)
+		count := 0
+		context.AMF_Self().AmfRanPool.Range(func(key, value interface{}) bool {
+			count++
+			return true
+		})
+		logger.GmmLog.Info("---active gnb when gnb connected")
+		metrics.SetNoOfActiveGnbStats(uint64(count))
 		// send nf(gnb) status notification
 		gnbStatus := mi.MetricEvent{
 			EventType: mi.CNfStatusEvt,

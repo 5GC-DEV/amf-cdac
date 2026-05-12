@@ -36,6 +36,7 @@ type AmfStats struct {
 	noOfGnbConnect    *prometheus.GaugeVec
 	noOfActiveSub     prometheus.Gauge
 	activeSubPerSlice *prometheus.GaugeVec
+	noOfActiveGnb     prometheus.Gauge
 }
 
 var amfStats *AmfStats
@@ -116,6 +117,11 @@ func initAmfStats() *AmfStats {
 			Name: "active_subscribers_per_slice",
 			Help: "current number of active subscribers per slice",
 		}, []string{"sst", "sd"}),
+
+		noOfActiveGnb: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "active_gNB_total_amf",
+			Help: "current number of active gNB's in the core",
+		}),
 	}
 }
 
@@ -165,6 +171,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.activeSubPerSlice); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.noOfActiveGnb); err != nil {
 		return err
 	}
 	return nil
@@ -261,4 +270,10 @@ func SetNoOfActiveSubStats(count uint64) {
 func SetActiveSubPerSliceStats(sst, sd string, count uint64) {
 	logger.InitLog.Info("---in SetActiveSubPerSliceStats()")
 	amfStats.activeSubPerSlice.WithLabelValues(sst, sd).Set(float64(count))
+}
+
+// SetNoOfActiveSubStats maintains total active subscribers info
+func SetNoOfActiveGnbStats(count uint64) {
+	logger.InitLog.Info("---in SetNoOfActiveSubStats()")
+	amfStats.noOfActiveGnb.Set(float64(count))
 }
