@@ -711,7 +711,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 
 	problemDetails, err := consumer.AMPolicyControlCreate(ue, anType)
 	if problemDetails != nil {
-		ue.GmmLog.Errorf("AM Policy Control Create Failed Problem[%+v]", problemDetails)
+		ue.GmmLog.Errorf("[%+v]", problemDetails)
 		gmm_message.SendRegistrationReject(ue.RanUe[anType], nasMessage.Cause5GMM5GSServicesNotAllowed, "")
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "failure")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 0)
@@ -1639,6 +1639,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	}
 	ue.GmmLog.Infoln("ngKSI after 5G-AKA:", ue.NgKsi.Ksi)
 	gmm_message.SendAuthenticationRequest(ue.RanUe[accessType])
+	metrics.IncrementAuthReqStats(ue.Suci)
 	return false, nil
 }
 

@@ -38,6 +38,7 @@ type AmfStats struct {
 	activeSubPerSlice *prometheus.GaugeVec
 	noOfActiveGnb     prometheus.Gauge
 	gnbConnect        *prometheus.CounterVec
+	AuthRequestTotal  *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -128,6 +129,11 @@ func initAmfStats() *AmfStats {
 			Name: "amf_gnb_connected_total",
 			Help: "Counter of total gNB connections",
 		}, []string{"gnb_id", "gnb_ip", "name"}),
+
+		AuthRequestTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_auth_request_total",
+			Help: "Counter of total authentication request send",
+		}, []string{"supi"}),
 	}
 }
 
@@ -185,6 +191,9 @@ func (ps *AmfStats) register() error {
 	if err := prometheus.Register(ps.gnbConnect); err != nil {
 		return err
 	}
+	if err := prometheus.Register(ps.AuthRequestTotal); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -216,6 +225,7 @@ func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 
 // IncrementUeRegStats increments registration level stats
 func IncrementUeRegStats(amfID, result string) {
+	logger.InitLog.Info("---in IncrementUeRegStats")
 	amfStats.ueReg.WithLabelValues(amfID, result).Inc()
 }
 
@@ -291,4 +301,10 @@ func SetNoOfActiveGnbStats(count uint64) {
 func IncrementGnbConnStats(gnbid, gnbip, name string) {
 	logger.InitLog.Info("---in IncrementGnbConnStats()")
 	amfStats.gnbConnect.WithLabelValues(gnbid, gnbip, name).Inc()
+}
+
+// IncrementAuthReqStats maintains gnb connection level stats
+func IncrementAuthReqStats(supi string) {
+	logger.InitLog.Info("---in IncrementAuthReqStats()")
+	amfStats.gnbConnect.WithLabelValues(supi).Inc()
 }
