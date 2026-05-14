@@ -793,7 +793,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 	if cause.Present == ngapType.CausePresentNothing {
 		ngap_message.SendNGSetupResponse(ran)
-		metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 1)
+		// metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 1)
 		count := 0
 		context.AMF_Self().AmfRanPool.Range(func(key, value interface{}) bool {
 			count++
