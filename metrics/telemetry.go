@@ -121,7 +121,7 @@ func initAmfStats() *AmfStats {
 		}, []string{"sst", "sd"}),
 
 		noOfActiveGnb: prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "amf_active_gNB",
+			Name: "amf_active_gnb",
 			Help: "current number of active gNB's in the core",
 		}),
 
@@ -294,6 +294,10 @@ func SetActiveSubPerSliceStats(sst, sd string, count uint64) {
 // SetNoOfActiveSubStats maintains total active subscribers info
 func SetNoOfActiveGnbStats(count uint64) {
 	logger.InitLog.Info("---in SetNoOfActiveGnbStats()")
+	logger.InitLog.Infof("Setting active GNB count = %d", count)
+	if amfStats.noOfActiveGnb == nil {
+		logger.InitLog.Error("noOfActiveGnb is nil")
+	}
 	amfStats.noOfActiveGnb.Set(float64(count))
 }
 
@@ -306,5 +310,5 @@ func IncrementGnbConnStats(gnbid, gnbip, name string) {
 // IncrementAuthReqStats maintains gnb connection level stats
 func IncrementAuthReqStats(supi string) {
 	logger.InitLog.Info("---in IncrementAuthReqStats()")
-	amfStats.gnbConnect.WithLabelValues(supi).Inc()
+	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
 }
