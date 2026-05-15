@@ -799,7 +799,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			count++
 			return true
 		})
-		logger.GmmLog.Info("---active gnb when gnb connected")
+		logger.GmmLog.Info("---total ran count in pool: %d", count)
 		metrics.SetNoOfActiveGnbStats(uint64(count))
 		metrics.IncrementGnbConnStats(ran.GnbId, ran.GnbIp, ran.Name)
 		// send nf(gnb) status notification
