@@ -81,7 +81,7 @@ func (ran *AmfRan) Remove() {
 	}
 
 	ran.SetRanStats(RanDisconnected)
-	metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 0)
+	// metrics.SetNoOfGnbConnectionStats(ran.Name, ran.GnbId, ran.GnbIp, 0)
 	ran.Log.Infof("remove RAN Context[ID: %+v]", ran.RanID())
 	metrics.IncrementGnbDisconnStats(ran.Name, ran.GnbIp, "success")
 	ran.RemoveAllUeInRan()
