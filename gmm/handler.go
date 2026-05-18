@@ -767,6 +767,12 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 1)
+		count := 0
+		context.AMF_Self().UePool.Range(func(key, value interface{}) bool {
+			count++
+			return true
+		})
+		metrics.SetNoOfActiveSubStats(uint64(count))
 	} else {
 		// TS 23.502 4.12.2.2 10a ~ 13: if non-3gpp, AMF should send initial context setup request to N3IWF first,
 		// and send registration accept after receiving initial context setup response
@@ -1636,6 +1642,7 @@ func AuthenticationProcedure(ue *context.AmfUe, accessType models.AccessType) (b
 	}
 	ue.GmmLog.Infoln("ngKSI after 5G-AKA:", ue.NgKsi.Ksi)
 	gmm_message.SendAuthenticationRequest(ue.RanUe[accessType])
+	metrics.IncrementAuthReqStats(ue.Suci)
 	return false, nil
 }
 

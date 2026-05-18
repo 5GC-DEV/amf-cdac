@@ -502,6 +502,12 @@ func (ue *AmfUe) Remove() {
 
 	if len(ue.Supi) > 0 {
 		AMF_Self().UePool.Delete(ue.Supi)
+		count := 0
+		AMF_Self().UePool.Range(func(key, value interface{}) bool {
+			count++
+			return true
+		})
+		metrics.SetNoOfActiveSubStats(uint64(count))
 	}
 	if ue.EventChannel != nil {
 		ue.EventChannel.Event <- "quit"

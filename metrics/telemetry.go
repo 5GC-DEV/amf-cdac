@@ -33,7 +33,10 @@ type AmfStats struct {
 	n2HandoverFail    *prometheus.CounterVec
 	nfNonReachable    *prometheus.CounterVec
 	noOfUeConnect     *prometheus.GaugeVec
-	noOfGnbConnect    *prometheus.GaugeVec
+	noOfActiveSub     prometheus.Gauge
+	noOfActiveGnb     prometheus.Gauge
+	gnbConnect        *prometheus.CounterVec
+	AuthRequestTotal  *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -100,10 +103,25 @@ func initAmfStats() *AmfStats {
 			Help: "UE connections total",
 		}, []string{"id", "supi", "guti"}),
 
-		noOfGnbConnect: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Name: "gnb_connected_total",
-			Help: "GNB connections total",
-		}, []string{"id", "gnb_id", "gnb_ip"}),
+		noOfActiveSub: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "amf_active_subscribers",
+			Help: "current number of active subscribers in the core",
+		}),
+
+		noOfActiveGnb: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "amf_active_gnb",
+			Help: "current number of active gNB's in the core",
+		}),
+
+		gnbConnect: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_gnb_connected_total",
+			Help: "Counter of total gNB connections",
+		}, []string{"gnb_id", "gnb_ip", "name"}),
+
+		AuthRequestTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_auth_request_total",
+			Help: "Counter of total authentication request send",
+		}, []string{"supi"}),
 	}
 }
 
@@ -146,7 +164,16 @@ func (ps *AmfStats) register() error {
 	if err := prometheus.Register(ps.noOfUeConnect); err != nil {
 		return err
 	}
-	if err := prometheus.Register(ps.noOfGnbConnect); err != nil {
+	if err := prometheus.Register(ps.noOfActiveSub); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.noOfActiveGnb); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.gnbConnect); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.AuthRequestTotal); err != nil {
 		return err
 	}
 	return nil
@@ -228,7 +255,22 @@ func SetNoOfUeConnectionStats(id, suci, guti string, count uint64) {
 	amfStats.noOfUeConnect.WithLabelValues(id, suci, guti).Set(float64(count))
 }
 
-// SetNoOfGnbConnectionStats maintains total gNB connections info
-func SetNoOfGnbConnectionStats(id, gnbid, gnbip string, count uint64) {
-	amfStats.noOfGnbConnect.WithLabelValues(id, gnbid, gnbip).Set(float64(count))
+// SetNoOfActiveSubStats maintains total active subscribers info
+func SetNoOfActiveSubStats(count uint64) {
+	amfStats.noOfActiveSub.Set(float64(count))
+}
+
+// SetNoOfActiveGnbStats maintains total active subscribers info
+func SetNoOfActiveGnbStats(count uint64) {
+	amfStats.noOfActiveGnb.Set(float64(count))
+}
+
+// IncrementGnbConnStats maintains gnb connection level stats
+func IncrementGnbConnStats(gnbid, gnbip, name string) {
+	amfStats.gnbConnect.WithLabelValues(gnbid, gnbip, name).Inc()
+}
+
+// IncrementAuthReqStats maintains gnb connection level stats
+func IncrementAuthReqStats(supi string) {
+	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
 }
