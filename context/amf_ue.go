@@ -516,8 +516,6 @@ func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	/* detach any RanUe associated to it */
-	ue.Mutex.Lock()
-	defer ue.Mutex.Unlock()
 	oldRanUe := ue.RanUe[ranUe.Ran.AnType]
 	ue.RanUe[ranUe.Ran.AnType] = ranUe
 	ranUe.AmfUe = ue
