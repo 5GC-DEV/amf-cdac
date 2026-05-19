@@ -90,6 +90,12 @@ func (ran *AmfRan) Remove() {
 		}
 	} else {
 		AMF_Self().DeleteAmfRan(ran.Conn)
+		count := 0
+		AMF_Self().AmfRanPool.Range(func(key, value interface{}) bool {
+			count++
+			return true
+		})
+		metrics.SetNoOfActiveGnbStats(uint64(count))
 	}
 }
 
