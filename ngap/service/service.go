@@ -70,6 +70,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 	logger.NgapLog.Infof("Listen on %s", sctpListener.Addr())
 
 	for {
+		logger.NgapLog.Debugln("Waiting for new SCTP connection...")
 		newConn, err := sctpListener.AcceptSCTP()
 		if err != nil {
 			switch err {
@@ -172,7 +173,9 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 	for {
 		buf := make([]byte, bufsize)
 
+		logger.NgapLog.Debugln("Waiting for SCTP packet...")
 		n, info, notification, err := conn.SCTPRead(buf)
+		logger.NgapLog.Infof("SCTPRead returned n=%d err=%v", n, err)
 		if err != nil {
 			switch err {
 			case io.EOF, io.ErrUnexpectedEOF:
@@ -197,15 +200,25 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 				logger.NgapLog.Warnf("received sctp notification[type 0x%x] but not handled", notification.Type())
 			}
 		} else {
-			if info == nil || info.PPID != ngap.PPID {
+			// if info == nil || info.PPID != ngap.PPID {
+			// 	logger.NgapLog.Warnln("received SCTP PPID != 60, discard this packet")
+			// 	continue
+			// }
+			if info == nil {
+				logger.NgapLog.Errorln("SCTP info is nil")
+				continue
+			}
+			logger.NgapLog.Infof("Received PPID: %d", info.PPID)
+			if info.PPID != ngap.PPID {
+				logger.NgapLog.Warnf("Invalid PPID received=%d expected=%d", info.PPID, ngap.PPID)
 				logger.NgapLog.Warnln("received SCTP PPID != 60, discard this packet")
 				continue
 			}
-
 			logger.NgapLog.Debugf("Read %d bytes", n)
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
 			// TODO: concurrent on per-UE message
+			logger.NgapLog.Debugf("Calling HandleMessage()")
 			handler.HandleMessage(conn, buf[:n])
 		}
 	}
