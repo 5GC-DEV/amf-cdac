@@ -44,6 +44,7 @@ func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*mo
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
+	logger.ConsumerLog.Debugf("Sending PCF policy create request for IMSI: %s", ue.Supi)
 	res, httpResp, localErr := client.DefaultApi.PoliciesPost(ctx, policyAssociationRequest)
 	if localErr == nil {
 		locationHeader := httpResp.Header.Get("Location")

@@ -23,14 +23,12 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require (
-	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260109140746-44d5650a6474
-	github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
-)
+require github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085
 
 require (
 	github.com/5GC-DEV/nas-cdac v0.4.1 // indirect
 	github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 // indirect
+	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260521103817-89418a1e797f // indirect
 )
 
 require (
