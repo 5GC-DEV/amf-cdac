@@ -207,6 +207,14 @@ func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
 	// and store in context
 	ranUe := ran.RanUeFindByRanUeNgapIDLocal(ranUeNgapID)
 	if ranUe != nil {
+		if ranUe.AmfUe == ue {
+			logger.DataRepoLog.Debug("locally fetched ue and db fetched ue are the same")
+		} else {
+			logger.DataRepoLog.Debug("locally fetched ue and db fetched ue are not the same")
+			logger.DataRepoLog.Debugf("Locally fetched Amfuengapid: %d, txlog: %v", ranUe.AmfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId, ranUe.AmfUe.TxLog)
+			logger.DataRepoLog.Debugf("DB fetched Amfuengapid: %d, txlog: %v", ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId, ue.TxLog)
+			ranUe.AmfUe = ue
+		}
 		return ranUe
 	}
 	return ue.RanUe[models.AccessType__3_GPP_ACCESS]
