@@ -1238,7 +1238,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 						}
 						ranUe.Log.Infof("send update smcontext deactivate request (pduSessionID=%d),(amfuengapid:%d)", pduSessionID, amfUe.RanUe[ran.AnType].AmfUeNgapId)
 						response, _, _, err := consumer.SendUpdateSmContextDeactivateUpCnxState(amfUe, smContext, cause)
-						ran.Log.Debugf("RanUeNgapId:%d, Amfuengapid:%d, supi:%s", amfUe.RanUe[ran.AnType].RanUeNgapId, amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.Supi)
+						// ran.Log.Debugf("RanUeNgapId:%d, Amfuengapid:%d, supi:%s", amfUe.RanUe[ran.AnType].RanUeNgapId, amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.Supi)
 						if err != nil {
 							ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s]", err.Error())
 						} else if response == nil {
