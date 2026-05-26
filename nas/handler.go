@@ -61,8 +61,10 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 				}
 			}
 		}
-
+		ue.Log.Debugln("Before AmfUe mutex lock")
 		ue.AmfUe.Mutex.Lock()
+		ue.Log.Debugln("After AmfUe mutex lock")
+
 		defer ue.AmfUe.Mutex.Unlock()
 
 		ue.Log.Infoln("Antype from new RanUe:", ue.Ran.AnType)
@@ -73,13 +75,16 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		if amfSelf.EnableSctpLb {
 			ue.Ran.AnType = models.AccessType__3_GPP_ACCESS
 		}
+		ue.Log.Debug("Attaching Ranue")
 		ue.AmfUe.AttachRanUe(ue)
 
 		if ue.AmfUe.EventChannel == nil {
+			ue.Log.Debug("Event channel nil, creating new")
 			ue.AmfUe.EventChannel = ue.AmfUe.NewEventChannel()
 			ue.AmfUe.EventChannel.UpdateNasHandler(DispatchMsg)
 			go ue.AmfUe.EventChannel.Start()
 		}
+		ue.Log.Debug("Updating nas handler")
 		ue.AmfUe.EventChannel.UpdateNasHandler(DispatchMsg)
 
 		nasMsg := context.NasMsg{
@@ -87,6 +92,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 			NasMsg:        nasPdu,
 			ProcedureCode: procedureCode,
 		}
+		ue.Log.Debug("submitting message to eventchannel")
 		ue.AmfUe.EventChannel.SubmitMessage(nasMsg)
 
 		return
