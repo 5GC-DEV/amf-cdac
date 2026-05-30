@@ -28,8 +28,12 @@ import (
 )
 
 var (
-	applicationJson  string = "application/json"
-	multipartRelated string = "multipart/related"
+	applicationJson           string = "application/json"
+	multipartRelated          string = "multipart/related"
+	getRequestBodyErrorFormat string = "Get Request Body error: %+v"
+	systemFailureTitle        string = "System failure"
+	requestBodyPrefix         string = "[Request Body] "
+	malformedRequestTitle     string = "Malformed request syntax"
 )
 
 // CreateUEContext - Namf_Communication CreateUEContext service Operation
@@ -39,9 +43,9 @@ func HTTPCreateUEContext(c *gin.Context) {
 
 	requestBody, err := c.GetRawData()
 	if err != nil {
-		logger.CommLog.Errorf("Get Request Body error: %+v", err)
+		logger.CommLog.Errorf(getRequestBodyErrorFormat, err)
 		problemDetail := models.ProblemDetails{
-			Title:  "System failure",
+			Title:  systemFailureTitle,
 			Status: http.StatusInternalServerError,
 			Detail: err.Error(),
 			Cause:  "SYSTEM_FAILURE",
@@ -62,9 +66,9 @@ func HTTPCreateUEContext(c *gin.Context) {
 	}
 
 	if err != nil {
-		problemDetail := "[Request Body] " + err.Error()
+		problemDetail := requestBodyPrefix + err.Error()
 		rsp := models.ProblemDetails{
-			Title:  "Malformed request syntax",
+			Title:  malformedRequestTitle,
 			Status: http.StatusBadRequest,
 			Detail: problemDetail,
 		}
@@ -91,7 +95,7 @@ func HTTPCreateUEContext(c *gin.Context) {
 			c.Data(rsp.Status, contentType, responseBody)
 		}
 	} else {
-		responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+		responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 		if err != nil {
 			logger.CommLog.Errorln(err)
 			problemDetails := models.ProblemDetails{
@@ -101,7 +105,7 @@ func HTTPCreateUEContext(c *gin.Context) {
 			}
 			c.JSON(http.StatusInternalServerError, problemDetails)
 		} else {
-			c.Data(rsp.Status, "application/json", responseBody)
+			c.Data(rsp.Status, applicationJson, responseBody)
 		}
 	}
 }
@@ -113,21 +117,21 @@ func HTTPEBIAssignment(c *gin.Context) {
 	requestBody, err := c.GetRawData()
 	if err != nil {
 		problemDetail := models.ProblemDetails{
-			Title:  "System failure",
+			Title:  systemFailureTitle,
 			Status: http.StatusInternalServerError,
 			Detail: err.Error(),
 			Cause:  "SYSTEM_FAILURE",
 		}
-		logger.CommLog.Errorf("Get Request Body error: %+v", err)
+		logger.CommLog.Errorf(getRequestBodyErrorFormat, err)
 		c.JSON(http.StatusInternalServerError, problemDetail)
 		return
 	}
 
-	err = openapi.Deserialize(&assignEbiData, requestBody, "application/json")
+	err = openapi.Deserialize(&assignEbiData, requestBody, applicationJson)
 	if err != nil {
-		problemDetail := "[Request Body] " + err.Error()
+		problemDetail := requestBodyPrefix + err.Error()
 		rsp := models.ProblemDetails{
-			Title:  "Malformed request syntax",
+			Title:  malformedRequestTitle,
 			Status: http.StatusBadRequest,
 			Detail: problemDetail,
 		}
@@ -140,7 +144,7 @@ func HTTPEBIAssignment(c *gin.Context) {
 	req.Params["ueContextId"] = c.Params.ByName("ueContextId")
 	rsp := producer.HandleAssignEbiDataRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -150,7 +154,7 @@ func HTTPEBIAssignment(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -160,9 +164,9 @@ func HTTPRegistrationStatusUpdate(c *gin.Context) {
 
 	requestBody, err := c.GetRawData()
 	if err != nil {
-		logger.CommLog.Errorf("Get Request Body error: %+v", err)
+		logger.CommLog.Errorf(getRequestBodyErrorFormat, err)
 		problemDetail := models.ProblemDetails{
-			Title:  "System failure",
+			Title:  systemFailureTitle,
 			Status: http.StatusInternalServerError,
 			Detail: err.Error(),
 			Cause:  "SYSTEM_FAILURE",
@@ -171,11 +175,11 @@ func HTTPRegistrationStatusUpdate(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&ueRegStatusUpdateReqData, requestBody, "application/json")
+	err = openapi.Deserialize(&ueRegStatusUpdateReqData, requestBody, applicationJson)
 	if err != nil {
-		problemDetail := "[Request Body] " + err.Error()
+		problemDetail := requestBodyPrefix + err.Error()
 		rsp := models.ProblemDetails{
-			Title:  "Malformed request syntax",
+			Title:  malformedRequestTitle,
 			Status: http.StatusBadRequest,
 			Detail: problemDetail,
 		}
@@ -188,7 +192,7 @@ func HTTPRegistrationStatusUpdate(c *gin.Context) {
 	req.Params["ueContextId"] = c.Params.ByName("ueContextId")
 	rsp := producer.HandleRegistrationStatusUpdateRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -198,7 +202,7 @@ func HTTPRegistrationStatusUpdate(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -208,9 +212,9 @@ func HTTPReleaseUEContext(c *gin.Context) {
 
 	requestBody, err := c.GetRawData()
 	if err != nil {
-		logger.CommLog.Errorf("Get Request Body error: %+v", err)
+		logger.CommLog.Errorf(getRequestBodyErrorFormat, err)
 		problemDetail := models.ProblemDetails{
-			Title:  "System failure",
+			Title:  systemFailureTitle,
 			Status: http.StatusInternalServerError,
 			Detail: err.Error(),
 			Cause:  "SYSTEM_FAILURE",
@@ -219,11 +223,11 @@ func HTTPReleaseUEContext(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&ueContextRelease, requestBody, "application/json")
+	err = openapi.Deserialize(&ueContextRelease, requestBody, applicationJson)
 	if err != nil {
-		problemDetail := "[Request Body] " + err.Error()
+		problemDetail := requestBodyPrefix + err.Error()
 		rsp := models.ProblemDetails{
-			Title:  "Malformed request syntax",
+			Title:  malformedRequestTitle,
 			Status: http.StatusBadRequest,
 			Detail: problemDetail,
 		}
@@ -236,7 +240,7 @@ func HTTPReleaseUEContext(c *gin.Context) {
 	req.Params["ueContextId"] = c.Params.ByName("ueContextId")
 	rsp := producer.HandleReleaseUEContextRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -246,7 +250,7 @@ func HTTPReleaseUEContext(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -257,9 +261,9 @@ func HTTPUEContextTransfer(c *gin.Context) {
 
 	requestBody, err := c.GetRawData()
 	if err != nil {
-		logger.CommLog.Errorf("Get Request Body error: %+v", err)
+		logger.CommLog.Errorf(getRequestBodyErrorFormat, err)
 		problemDetail := models.ProblemDetails{
-			Title:  "System failure",
+			Title:  systemFailureTitle,
 			Status: http.StatusInternalServerError,
 			Detail: err.Error(),
 			Cause:  "SYSTEM_FAILURE",
@@ -278,9 +282,9 @@ func HTTPUEContextTransfer(c *gin.Context) {
 	}
 
 	if err != nil {
-		problemDetail := "[Request Body] " + err.Error()
+		problemDetail := requestBodyPrefix + err.Error()
 		rsp := models.ProblemDetails{
-			Title:  "Malformed request syntax",
+			Title:  malformedRequestTitle,
 			Status: http.StatusBadRequest,
 			Detail: problemDetail,
 		}
@@ -307,7 +311,7 @@ func HTTPUEContextTransfer(c *gin.Context) {
 			c.Data(rsp.Status, contentType, responseBody)
 		}
 	} else {
-		responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+		responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 		if err != nil {
 			logger.CommLog.Errorln(err)
 			problemDetails := models.ProblemDetails{
@@ -317,7 +321,7 @@ func HTTPUEContextTransfer(c *gin.Context) {
 			}
 			c.JSON(http.StatusInternalServerError, problemDetails)
 		} else {
-			c.Data(rsp.Status, "application/json", responseBody)
+			c.Data(rsp.Status, applicationJson, responseBody)
 		}
 	}
 }

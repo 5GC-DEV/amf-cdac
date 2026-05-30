@@ -17,6 +17,8 @@ import (
 	"github.com/omec-project/amf/producer/callback"
 )
 
+const amfUeIsNil = "AmfUe is nil"
+
 // backOffTimerUint = 7 means backoffTimer is null
 func SendDLNASTransport(ue *context.RanUe, payloadContainerType uint8, nasPdu []byte,
 	pduSessionId int32, cause uint8, backOffTimerUint *uint8, backOffTimer uint8,
@@ -40,7 +42,7 @@ func SendNotification(ue *context.RanUe, nasMsg []byte) {
 
 	amfUe := ue.AmfUe
 	if amfUe == nil {
-		ue.AmfUe.GmmLog.Errorln("AmfUe is nil")
+		ue.AmfUe.GmmLog.Errorln(amfUeIsNil)
 		return
 	}
 
@@ -77,7 +79,7 @@ func SendAuthenticationRequest(ue *context.RanUe) {
 	}
 	amfUe := ue.AmfUe
 	if amfUe == nil {
-		logger.GmmLog.Error("AmfUe is nil")
+		logger.GmmLog.Error(amfUeIsNil)
 		return
 	}
 
@@ -148,7 +150,7 @@ func SendAuthenticationReject(ue *context.RanUe, eapMsg string) {
 
 func SendAuthenticationResult(ue *context.RanUe, eapSuccess bool, eapMsg string) {
 	if ue.AmfUe == nil {
-		logger.GmmLog.Errorln("AmfUe is nil")
+		logger.GmmLog.Errorln(amfUeIsNil)
 		return
 	}
 

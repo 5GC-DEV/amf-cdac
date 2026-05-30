@@ -16,6 +16,10 @@ import (
 	"github.com/omec-project/amf/producer"
 )
 
+var (
+	applicationJson string = "application/json"
+)
+
 func HTTPAmPolicyControlUpdateNotifyUpdate(c *gin.Context) {
 	var policyUpdate models.PolicyUpdate
 
@@ -32,7 +36,7 @@ func HTTPAmPolicyControlUpdateNotifyUpdate(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&policyUpdate, requestBody, "application/json")
+	err = openapi.Deserialize(&policyUpdate, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -50,7 +54,7 @@ func HTTPAmPolicyControlUpdateNotifyUpdate(c *gin.Context) {
 
 	rsp := producer.HandleAmPolicyControlUpdateNotifyUpdate(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CallbackLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -60,7 +64,7 @@ func HTTPAmPolicyControlUpdateNotifyUpdate(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -80,7 +84,7 @@ func HTTPAmPolicyControlUpdateNotifyTerminate(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&terminationNotification, requestBody, "application/json")
+	err = openapi.Deserialize(&terminationNotification, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -98,7 +102,7 @@ func HTTPAmPolicyControlUpdateNotifyTerminate(c *gin.Context) {
 
 	rsp := producer.HandleAmPolicyControlUpdateNotifyTerminate(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CallbackLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -108,6 +112,6 @@ func HTTPAmPolicyControlUpdateNotifyTerminate(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

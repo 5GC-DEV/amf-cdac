@@ -19,6 +19,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+const amfUeNgapIdFormat = "AMF_UE_NGAP_ID:%d"
+const amfUeUnmarshallErrorFormat = "amfue unmarshall error: %v"
+
 var dbMutex sync.Mutex
 
 type CustomFieldsAmfUe struct {
@@ -124,7 +127,7 @@ func ToBsonM(data *AmfUe) (ret bson.M) {
 	}
 	err = json.Unmarshal(tmp, &ret)
 	if err != nil {
-		logger.DataRepoLog.Errorf("amfue unmarshall error: %v", err)
+		logger.DataRepoLog.Errorf(amfUeUnmarshallErrorFormat, err)
 	}
 
 	return
@@ -168,7 +171,7 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 	}
 	err := json.Unmarshal(mapToByte(result), ue)
 	if err != nil {
-		logger.DataRepoLog.Errorf("amfue unmarshall error: %v", err)
+		logger.DataRepoLog.Errorf(amfUeUnmarshallErrorFormat, err)
 		return nil
 	}
 
@@ -179,9 +182,9 @@ func DbFetch(collName string, filter bson.M) *AmfUe {
 	AMF_Self().RanUePool.Store(ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId, ue.RanUe[models.AccessType__3_GPP_ACCESS])
 	AMF_Self().UePool.Store(ue.Supi, ue)
 	ue.EventChannel = nil
-	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
-	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
-	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
+	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf(amfUeNgapIdFormat, ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
+	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf(amfUeNgapIdFormat, ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
+	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf(amfUeNgapIdFormat, ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId))
 	ue.ProducerLog = logger.ProducerLog.With(logger.FieldSupi, fmt.Sprintf("SUPI:%s", ue.Supi))
 	ue.AmfInstanceName = os.Getenv("HOSTNAME")
 	ue.AmfInstanceIp = os.Getenv("POD_IP")
@@ -296,7 +299,7 @@ func DbFetchAllEntries() (ueList []*AmfUe) {
 		ue.init()
 		err := json.Unmarshal(mapToByte(val), ue)
 		if err != nil {
-			logger.DataRepoLog.Errorf("amfue unmarshall error: %v", err)
+			logger.DataRepoLog.Errorf(amfUeUnmarshallErrorFormat, err)
 			return nil
 		}
 		ueList = append(ueList, ue)

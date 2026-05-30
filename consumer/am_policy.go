@@ -76,7 +76,7 @@ func AMPolicyControlCreate(ue *amf_context.AmfUe, anType models.AccessType) (*mo
 		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		return &problem, nil
 	} else {
-		return nil, openapi.ReportError("server no response")
+		return nil, openapi.ReportError(serverNoResponse)
 	}
 	return nil, nil
 }
@@ -119,7 +119,7 @@ func AMPolicyControlUpdate(ue *amf_context.AmfUe, updateRequest models.PolicyAss
 		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 	return problemDetails, err
 }
@@ -142,7 +142,7 @@ func AMPolicyControlDelete(ue *amf_context.AmfUe) (problemDetails *models.Proble
 		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 
 	return

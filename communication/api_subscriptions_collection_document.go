@@ -42,7 +42,7 @@ func HTTPAMFStatusChangeSubscribe(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&subscriptionData, requestBody, "application/json")
+	err = openapi.Deserialize(&subscriptionData, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -61,7 +61,7 @@ func HTTPAMFStatusChangeSubscribe(c *gin.Context) {
 	for key, val := range rsp.Header {
 		c.Header(key, val[0])
 	}
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -71,6 +71,6 @@ func HTTPAMFStatusChangeSubscribe(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

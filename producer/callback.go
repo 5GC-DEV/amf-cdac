@@ -28,6 +28,8 @@ import (
 	"github.com/omec-project/amf/util"
 )
 
+const policyAssociationIdNotFoundFormat = "Policy Association ID[%s] Not Found"
+
 func SmContextHandler(s1, s2 string, msg interface{}) (interface{}, string, interface{}, interface{}) {
 	switch msg := msg.(type) {
 	case models.SmContextStatusNotification:
@@ -215,7 +217,7 @@ func HandleAmPolicyControlUpdateNotifyUpdate(request *httpwrapper.Request) *http
 		problemDetails := &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
-			Detail: fmt.Sprintf("Policy Association ID[%s] Not Found", polAssoID),
+			Detail: fmt.Sprintf(policyAssociationIdNotFoundFormat, polAssoID),
 		}
 		return httpwrapper.NewResponse(int(problemDetails.Status), nil, problemDetails)
 	}
@@ -247,7 +249,7 @@ func AmPolicyControlUpdateNotifyUpdateProcedure(polAssoID string,
 		problemDetails := &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
-			Detail: fmt.Sprintf("Policy Association ID[%s] Not Found", polAssoID),
+			Detail: fmt.Sprintf(policyAssociationIdNotFoundFormat, polAssoID),
 		}
 		return problemDetails
 	}
@@ -317,7 +319,7 @@ func HandleAmPolicyControlUpdateNotifyTerminate(request *httpwrapper.Request) *h
 		problemDetails := &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
-			Detail: fmt.Sprintf("Policy Association ID[%s] Not Found", polAssoID),
+			Detail: fmt.Sprintf(policyAssociationIdNotFoundFormat, polAssoID),
 		}
 		return httpwrapper.NewResponse(int(problemDetails.Status), nil, problemDetails)
 	}
@@ -349,7 +351,7 @@ func AmPolicyControlUpdateNotifyTerminateProcedure(polAssoID string,
 		problemDetails := &models.ProblemDetails{
 			Status: http.StatusNotFound,
 			Cause:  "CONTEXT_NOT_FOUND",
-			Detail: fmt.Sprintf("Policy Association ID[%s] Not Found", polAssoID),
+			Detail: fmt.Sprintf(policyAssociationIdNotFoundFormat, polAssoID),
 		}
 		return problemDetails
 	}

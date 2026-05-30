@@ -21,6 +21,8 @@ import (
 	"github.com/omec-project/amf/logger"
 )
 
+const securityHeaderTypeIntegrityProtected = "security header type: Integrity Protected"
+
 var mutex sync.Mutex
 
 func Encode(ue *context.AmfUe, msg *nas.Message) ([]byte, error) {
@@ -40,7 +42,7 @@ func Encode(ue *context.AmfUe, msg *nas.Message) ([]byte, error) {
 		needCiphering := false
 		switch msg.SecurityHeaderType {
 		case nas.SecurityHeaderTypeIntegrityProtected:
-			ue.NASLog.Debugln("security header type: Integrity Protected")
+			ue.NASLog.Debugln(securityHeaderTypeIntegrityProtected)
 		case nas.SecurityHeaderTypeIntegrityProtectedAndCiphered:
 			ue.NASLog.Debugln("security header type: Integrity Protected And Ciphered")
 			needCiphering = true
@@ -121,7 +123,7 @@ func FetchUeContextWithMobileIdentity(payload []byte) *context.AmfUe {
 	logger.CommLog.Debugf("securityHeaderType is %v", msg.SecurityHeaderType)
 	switch msg.SecurityHeaderType {
 	case nas.SecurityHeaderTypeIntegrityProtected:
-		logger.CommLog.Infoln("security header type: Integrity Protected")
+		logger.CommLog.Infoln(securityHeaderTypeIntegrityProtected)
 		p := payload[7:]
 		if err := msg.PlainNasDecode(&p); err != nil {
 			return nil
@@ -267,7 +269,7 @@ func Decode(ue *context.AmfUe, accessType models.AccessType, payload []byte) (*n
 		ciphered := false
 		switch msg.SecurityHeaderType {
 		case nas.SecurityHeaderTypeIntegrityProtected:
-			ue.NASLog.Debugln("security header type: Integrity Protected")
+			ue.NASLog.Debugln(securityHeaderTypeIntegrityProtected)
 		case nas.SecurityHeaderTypeIntegrityProtectedAndCiphered:
 			ue.NASLog.Debugln("security header type: Integrity Protected And Ciphered")
 			ciphered = true

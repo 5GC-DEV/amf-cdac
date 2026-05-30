@@ -22,6 +22,14 @@ import (
 	"github.com/omec-project/aper"
 )
 
+const (
+	ranIsNil          = "Ran is nil"
+	ranUeIsNil        = "RanUe is nil"
+	amfUeIsNil        = "AmfUe is nil"
+	pduListOutOfRange = "Pdu List out of range"
+	ranUeForNilFormat = "ranUe for %s is nil"
+)
+
 func IncrementNGAPMsgCount(pdu ngapType.NGAPPDU) {
 	if pdu.InitiatingMessage != nil {
 		metrics.IncrementNgapMsgStats(context.AMF_Self().NfId,
@@ -417,7 +425,7 @@ func BuildDownlinkNasTransport(ue *context.RanUe, nasPdu []byte,
 	if ue.Ran.AnType == models.AccessType__3_GPP_ACCESS && mobilityRestrictionList != nil {
 		amfUe := ue.AmfUe
 		if amfUe == nil {
-			return nil, fmt.Errorf("amfUe is nil")
+			return nil, fmt.Errorf(amfUeIsNil)
 		}
 
 		ie = ngapType.DownlinkNASTransportIEs{}
@@ -957,13 +965,13 @@ func BuildInitialContextSetupRequest(
 	// overwrite previously received mobility restriction information.
 
 	if amfUe == nil {
-		return nil, fmt.Errorf("amfUe is nil")
+		return nil, fmt.Errorf(amfUeIsNil)
 	}
 
 	var pdu ngapType.NGAPPDU
 	ranUe, ok := amfUe.RanUe[anType]
 	if !ok {
-		return nil, fmt.Errorf("ranUe for %s is nil", anType)
+		return nil, fmt.Errorf(ranUeForNilFormat, anType)
 	}
 	amfSelf := context.AMF_Self()
 
@@ -1305,12 +1313,12 @@ func BuildUEContextModificationRequest(
 	// TODO: fill IE securityKey & ueSecurityCapabilities to code
 
 	if amfUe == nil {
-		return nil, fmt.Errorf("amfUe is nil")
+		return nil, fmt.Errorf(amfUeIsNil)
 	}
 
 	ranUe, ok := amfUe.RanUe[anType]
 	if !ok {
-		return nil, fmt.Errorf("ranUe for %s is nil", anType)
+		return nil, fmt.Errorf(ranUeForNilFormat, anType)
 	}
 
 	var pdu ngapType.NGAPPDU
@@ -1641,7 +1649,7 @@ func BuildHandoverRequest(ue *context.RanUe, cause ngapType.Cause,
 	amfSelf := context.AMF_Self()
 	amfUe := ue.AmfUe
 	if amfUe == nil {
-		return nil, fmt.Errorf("AmfUe is nil")
+		return nil, fmt.Errorf(amfUeIsNil)
 	}
 
 	var pdu ngapType.NGAPPDU
@@ -2727,7 +2735,7 @@ func BuildDeactivateTrace(amfUe *context.AmfUe, anType models.AccessType) ([]byt
 
 	ranUe, ok := amfUe.RanUe[anType]
 	if !ok {
-		return nil, fmt.Errorf("ranUe for %s is nil", anType)
+		return nil, fmt.Errorf(ranUeForNilFormat, anType)
 	}
 
 	pdu.Present = ngapType.NGAPPDUPresentInitiatingMessage

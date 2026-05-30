@@ -45,6 +45,10 @@ const (
 	DNN_CONGESTION            = "DNN_CONGESTION"
 	PRIORITIZED_SERVICES_ONLY = "PRIORITIZED_SERVICES_ONLY"
 	OUT_OF_LADN_SERVICE_AREA  = "OUT_OF_LADN_SERVICE_AREA"
+	nasIntegrityCheckFailed   = "NAS message integrity check failed"
+	amfUeIsNil                = "AmfUe is nil"
+	releaseSmContextFailed    = "Release SmContext Failed Problem[%+v]"
+	releaseSmContextError     = "Release SmContext Error[%v]"
 )
 
 func HandleULNASTransport(ue *context.AmfUe, anType models.AccessType,
@@ -53,7 +57,7 @@ func HandleULNASTransport(ue *context.AmfUe, anType models.AccessType,
 	ue.GmmLog.Infoln("Handle UL NAS Transport")
 
 	if ue.MacFailed {
-		return fmt.Errorf("NAS message integrity check failed")
+		return fmt.Errorf(nasIntegrityCheckFailed)
 	}
 
 	switch ulNasTransport.GetPayloadContainerType() {
@@ -397,7 +401,7 @@ func HandleRegistrationRequest(ue *context.AmfUe, anType models.AccessType, proc
 	amfSelf := context.AMF_Self()
 
 	if ue == nil {
-		return fmt.Errorf("AmfUe is nil")
+		return fmt.Errorf(amfUeIsNil)
 	}
 
 	ue.GmmLog.Info("Handle Registration Request")
@@ -942,10 +946,10 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 					problemDetail, err := consumer.SendReleaseSmContextRequest(ue, smContext, causeAll, "", nil)
 					if problemDetail != nil {
 						pduSessionStatus[psi] = true
-						ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetail)
+						ue.GmmLog.Errorf(releaseSmContextFailed, problemDetail)
 					} else if err != nil {
 						pduSessionStatus[psi] = true
-						ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+						ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 					} else {
 						pduSessionStatus[psi] = false
 					}
@@ -1482,7 +1486,7 @@ func assignLadnInfo(ue *context.AmfUe, accessType models.AccessType) {
 
 func HandleIdentityResponse(ue *context.AmfUe, identityResponse *nasMessage.IdentityResponse) error {
 	if ue == nil {
-		return fmt.Errorf("AmfUe is nil")
+		return fmt.Errorf(amfUeIsNil)
 	}
 
 	ue.GmmLog.Info("Handle Identity Response")
@@ -1496,14 +1500,14 @@ func HandleIdentityResponse(ue *context.AmfUe, identityResponse *nasMessage.Iden
 		ue.GmmLog.Debugf("get SUCI: %s", ue.Suci)
 	case nasMessage.MobileIdentity5GSType5gGuti:
 		if ue.MacFailed {
-			return fmt.Errorf("NAS message integrity check failed")
+			return fmt.Errorf(nasIntegrityCheckFailed)
 		}
 		_, guti := nasConvert.GutiToString(mobileIdentityContents)
 		ue.Guti = guti
 		ue.GmmLog.Debugf("get GUTI: %s", guti)
 	case nasMessage.MobileIdentity5GSType5gSTmsi:
 		if ue.MacFailed {
-			return fmt.Errorf("NAS message integrity check failed")
+			return fmt.Errorf(nasIntegrityCheckFailed)
 		}
 		sTmsi := hex.EncodeToString(mobileIdentityContents[1:])
 		if tmp, err := strconv.ParseInt(sTmsi[4:], 10, 32); err != nil {
@@ -1514,14 +1518,14 @@ func HandleIdentityResponse(ue *context.AmfUe, identityResponse *nasMessage.Iden
 		ue.GmmLog.Debugf("get 5G-S-TMSI: %s", sTmsi)
 	case nasMessage.MobileIdentity5GSTypeImei:
 		if ue.MacFailed {
-			return fmt.Errorf("NAS message integrity check failed")
+			return fmt.Errorf(nasIntegrityCheckFailed)
 		}
 		imei := nasConvert.PeiToString(mobileIdentityContents)
 		ue.Pei = imei
 		ue.GmmLog.Debugf("get PEI: %s", imei)
 	case nasMessage.MobileIdentity5GSTypeImeisv:
 		if ue.MacFailed {
-			return fmt.Errorf("NAS message integrity check failed")
+			return fmt.Errorf(nasIntegrityCheckFailed)
 		}
 		imeisv := nasConvert.PeiToString(mobileIdentityContents)
 		ue.Pei = imeisv
@@ -1535,7 +1539,7 @@ func HandleNotificationResponse(ue *context.AmfUe, notificationResponse *nasMess
 	ue.GmmLog.Info("Handle Notification Response")
 
 	if ue.MacFailed {
-		return fmt.Errorf("NAS message integrity check failed")
+		return fmt.Errorf(nasIntegrityCheckFailed)
 	}
 
 	if ue.T3565 != nil {
@@ -1555,9 +1559,9 @@ func HandleNotificationResponse(ue *context.AmfUe, notificationResponse *nasMess
 					}
 					problemDetail, err := consumer.SendReleaseSmContextRequest(ue, smContext, causeAll, "", nil)
 					if problemDetail != nil {
-						ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetail)
+						ue.GmmLog.Errorf(releaseSmContextFailed, problemDetail)
 					} else if err != nil {
-						ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+						ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 					}
 				}
 			}
@@ -1572,7 +1576,7 @@ func HandleConfigurationUpdateComplete(ue *context.AmfUe,
 	ue.GmmLog.Info("Handle Configuration Update Complete")
 
 	if ue.MacFailed {
-		return fmt.Errorf("NAS message integrity check failed")
+		return fmt.Errorf(nasIntegrityCheckFailed)
 	}
 
 	// TODO: Stop timer T3555 in TS 24.501 Figure 5.4.4.1.1 in handler
@@ -1664,9 +1668,9 @@ func NetworkInitiatedDeregistrationProcedure(ue *context.AmfUe, accessType model
 			ue.GmmLog.Infof("Sending SmContext [slice: %v, dnn: %v] Release Request to SMF", smContext.Snssai(), smContext.Dnn())
 			problemDetails, err = consumer.SendReleaseSmContextRequest(ue, smContext, nil, "", nil)
 			if problemDetails != nil {
-				ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetails)
+				ue.GmmLog.Errorf(releaseSmContextFailed, problemDetails)
 			} else if err != nil {
-				ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+				ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 			}
 		}
 		return true
@@ -1724,9 +1728,9 @@ func HandleUeSliceInfoDelete(ue *context.AmfUe, accessType models.AccessType, ns
 			// send smcontext release request
 			problemDetails, err = consumer.SendReleaseSmContextRequest(ue, smContext, nil, "", nil)
 			if problemDetails != nil {
-				ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetails)
+				ue.GmmLog.Errorf(releaseSmContextFailed, problemDetails)
 			} else if err != nil {
-				ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+				ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 			}
 		}
 		return true
@@ -1771,7 +1775,7 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 	serviceRequest *nasMessage.ServiceRequest,
 ) error {
 	if ue == nil {
-		return fmt.Errorf("AmfUe is nil")
+		return fmt.Errorf(amfUeIsNil)
 	}
 	ue.Mutex.Lock()
 	defer ue.Mutex.Unlock()
@@ -1937,9 +1941,9 @@ func HandleServiceRequest(ue *context.AmfUe, anType models.AccessType,
 					}
 					problemDetail, err := consumer.SendReleaseSmContextRequest(ue, smContext, causeAll, "", nil)
 					if problemDetail != nil {
-						ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetail)
+						ue.GmmLog.Errorf(releaseSmContextFailed, problemDetail)
 					} else if err != nil {
-						ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+						ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 					}
 				} else {
 					acceptPduSessionPsi[pduSessionID] = true
@@ -2428,7 +2432,7 @@ func HandleSecurityModeComplete(ue *context.AmfUe, anType models.AccessType, pro
 	ue.GmmLog.Info("Handle Security Mode Complete")
 
 	if ue.MacFailed {
-		return fmt.Errorf("NAS message integrity check failed")
+		return fmt.Errorf(nasIntegrityCheckFailed)
 	}
 
 	if ue.T3560 != nil {
@@ -2511,9 +2515,9 @@ func HandleDeregistrationRequest(ue *context.AmfUe, anType models.AccessType,
 			targetDeregistrationAccessType == nasMessage.AccessTypeBoth {
 			problemDetail, err := consumer.SendReleaseSmContextRequest(ue, smContext, nil, "", nil)
 			if problemDetail != nil {
-				ue.GmmLog.Errorf("Release SmContext Failed Problem[%+v]", problemDetail)
+				ue.GmmLog.Errorf(releaseSmContextFailed, problemDetail)
 			} else if err != nil {
-				ue.GmmLog.Errorf("Release SmContext Error[%v]", err.Error())
+				ue.GmmLog.Errorf(releaseSmContextError, err.Error())
 			}
 		}
 		return true
@@ -2636,7 +2640,7 @@ func HandleDeregistrationAccept(ue *context.AmfUe, anType models.AccessType,
 func HandleStatus5GMM(ue *context.AmfUe, anType models.AccessType, status5GMM *nasMessage.Status5GMM) error {
 	ue.GmmLog.Info("Handle Staus 5GMM")
 	if ue.MacFailed {
-		return fmt.Errorf("NAS message integrity check failed")
+		return fmt.Errorf(nasIntegrityCheckFailed)
 	}
 
 	cause := status5GMM.GetCauseValue()

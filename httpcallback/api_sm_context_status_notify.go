@@ -32,7 +32,7 @@ func HTTPSmContextStatusNotify(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&smContextStatusNotification, requestBody, "application/json")
+	err = openapi.Deserialize(&smContextStatusNotification, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -51,7 +51,7 @@ func HTTPSmContextStatusNotify(c *gin.Context) {
 
 	rsp := producer.HandleSmContextStatusNotify(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CallbackLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -61,6 +61,6 @@ func HTTPSmContextStatusNotify(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

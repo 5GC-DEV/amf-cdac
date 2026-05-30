@@ -18,6 +18,8 @@ import (
 	"github.com/omec-project/amf/logger"
 )
 
+const closeErrorFormat = "close error: %+v"
+
 type NGAPHandler struct {
 	HandleMessage      func(conn net.Conn, msg []byte)
 	HandleNotification func(conn net.Conn, notification sctp.Notification)
@@ -85,7 +87,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 		if infoTmp, err := newConn.GetDefaultSentParam(); err != nil {
 			logger.NgapLog.Errorf("get default sent param error: %+v, accept failed", err)
 			if err = newConn.Close(); err != nil {
-				logger.NgapLog.Errorf("close error: %+v", err)
+				logger.NgapLog.Errorf(closeErrorFormat, err)
 			}
 			continue
 		} else {
@@ -97,7 +99,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 		if err := newConn.SetDefaultSentParam(info); err != nil {
 			logger.NgapLog.Errorf("set default sent param error: %+v, accept failed", err)
 			if err = newConn.Close(); err != nil {
-				logger.NgapLog.Errorf("close error: %+v", err)
+				logger.NgapLog.Errorf(closeErrorFormat, err)
 			}
 			continue
 		} else {
@@ -108,7 +110,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 		if err := newConn.SubscribeEvents(events); err != nil {
 			logger.NgapLog.Errorf("failed to accept: %+v", err)
 			if err = newConn.Close(); err != nil {
-				logger.NgapLog.Errorf("close error: %+v", err)
+				logger.NgapLog.Errorf(closeErrorFormat, err)
 			}
 			continue
 		} else {
@@ -118,7 +120,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 		if err := newConn.SetReadBuffer(int(readBufSize)); err != nil {
 			logger.NgapLog.Errorf("set read buffer error: %+v, accept failed", err)
 			if err = newConn.Close(); err != nil {
-				logger.NgapLog.Errorf("close error: %+v", err)
+				logger.NgapLog.Errorf(closeErrorFormat, err)
 			}
 			continue
 		} else {
@@ -128,7 +130,7 @@ func listenAndServe(addr *sctp.SCTPAddr, handler NGAPHandler) {
 		if err := newConn.SetReadTimeout(readTimeout); err != nil {
 			logger.NgapLog.Errorf("set read timeout error: %+v, accept failed", err)
 			if err = newConn.Close(); err != nil {
-				logger.NgapLog.Errorf("close error: %+v", err)
+				logger.NgapLog.Errorf(closeErrorFormat, err)
 			}
 			continue
 		} else {

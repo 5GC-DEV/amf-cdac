@@ -42,7 +42,7 @@ func HTTPCreateSubscription(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&createEventSubscription, requestBody, "application/json")
+	err = openapi.Deserialize(&createEventSubscription, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -59,7 +59,7 @@ func HTTPCreateSubscription(c *gin.Context) {
 
 	rsp := producer.HandleCreateAMFEventSubscription(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.EeLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -69,6 +69,6 @@ func HTTPCreateSubscription(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

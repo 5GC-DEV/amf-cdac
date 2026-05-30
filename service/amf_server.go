@@ -20,6 +20,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+const errorPublishingNfStatusEventFormat = "error publishing NfStatusEvent: %v"
+
 type Server struct {
 	sdcoreAmfServer.UnimplementedNgapServiceServer
 }
@@ -73,7 +75,7 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 
 						if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
 							if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-								logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
+								logger.GrpcLog.Errorf(errorPublishingNfStatusEventFormat, err)
 							}
 						}
 					}
@@ -95,7 +97,7 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 				}
 				if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
 					if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-						logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
+						logger.GrpcLog.Errorf(errorPublishingNfStatusEventFormat, err)
 					}
 				}
 			case sdcoreAmfServer.MsgType_GNB_CONN:
@@ -110,7 +112,7 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 				}
 				if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
 					if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-						logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
+						logger.GrpcLog.Errorf(errorPublishingNfStatusEventFormat, err)
 					}
 				}
 			default:

@@ -16,6 +16,8 @@ import (
 	"github.com/omec-project/amf/producer"
 )
 
+const applicationJson = "application/json"
+
 func setCorsHeader(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -33,7 +35,7 @@ func HTTPRegisteredUEContext(c *gin.Context) {
 
 	rsp := producer.HandleOAMRegisteredUEContext(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.MtLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -43,7 +45,7 @@ func HTTPRegisteredUEContext(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -54,7 +56,7 @@ func HTTPGetActiveUes(c *gin.Context) {
 
 	rsp := producer.HandleOAMActiveUEContextsFromDB(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.MtLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -64,6 +66,6 @@ func HTTPGetActiveUes(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

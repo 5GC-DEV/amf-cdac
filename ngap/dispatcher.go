@@ -22,6 +22,8 @@ import (
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 )
 
+const notImplementedFormat = "Not implemented(choice: %d, procedureCode: %d)"
+
 func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *sdcoreAmfServer.AmfMessage) {
 	logger.NgapLog.Infof("dispatchLb GnbId:%v GnbIp: %v %T", sctplbMsg.GnbId, sctplbMsg.GnbIpAddr, Amf2RanMsgChan)
 	var ran *context.AmfRan
@@ -236,7 +238,7 @@ func DispatchNgapMsg(ran *context.AmfRan, pdu *ngapType.NGAPPDU, sctplbMsg *sdco
 		case ngapType.ProcedureCodeUplinkNonUEAssociatedNRPPaTransport:
 			HandleUplinkNonUEAssociatedNRPPATransport(ran, pdu)
 		default:
-			ran.Log.Warnf("Not implemented(choice: %d, procedureCode: %d)", pdu.Present, initiatingMessage.ProcedureCode.Value)
+			ran.Log.Warnf(notImplementedFormat, pdu.Present, initiatingMessage.ProcedureCode.Value)
 		}
 	case ngapType.NGAPPDUPresentSuccessfulOutcome:
 		successfulOutcome := pdu.SuccessfulOutcome
@@ -271,7 +273,7 @@ func DispatchNgapMsg(ran *context.AmfRan, pdu *ngapType.NGAPPDU, sctplbMsg *sdco
 		case ngapType.ProcedureCodeHandoverResourceAllocation:
 			HandleHandoverRequestAcknowledge(ran, pdu)
 		default:
-			ran.Log.Warnf("Not implemented(choice: %d, procedureCode: %d)", pdu.Present, successfulOutcome.ProcedureCode.Value)
+			ran.Log.Warnf(notImplementedFormat, pdu.Present, successfulOutcome.ProcedureCode.Value)
 		}
 	case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
 		unsuccessfulOutcome := pdu.UnsuccessfulOutcome
@@ -294,7 +296,7 @@ func DispatchNgapMsg(ran *context.AmfRan, pdu *ngapType.NGAPPDU, sctplbMsg *sdco
 		case ngapType.ProcedureCodeHandoverResourceAllocation:
 			HandleHandoverFailure(ran, pdu)
 		default:
-			ran.Log.Warnf("Not implemented(choice: %d, procedureCode: %d)", pdu.Present, unsuccessfulOutcome.ProcedureCode.Value)
+			ran.Log.Warnf(notImplementedFormat, pdu.Present, unsuccessfulOutcome.ProcedureCode.Value)
 		}
 	}
 }

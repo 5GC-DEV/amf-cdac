@@ -48,7 +48,7 @@ func HTTPN1N2MessageTransfer(c *gin.Context) {
 	contentType := c.GetHeader("Content-Type")
 	s := strings.Split(contentType, ";")
 	switch s[0] {
-	case "application/json":
+	case applicationJson:
 		err = fmt.Errorf("N1 and N2 datas are both Empty in N1N2MessgeTransfer")
 	case "multipart/related":
 		err = openapi.Deserialize(&n1n2MessageTransferRequest, requestBody, contentType)
@@ -77,7 +77,7 @@ func HTTPN1N2MessageTransfer(c *gin.Context) {
 	for key, val := range rsp.Header {
 		c.Header(key, val[0])
 	}
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -87,7 +87,7 @@ func HTTPN1N2MessageTransfer(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 
@@ -98,7 +98,7 @@ func HTTPN1N2MessageTransferStatus(c *gin.Context) {
 
 	rsp := producer.HandleN1N2MessageTransferStatusRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -108,6 +108,6 @@ func HTTPN1N2MessageTransferStatus(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

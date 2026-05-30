@@ -139,7 +139,7 @@ func SendDeregisterNFInstance() (problemDetails *models.ProblemDetails, err erro
 		problem := err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 	return
 }
@@ -169,7 +169,7 @@ var SendUpdateNFInstance = func(patchItem []models.PatchItem) (nfProfile models.
 		problem := err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 	return
 }
@@ -199,7 +199,7 @@ func SendCreateSubscription(nrfUri string, nrfSubscriptionData models.NrfSubscri
 		problem := err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 	return
 }
@@ -229,7 +229,7 @@ func SendRemoveSubscription(subscriptionId string) (problemDetails *models.Probl
 		problem := err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("server no response")
+		err = openapi.ReportError(serverNoResponse)
 	}
 	return
 }

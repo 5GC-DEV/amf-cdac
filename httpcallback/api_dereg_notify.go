@@ -33,7 +33,7 @@ func HTTPDeregistrationNotification(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&deregistrationData, requestBody, "application/json")
+	err = openapi.Deserialize(&deregistrationData, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -52,7 +52,7 @@ func HTTPDeregistrationNotification(c *gin.Context) {
 	}
 	rsp := producer.HandleDeregistrationNotification(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CallbackLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -62,6 +62,6 @@ func HTTPDeregistrationNotification(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

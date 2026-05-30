@@ -33,7 +33,7 @@ func HTTPNfSubscriptionStatusNotify(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&nfSubscriptionStatusNotification, requestBody, "application/json")
+	err = openapi.Deserialize(&nfSubscriptionStatusNotification, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -50,7 +50,7 @@ func HTTPNfSubscriptionStatusNotify(c *gin.Context) {
 
 	rsp := producer.HandleNfSubscriptionStatusNotify(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CallbackLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -60,6 +60,6 @@ func HTTPNfSubscriptionStatusNotify(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else if rsp.Body != nil {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

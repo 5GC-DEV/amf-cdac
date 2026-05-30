@@ -19,6 +19,9 @@ import (
 	"github.com/omec-project/amf/logger"
 )
 
+const serverNoResponse = "server no response"
+const serverNoResponseFormat = "%s: server no response"
+
 func BuildUeContextCreateData(ue *amf_context.AmfUe, targetRanId models.NgRanTargetId,
 	sourceToTargetData models.N2InfoContent, pduSessionList []models.N2SmInformation,
 	n2NotifyUri string, ngapCause *models.NgApCause,
@@ -146,7 +149,7 @@ func CreateUEContextRequest(ue *amf_context.AmfUe, ueContextCreateData models.Ue
 		problem := localErr.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		problemDetails = &problem
 	} else {
-		err = openapi.ReportError("%s: server no response", ue.TargetAmfUri)
+		err = openapi.ReportError(serverNoResponseFormat, ue.TargetAmfUri)
 	}
 	return
 }

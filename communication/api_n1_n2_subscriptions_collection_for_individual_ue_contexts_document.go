@@ -41,7 +41,7 @@ func HTTPN1N2MessageSubscribe(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&ueN1N2InfoSubscriptionCreateData, requestBody, "application/json")
+	err = openapi.Deserialize(&ueN1N2InfoSubscriptionCreateData, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -59,7 +59,7 @@ func HTTPN1N2MessageSubscribe(c *gin.Context) {
 
 	rsp := producer.HandleN1N2MessageSubscirbeRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -69,6 +69,6 @@ func HTTPN1N2MessageSubscribe(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

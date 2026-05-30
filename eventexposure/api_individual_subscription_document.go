@@ -25,6 +25,10 @@ import (
 	"github.com/omec-project/amf/producer"
 )
 
+var (
+	applicationJson string = "application/json"
+)
+
 // DeleteSubscription - Namf_EventExposure Unsubscribe service Operation
 func HTTPDeleteSubscription(c *gin.Context) {
 	req := httpwrapper.NewRequest(c.Request, nil)
@@ -35,7 +39,7 @@ func HTTPDeleteSubscription(c *gin.Context) {
 	if rsp.Status == http.StatusOK {
 		c.JSON(http.StatusOK, gin.H{})
 	} else {
-		responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+		responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 		if err != nil {
 			logger.EeLog.Errorln(err)
 			problemDetails := models.ProblemDetails{
@@ -45,7 +49,7 @@ func HTTPDeleteSubscription(c *gin.Context) {
 			}
 			c.JSON(http.StatusInternalServerError, problemDetails)
 		} else {
-			c.Data(rsp.Status, "application/json", responseBody)
+			c.Data(rsp.Status, applicationJson, responseBody)
 		}
 	}
 }
@@ -67,7 +71,7 @@ func HTTPModifySubscription(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&modifySubscriptionRequest, requestBody, "application/json")
+	err = openapi.Deserialize(&modifySubscriptionRequest, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -85,7 +89,7 @@ func HTTPModifySubscription(c *gin.Context) {
 
 	rsp := producer.HandleModifyAMFEventSubscription(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.EeLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -95,6 +99,6 @@ func HTTPModifySubscription(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }

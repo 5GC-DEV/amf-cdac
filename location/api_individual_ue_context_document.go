@@ -25,6 +25,10 @@ import (
 	"github.com/omec-project/amf/producer"
 )
 
+var (
+	applicationJson string = "application/json"
+)
+
 // ProvideLocationInfo - Namf_Location ProvideLocationInfo service Operation
 func HTTPProvideLocationInfo(c *gin.Context) {
 	var requestLocInfo models.RequestLocInfo
@@ -42,7 +46,7 @@ func HTTPProvideLocationInfo(c *gin.Context) {
 		return
 	}
 
-	err = openapi.Deserialize(&requestLocInfo, requestBody, "application/json")
+	err = openapi.Deserialize(&requestLocInfo, requestBody, applicationJson)
 	if err != nil {
 		problemDetail := "[Request Body] " + err.Error()
 		rsp := models.ProblemDetails{
@@ -60,7 +64,7 @@ func HTTPProvideLocationInfo(c *gin.Context) {
 
 	rsp := producer.HandleProvideLocationInfoRequest(req)
 
-	responseBody, err := openapi.Serialize(rsp.Body, "application/json")
+	responseBody, err := openapi.Serialize(rsp.Body, applicationJson)
 	if err != nil {
 		logger.CommLog.Errorln(err)
 		problemDetails := models.ProblemDetails{
@@ -70,7 +74,7 @@ func HTTPProvideLocationInfo(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, problemDetails)
 	} else {
-		c.Data(rsp.Status, "application/json", responseBody)
+		c.Data(rsp.Status, applicationJson, responseBody)
 	}
 }
 

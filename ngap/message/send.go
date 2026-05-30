@@ -27,7 +27,7 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 	}()
 
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -70,17 +70,17 @@ func SendToRanUe(ue *context.RanUe, packet []byte) {
 	var ran *context.AmfRan
 
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	if ran = ue.Ran; ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
 	if ue.AmfUe == nil {
-		ue.Log.Warnln("AmfUe is nil")
+		ue.Log.Warnln(amfUeIsNil)
 	}
 
 	SendToRan(ran, packet)
@@ -88,13 +88,13 @@ func SendToRanUe(ue *context.RanUe, packet []byte) {
 
 func NasSendToRan(ue *context.AmfUe, accessType models.AccessType, packet []byte) {
 	if ue == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
 	ranUe := ue.RanUe[accessType]
 	if ranUe == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -165,7 +165,7 @@ func SendDownlinkNasTransport(ue *context.RanUe, nasPdu []byte,
 	mobilityRestrictionList *ngapType.MobilityRestrictionList,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -187,7 +187,7 @@ func SendPDUSessionResourceReleaseCommand(ue *context.RanUe, nasPdu []byte,
 	pduSessionResourceReleasedList ngapType.PDUSessionResourceToReleaseListRelCmd,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -203,7 +203,7 @@ func SendPDUSessionResourceReleaseCommand(ue *context.RanUe, nasPdu []byte,
 
 func SendUEContextReleaseCommand(ue *context.RanUe, action context.RelAction, causePresent int, cause aper.Enumerated) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -230,7 +230,7 @@ func SendErrorIndication(ran *context.AmfRan, amfUeNgapId, ranUeNgapId *int64, c
 	criticalityDiagnostics *ngapType.CriticalityDiagnostics,
 ) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -246,7 +246,7 @@ func SendErrorIndication(ran *context.AmfRan, amfUeNgapId, ranUeNgapId *int64, c
 
 func SendUERadioCapabilityCheckRequest(ue *context.RanUe) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -262,7 +262,7 @@ func SendUERadioCapabilityCheckRequest(ue *context.RanUe) {
 
 func SendHandoverCancelAcknowledge(ue *context.RanUe, criticalityDiagnostics *ngapType.CriticalityDiagnostics) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -282,14 +282,14 @@ func SendPDUSessionResourceSetupRequest(ue *context.RanUe, nasPdu []byte,
 	pduSessionResourceSetupRequestList ngapType.PDUSessionResourceSetupListSUReq,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	ue.Log.Infoln("send PDU Session Resource Setup Request")
 
 	if len(pduSessionResourceSetupRequestList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -310,19 +310,19 @@ func SendPDUSessionResourceModifyConfirm(
 	criticalityDiagnostics *ngapType.CriticalityDiagnostics,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	ue.Log.Infoln("send PDU Session Resource Modify Confirm")
 
 	if len(pduSessionResourceModifyConfirmList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
 	if len(pduSessionResourceFailedToModifyList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -340,14 +340,14 @@ func SendPDUSessionResourceModifyRequest(ue *context.RanUe,
 	pduSessionResourceModifyRequestList ngapType.PDUSessionResourceModifyListModReq,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	ue.Log.Infoln("send PDU Session Resource Modify Request")
 
 	if len(pduSessionResourceModifyRequestList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -369,7 +369,7 @@ func SendInitialContextSetupRequest(
 	emergencyFallbackIndicator *ngapType.EmergencyFallbackIndicator,
 ) {
 	if amfUe == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
@@ -377,7 +377,7 @@ func SendInitialContextSetupRequest(
 
 	if pduSessionResourceSetupRequestList != nil {
 		if len(pduSessionResourceSetupRequestList.List) > context.MaxNumOfPDUSessions {
-			amfUe.RanUe[anType].Log.Errorln("Pdu List out of range")
+			amfUe.RanUe[anType].Log.Errorln(pduListOutOfRange)
 			return
 		}
 	}
@@ -402,7 +402,7 @@ func SendUEContextModificationRequest(
 	emergencyFallbackIndicator *ngapType.EmergencyFallbackIndicator,
 ) {
 	if amfUe == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
@@ -436,12 +436,12 @@ func SendHandoverCommand(
 	sourceUe.Log.Infoln("send Handover Command")
 
 	if len(pduSessionResourceHandoverList.List) > context.MaxNumOfPDUSessions {
-		sourceUe.Log.Errorln("Pdu List out of range")
+		sourceUe.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
 	if len(pduSessionResourceToReleaseList.List) > context.MaxNumOfPDUSessions {
-		sourceUe.Log.Errorln("Pdu List out of range")
+		sourceUe.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -469,7 +469,7 @@ func SendHandoverPreparationFailure(sourceUe *context.RanUe, cause ngapType.Caus
 
 	amfUe := sourceUe.AmfUe
 	if amfUe == nil {
-		sourceUe.Log.Errorln("amfUe is nil")
+		sourceUe.Log.Errorln(amfUeIsNil)
 		return
 	}
 	amfUe.SetOnGoing(sourceUe.Ran.AnType, &context.OnGoingProcedureWithPrio{
@@ -503,7 +503,7 @@ func SendHandoverRequest(sourceUe *context.RanUe, targetRan *context.AmfRan, cau
 
 	amfUe := sourceUe.AmfUe
 	if amfUe == nil {
-		sourceUe.Log.Errorln("amfUe is nil")
+		sourceUe.Log.Errorln(amfUeIsNil)
 		return
 	}
 	if targetRan == nil {
@@ -517,7 +517,7 @@ func SendHandoverRequest(sourceUe *context.RanUe, targetRan *context.AmfRan, cau
 	}
 
 	if len(pduSessionResourceSetupListHOReq.List) > context.MaxNumOfPDUSessions {
-		sourceUe.Log.Errorln("Pdu List out of range")
+		sourceUe.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -565,19 +565,19 @@ func SendPathSwitchRequestAcknowledge(
 	criticalityDiagnostics *ngapType.CriticalityDiagnostics,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	ue.Log.Infoln("send Path Switch Request Acknowledge")
 
 	if len(pduSessionResourceSwitchedList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
 	if len(pduSessionResourceReleasedList.List) > context.MaxNumOfPDUSessions {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -603,7 +603,7 @@ func SendPathSwitchRequestFailure(
 	ran.Log.Infoln("send Path Switch Request Failure")
 
 	if pduSessionResourceReleasedList != nil && len(pduSessionResourceReleasedList.List) > context.MaxNumOfPDUSessions {
-		ran.Log.Errorln("Pdu List out of range")
+		ran.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -619,14 +619,14 @@ func SendPathSwitchRequestFailure(
 // RanStatusTransferTransparentContainer from Uplink Ran Configuration Transfer
 func SendDownlinkRanStatusTransfer(ue *context.RanUe, container ngapType.RANStatusTransferTransparentContainer) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
 	ue.Log.Infoln("send Downlink Ran Status Transfer")
 
 	if len(container.DRBsSubjectToStatusTransferList.List) > context.MaxNumOfDRBs {
-		ue.Log.Errorln("Pdu List out of range")
+		ue.Log.Errorln(pduListOutOfRange)
 		return
 	}
 
@@ -651,7 +651,7 @@ func SendDownlinkRanStatusTransfer(ue *context.RanUe, container ngapType.RANStat
 func SendPaging(ue *context.AmfUe, ngapBuf []byte) {
 	// var pagingPriority *ngapType.PagingPriority
 	if ue == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
@@ -711,7 +711,7 @@ func SendRerouteNasRequest(ue *context.AmfUe, anType models.AccessType, amfUeNga
 	allowedNSSAI *ngapType.AllowedNSSAI,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
@@ -735,7 +735,7 @@ func SendRanConfigurationUpdateAcknowledge(
 	ran *context.AmfRan, criticalityDiagnostics *ngapType.CriticalityDiagnostics,
 ) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -756,7 +756,7 @@ func SendRanConfigurationUpdateFailure(ran *context.AmfRan, cause ngapType.Cause
 	criticalityDiagnostics *ngapType.CriticalityDiagnostics,
 ) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -778,7 +778,7 @@ func SendRanConfigurationUpdateFailure(ran *context.AmfRan, cause ngapType.Cause
 // Defined in 23.501 5.21.2.2.2
 func SendAMFStatusIndication(ran *context.AmfRan, unavailableGUAMIList ngapType.UnavailableGUAMIList) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -809,7 +809,7 @@ func SendOverloadStart(
 	overloadStartNSSAIList *ngapType.OverloadStartNSSAIList,
 ) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -836,7 +836,7 @@ func SendOverloadStart(
 
 func SendOverloadStop(ran *context.AmfRan) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -853,7 +853,7 @@ func SendOverloadStop(ran *context.AmfRan) {
 // SONConfigurationTransfer = sONConfigurationTransfer from uplink Ran Configuration Transfer
 func SendDownlinkRanConfigurationTransfer(ran *context.AmfRan, transfer *ngapType.SONConfigurationTransfer) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -871,7 +871,7 @@ func SendDownlinkRanConfigurationTransfer(ran *context.AmfRan, transfer *ngapTyp
 // NRPPa PDU is from LMF define in 4.13.5.6
 func SendDownlinkNonUEAssociatedNRPPATransport(ue *context.RanUe, nRPPaPDU ngapType.NRPPaPDU) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -892,13 +892,13 @@ func SendDownlinkNonUEAssociatedNRPPATransport(ue *context.RanUe, nRPPaPDU ngapT
 
 func SendDeactivateTrace(amfUe *context.AmfUe, anType models.AccessType) {
 	if amfUe == nil {
-		logger.NgapLog.Errorln("AmfUe is nil")
+		logger.NgapLog.Errorln(amfUeIsNil)
 		return
 	}
 
 	ranUe := amfUe.RanUe[anType]
 	if ranUe == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -929,7 +929,7 @@ func SendLocationReportingControl(
 	eventType ngapType.EventType,
 ) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -957,7 +957,7 @@ func SendLocationReportingControl(
 
 func SendUETNLABindingReleaseRequest(ue *context.RanUe) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 
@@ -976,7 +976,7 @@ func SendAMFConfigurationUpdate(ran *context.AmfRan, usage ngapType.TNLAssociati
 	weightfactor ngapType.TNLAddressWeightFactor,
 ) {
 	if ran == nil {
-		logger.NgapLog.Errorln("Ran is nil")
+		logger.NgapLog.Errorln(ranIsNil)
 		return
 	}
 
@@ -994,7 +994,7 @@ func SendAMFConfigurationUpdate(ran *context.AmfRan, usage ngapType.TNLAssociati
 // NRPPa PDU is by pass
 func SendDownlinkUEAssociatedNRPPaTransport(ue *context.RanUe, nRPPaPDU ngapType.NRPPaPDU) {
 	if ue == nil {
-		logger.NgapLog.Errorln("RanUe is nil")
+		logger.NgapLog.Errorln(ranUeIsNil)
 		return
 	}
 

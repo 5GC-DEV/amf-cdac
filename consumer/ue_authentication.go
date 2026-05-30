@@ -65,7 +65,7 @@ func SendUEAuthenticationAuthenticateRequest(ue *amf_context.AmfUe,
 		problem := err.(openapi.GenericOpenAPIError).Model().(models.ProblemDetails)
 		return nil, &problem, nil
 	} else {
-		return nil, nil, openapi.ReportError("server no response")
+		return nil, nil, openapi.ReportError(serverNoResponse)
 	}
 }
 
@@ -106,7 +106,7 @@ func SendAuth5gAkaConfirmRequest(ue *amf_context.AmfUe, resStar string) (
 		}
 		return nil, nil, nil
 	} else {
-		return nil, nil, openapi.ReportError("server no response")
+		return nil, nil, openapi.ReportError(serverNoResponse)
 	}
 }
 
@@ -145,7 +145,7 @@ func SendEapAuthConfirmRequest(ue *amf_context.AmfUe, eapMsg nasType.EAPMessage)
 			problemDetails = &problem
 		}
 	} else {
-		err1 = openapi.ReportError("server no response")
+		err1 = openapi.ReportError(serverNoResponse)
 	}
 
 	return response, problemDetails, err1

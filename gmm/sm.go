@@ -21,6 +21,15 @@ import (
 	"github.com/omec-project/amf/util"
 )
 
+const (
+	stateMismatchFormat            string = "state mismatch: receieve gmm message[message type 0x%0x] at %s state"
+	unknownEventFormat             string = "Unknown event [%+v]"
+	stateResetToDeregistered       string = "state reset to Deregistered"
+	supiFormat                     string = "SUPI:%s"
+	invalidTypeAssertionAmfUe      string = "invalid type assertion for ArgAmfUe"
+	invalidTypeAssertionAccessType string = "invalid type assertion for ArgAccessType"
+)
+
 func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	switch event {
 	case fsm.EntryEvent:
@@ -52,7 +61,7 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf(stateMismatchFormat,
 				gmmMessage.GetMessageType(), state.Current())
 		}
 	case NwInitiatedDeregistrationEvent:
@@ -66,7 +75,7 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.ExitEvent:
 		logger.GmmLog.Debugln(event)
 	default:
-		logger.GmmLog.Errorf("Unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
@@ -130,7 +139,7 @@ func Registered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf(stateMismatchFormat,
 				gmmMessage.GetMessageType(), state.Current())
 		}
 	case StartAuthEvent:
@@ -149,7 +158,7 @@ func Registered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.ExitEvent:
 		logger.GmmLog.Debugln(event)
 	default:
-		logger.GmmLog.Errorf("Unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
@@ -224,7 +233,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			if err != nil {
 				logger.GmmLog.Errorln(err)
 			} else {
-				amfUe.GmmLog.Info("state reset to Deregistered")
+				amfUe.GmmLog.Info(stateResetToDeregistered)
 			}
 		}
 	case AuthSuccessEvent:
@@ -252,7 +261,7 @@ func Authentication(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		amfUe.AuthenticationCtx = nil
 		amfUe.AuthFailureCauseSynchFailureTimes = 0
 	default:
-		logger.GmmLog.Errorf("Unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
@@ -262,10 +271,10 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		accessType := args[ArgAccessType].(models.AccessType)
 		// set log information
-		amfUe.NASLog = amfUe.NASLog.With(logger.FieldSupi, fmt.Sprintf("SUPI:%s", amfUe.Supi))
-		amfUe.TxLog = amfUe.NASLog.With(logger.FieldSupi, fmt.Sprintf("SUPI:%s", amfUe.Supi))
-		amfUe.GmmLog = amfUe.GmmLog.With(logger.FieldSupi, fmt.Sprintf("SUPI:%s", amfUe.Supi))
-		amfUe.ProducerLog = logger.ProducerLog.With(logger.FieldSupi, fmt.Sprintf("SUPI:%s", amfUe.Supi))
+		amfUe.NASLog = amfUe.NASLog.With(logger.FieldSupi, fmt.Sprintf(supiFormat, amfUe.Supi))
+		amfUe.TxLog = amfUe.NASLog.With(logger.FieldSupi, fmt.Sprintf(supiFormat, amfUe.Supi))
+		amfUe.GmmLog = amfUe.GmmLog.With(logger.FieldSupi, fmt.Sprintf(supiFormat, amfUe.Supi))
+		amfUe.ProducerLog = logger.ProducerLog.With(logger.FieldSupi, fmt.Sprintf(supiFormat, amfUe.Supi))
 		amfUe.PublishUeCtxtInfo()
 		amfUe.GmmLog.Debugln("EntryEvent at GMM State[SecurityMode]")
 		if amfUe.SecurityContextIsValid() {
@@ -345,7 +354,7 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf(stateMismatchFormat,
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
 			err := GmmFSM.SendEvent(state, SecurityModeFailEvent, fsm.ArgsType{
@@ -355,7 +364,7 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			if err != nil {
 				logger.GmmLog.Errorln(err)
 			} else {
-				amfUe.GmmLog.Info("state reset to Deregistered")
+				amfUe.GmmLog.Info(stateResetToDeregistered)
 			}
 		}
 	case SecurityModeAbortEvent:
@@ -382,7 +391,7 @@ func SecurityMode(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		logger.GmmLog.Debugln(event)
 		return
 	default:
-		logger.GmmLog.Errorf("unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
@@ -391,13 +400,13 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.EntryEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
+			logger.GmmLog.Errorln(invalidTypeAssertionAmfUe)
 			return
 		}
 		gmmMessage := args[ArgNASMessage]
 		accessType, ok := args[ArgAccessType].(models.AccessType)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAccessType")
+			logger.GmmLog.Errorln(invalidTypeAssertionAccessType)
 			return
 		}
 		amfUe.GmmLog.Debugln("EntryEvent at GMM State[ContextSetup]")
@@ -427,7 +436,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case GmmMessageEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
+			logger.GmmLog.Errorln(invalidTypeAssertionAmfUe)
 			return
 		}
 		gmmMessage, ok := args[ArgNASMessage].(*nas.GmmMessage)
@@ -437,7 +446,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		}
 		accessType, ok := args[ArgAccessType].(models.AccessType)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAccessType")
+			logger.GmmLog.Errorln(invalidTypeAssertionAccessType)
 			return
 		}
 		amfUe.GmmLog.Debugln("GmmMessageEvent at GMM State[ContextSetup]")
@@ -481,7 +490,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf(stateMismatchFormat,
 				gmmMessage.GetMessageType(), state.Current())
 			msgType := gmmMessage.GetMessageType()
 			if msgType == nas.MsgTypeRegistrationRequest {
@@ -493,7 +502,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				if err != nil {
 					logger.GmmLog.Errorln(err)
 				} else {
-					amfUe.GmmLog.Info("state reset to Deregistered")
+					amfUe.GmmLog.Info(stateResetToDeregistered)
 				}
 			}
 		}
@@ -503,12 +512,12 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		logger.GmmLog.Debugln(event)
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
+			logger.GmmLog.Errorln(invalidTypeAssertionAmfUe)
 			return
 		}
 		accessType, ok := args[ArgAccessType].(models.AccessType)
 		if !ok {
-			logger.GmmLog.Errorln("invalid type assertion for ArgAccessType")
+			logger.GmmLog.Errorln(invalidTypeAssertionAccessType)
 			return
 		}
 		amfUe.T3550.Stop()
@@ -522,7 +531,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.ExitEvent:
 		logger.GmmLog.Debugln(event)
 	default:
-		logger.GmmLog.Errorf("unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
@@ -554,7 +563,7 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 				logger.GmmLog.Errorln(err)
 			}
 		default:
-			amfUe.GmmLog.Warnf("state mismatch: receieve gmm message[message type 0x%0x] at %s state",
+			amfUe.GmmLog.Warnf(stateMismatchFormat,
 				gmmMessage.GetMessageType(), state.Current())
 			// called SendEvent() to move to deregistered state if state mismatch occurs
 			err := GmmFSM.SendEvent(state, DeregistrationAcceptEvent, fsm.ArgsType{
@@ -564,7 +573,7 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 			if err != nil {
 				logger.GmmLog.Errorln(err)
 			} else {
-				amfUe.GmmLog.Info("state reset to Deregistered")
+				amfUe.GmmLog.Info(stateResetToDeregistered)
 			}
 		}
 	case DeregistrationAcceptEvent:
@@ -575,7 +584,7 @@ func DeregisteredInitiated(state *fsm.State, event fsm.EventType, args fsm.ArgsT
 	case fsm.ExitEvent:
 		logger.GmmLog.Debugln(event)
 	default:
-		logger.GmmLog.Errorf("unknown event [%+v]", event)
+		logger.GmmLog.Errorf(unknownEventFormat, event)
 	}
 }
 
