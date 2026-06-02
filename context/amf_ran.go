@@ -113,6 +113,7 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 	ranUe.Log = ran.Log.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ran.RanUeList = append(ran.RanUeList, &ranUe)
 	self.RanUePool.Store(ranUe.AmfUeNgapId, &ranUe)
+	ran.Log.Info("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
 	return &ranUe, nil
 }
 
