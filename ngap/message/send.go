@@ -53,6 +53,8 @@ func SendToRan(ran *context.AmfRan, packet []byte) {
 		if ran.Conn.RemoteAddr() == nil {
 			ran.Log.Errorln("Ran addr is nil")
 			return
+		} else {
+			ran.Log.Info("Remote address: ", ran.Conn.RemoteAddr().String())
 		}
 
 		ran.Log.Debugln("send NGAP message To Ran")
@@ -531,11 +533,14 @@ func SendHandoverRequest(sourceUe *context.RanUe, targetRan *context.AmfRan, cau
 		sourceUe.Log.Errorf("create target UE error: %+v", err)
 	} else {
 		targetUe = targetUeTmp
+		sourceUe.Log.Debugf("targetue remoteaddress: ", targetUe.Ran.Conn.RemoteAddr().String())
 	}
 
 	sourceUe.Log.Debugf("source: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[%d]", sourceUe.AmfUeNgapId, sourceUe.RanUeNgapId)
 	sourceUe.Log.Debugf("target: AMF_UE_NGAP_ID[%d], RAN_UE_NGAP_ID[Unknown]", targetUe.AmfUeNgapId)
 	context.AttachSourceUeTargetUe(sourceUe, targetUe)
+	sourceUe.Log.Debugf("sourceue remoteaddr after attachst: ", sourceUe.Ran.Conn.RemoteAddr().String())
+	sourceUe.Log.Debugf("targetue remoteaddr after attachst: ", targetUe.Ran.Conn.RemoteAddr().String())
 
 	pkt, err := BuildHandoverRequest(targetUe, cause, pduSessionResourceSetupListHOReq,
 		sourceToTargetTransparentContainer, nsci)

@@ -371,6 +371,7 @@ func (context *AMFContext) NewAmfRan(conn net.Conn) *AmfRan {
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.Conn = conn
+	logger.ContextLog.Info("Remote address: ", conn.RemoteAddr().String())
 	ran.GnbIp = conn.RemoteAddr().String()
 	ran.Log = logger.NgapLog.With(logger.FieldRanAddr, conn.RemoteAddr().String())
 	context.AmfRanPool.Store(conn, &ran)

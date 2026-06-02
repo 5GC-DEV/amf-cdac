@@ -3820,6 +3820,7 @@ func HandleHandoverRequired(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendErrorIndication(ran, nil, nil, &cause, nil)
 		return
 	}
+	sourceUe.Log.Debugf("source ue remoteaddress: ", sourceUe.Ran.Conn.RemoteAddr().String())
 	amfUe := sourceUe.AmfUe
 	if amfUe == nil {
 		ran.Log.Errorln("Cannot find amfUE from sourceUE")
@@ -3846,7 +3847,9 @@ func HandleHandoverRequired(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	}
 	aMFSelf := context.AMF_Self()
 	targetRanNodeId := ngapConvert.RanIdToModels(targetID.TargetRANNodeID.GlobalRANNodeID)
+	sourceUe.Log.Debugf("targetran id: %v", targetRanNodeId)
 	targetRan, ok := aMFSelf.AmfRanFindByRanID(targetRanNodeId)
+	sourceUe.Log.Debugf("targetran remoteaddress: ", targetRan.Conn.RemoteAddr().String())
 	if !ok {
 		// handover between different AMF
 		sourceUe.Log.Warnf("Handover required : cannot find target Ran Node Id[%+v] in this AMF", targetRanNodeId)
