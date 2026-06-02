@@ -137,11 +137,15 @@ func (context *AMFContext) AllocateAmfUeNgapID() (int64, error) {
 	var val int64
 	var err error
 	if context.EnableDbStore {
+		logger.ContextLog.Infof("dbstore enabled")
 		var tmp int32
 		tmp, err = context.Drsm.AllocateInt32ID()
 		val = int64(tmp)
+		logger.ContextLog.Infof("val: ", val)
 	} else {
+		logger.ContextLog.Infof("dbstore not enabled")
 		val, err = AllocateUniqueID(&amfUeNGAPIDGenerator, "amfUeNgapID")
+		logger.ContextLog.Infof("val: ", val)
 	}
 	if err != nil {
 		logger.ContextLog.Errorf("Allocate NgapID error: %+v", err)
