@@ -115,9 +115,7 @@ func (ranUe *RanUe) Remove() error {
 	} else {
 		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
 	}
-	if ranUe.AmfUe.Supi != "" {
-		logger.ContextLog.Info("Released Amfuengapid:%d, Supi:%s, ranue:%p", ranUe.AmfUeNgapId, ranUe.AmfUe.Supi, ranUe)
-	}
+	logger.ContextLog.Info("Released Amfuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe)
 	return nil
 }
 
