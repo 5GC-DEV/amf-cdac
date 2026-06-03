@@ -344,7 +344,9 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
 			ran.Log.Info("UEContextReleaseComplete lookup Amfuengapid:%d", aMFUENGAPID.Value)
-			ran.Log.Info("Fetched Amfuengaid:%d, Supi:%s, ranue:%p", ranUe.AmfUeNgapId, ranUe.AmfUe.Supi, ranUe)
+			if ranUe.AmfUe.Supi != "" {
+				ran.Log.Info("Fetched Amfuengaid:%d, Supi:%s, ranue:%p", ranUe.AmfUeNgapId, ranUe.AmfUe.Supi, ranUe)
+			}
 
 		case ngapType.ProcedureCodePDUSessionResourceRelease:
 			ngapMsg := successfulOutcome.Value.PDUSessionResourceReleaseResponse
