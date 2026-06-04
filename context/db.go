@@ -135,7 +135,6 @@ func StoreContextInDB(ue *AmfUe) {
 	if self.EnableDbStore {
 		amfUeBsonA := ToBsonM(ue)
 		filter := bson.M{"supi": ue.Supi}
-
 		_, postErr := mongoapi.CommonDBClient.RestfulAPIPost(AmfUeDataColl, filter, amfUeBsonA)
 		if postErr != nil {
 			logger.DataRepoLog.Warnln(postErr)
