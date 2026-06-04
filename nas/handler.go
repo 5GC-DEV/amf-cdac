@@ -94,6 +94,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		}
 		ue.Log.Debug("submitting message to eventchannel")
 		ue.AmfUe.EventChannel.SubmitMessage(nasMsg)
+		ue.Log.Debug("After SubmitMessage")
 
 		return
 	}
