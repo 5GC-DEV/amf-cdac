@@ -205,6 +205,12 @@ func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
 }
 
+func InitUeRegStats(amfID string) {
+	logger.InitLog.Info("Entering InitUeRegStats")
+	amfStats.ueReg.WithLabelValues(amfID, "success").Add(0)
+	amfStats.ueReg.WithLabelValues(amfID, "failure").Add(0)
+}
+
 // IncrementUeRegStats increments registration level stats
 func IncrementUeRegStats(amfID, result string) {
 	amfStats.ueReg.WithLabelValues(amfID, result).Inc()

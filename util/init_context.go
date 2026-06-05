@@ -18,6 +18,7 @@ import (
 	"github.com/omec-project/amf/context"
 	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 )
 
 func InitDrsm() (drsm.DrsmInterface, error) {
@@ -45,7 +46,7 @@ func InitAmfContext(context *context.AMFContext) {
 	if context.NfId == "" {
 		context.NfId = uuid.New().String()
 	}
-
+	metrics.InitUeRegStats(context.NfId)
 	if configuration.AmfName != "" {
 		context.Name = configuration.AmfName
 	}

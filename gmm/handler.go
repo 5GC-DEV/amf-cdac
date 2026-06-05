@@ -2542,10 +2542,7 @@ func HandleDeregistrationRequest(ue *context.AmfUe, anType models.AccessType,
 	if deregistrationRequest.GetSwitchOff() == 0 && ue.RanUe[anType] != nil {
 		gmm_message.SendDeregistrationAccept(ue.RanUe[anType])
 		metrics.IncrementUeDeregStats(context.AMF_Self().NfId, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "success")
-	} else {
-		metrics.IncrementUeDeregStats(context.AMF_Self().NfId, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "failure")
 	}
-
 	// TS 23.502 4.2.6, 4.12.3
 	switch targetDeregistrationAccessType {
 	case nasMessage.AccessType3GPP:

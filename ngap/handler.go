@@ -1149,7 +1149,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
 		}
@@ -1273,7 +1272,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
 		}
@@ -1285,7 +1283,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
 		}
