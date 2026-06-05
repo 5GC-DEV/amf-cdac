@@ -85,6 +85,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			ran.Log.Debugf("ran gnbid:%s, gnbip:%s", ran.GnbId, ran.GnbIp)
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 			if ranUe == nil {
+				ran.Log.Debugf("ranue NIL")
 				var err error
 
 				if fiveGSTMSI != nil {
@@ -1281,6 +1282,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 
 		amfUe.PublishUeCtxtInfo()
 		amfUe.RanUe = nil
+		ran.Log.Infof("amfue after ranue nil: ", amfUe)
 		context.StoreContextInDB(amfUe)
 	case context.UeContextReleaseUeContext:
 		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
@@ -1301,6 +1303,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		} else {
 			amfUe.PublishUeCtxtInfo()
 			amfUe.RanUe = nil
+			ran.Log.Infof("amfue after ranue nil: ", amfUe)
 			context.StoreContextInDB(amfUe)
 		}
 	case context.UeContextReleaseDueToNwInitiatedDeregistraion:
