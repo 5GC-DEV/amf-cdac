@@ -7,10 +7,8 @@ github.com/5GC-DEV/ngap-cdac v0.0.0-20251211063814-37e26c700d90/go.mod h1:f8IDKd
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 h1:EQu1JPd1A7x5xQNw53wXTE5slWvCE3cttWFyqMMm4EQ=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31/go.mod h1:0RoJ2GgMzm+tqwCasiGq9FmD6mhTG6uznEB24VzneuA=
 github.com/5GC-DEV/openapi-cdac v1.0.0/go.mod h1:TFxV/NlwA7waEk3BqH6baTQ8oWpPMRDFC1YCEpPjl04=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8 h1:QXEkID4P7RbR1YIkmiiUuIdFc9UagBIYedLHIN4xZGc=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20251124131326-494f05f365c8/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260109140746-44d5650a6474 h1:yMQLrfkqyLoEqkPamq0suv/64d+ovFuU2EmSAhLPJ9Y=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260109140746-44d5650a6474/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260608113850-fc77b7ccebaf h1:Tn9+8QDlQlGfz/N6QYDp9QCB1tJ+JcaGhksg/Ue/F30=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260608113850-fc77b7ccebaf/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
 github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085 h1:KLL6S+ytEGgr3dX0sg6xDQ2TXZMtVt9TboPcu1j2nes=
 github.com/5GC-DEV/util-cdac v0.0.0-20250930103432-58951725c085/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
