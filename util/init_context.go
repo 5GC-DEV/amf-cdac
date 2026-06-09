@@ -46,7 +46,7 @@ func InitAmfContext(context *context.AMFContext) {
 	if context.NfId == "" {
 		context.NfId = uuid.New().String()
 	}
-	metrics.InitUeRegStats(context.NfId)
+	metrics.InitStats(context.NfId)
 	if configuration.AmfName != "" {
 		context.Name = configuration.AmfName
 	}
