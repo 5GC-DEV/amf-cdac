@@ -36,7 +36,7 @@ type AmfStats struct {
 	noOfUeConnect     *prometheus.GaugeVec
 	noOfActiveSub     prometheus.Gauge
 	noOfActiveGnb     prometheus.Gauge
-	gnbConnect        *prometheus.CounterVec
+	gnbConnect        prometheus.Counter
 	AuthRequestTotal  *prometheus.CounterVec
 }
 
@@ -114,10 +114,10 @@ func initAmfStats() *AmfStats {
 			Help: "current number of active gNB's in the core",
 		}),
 
-		gnbConnect: prometheus.NewCounterVec(prometheus.CounterOpts{
+		gnbConnect: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: "amf_gnb_connected_total",
 			Help: "Counter of total gNB connections",
-		}, []string{"gnb_id", "gnb_ip", "name"}),
+		}),
 
 		AuthRequestTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Name: "amf_auth_request_total",
@@ -267,8 +267,8 @@ func SetNoOfActiveGnbStats(count uint64) {
 }
 
 // IncrementGnbConnStats maintains gnb connection level stats
-func IncrementGnbConnStats(gnbid, gnbip, name string) {
-	amfStats.gnbConnect.WithLabelValues(gnbid, gnbip, name).Inc()
+func IncrementGnbConnStats() {
+	amfStats.gnbConnect.Inc()
 }
 
 // IncrementAuthReqStats maintains gnb connection level stats
@@ -281,7 +281,7 @@ func InitStats(amfID string) {
 	amfStats.ueReg.WithLabelValues(amfID, "success").Add(0)
 	amfStats.ueReg.WithLabelValues(amfID, "failure").Add(0)
 	amfStats.ueDeregistered.WithLabelValues(amfID, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "success").Add(0)
-	amfStats.ngapMsg.WithLabelValues(amfID, "", "In", "", "").Add(0)
+	amfStats.ngapMsg.WithLabelValues(amfID, "InitialUEMessage", "In", "", "").Add(0)
 	amfStats.ueConnRelease.WithLabelValues(amfID, "", "In", "success").Add(0)
 	amfStats.ueAuthFail.WithLabelValues(amfID, "", "", "success").Add(0)
 	amfStats.pagingFail.WithLabelValues(amfID, "", "success").Add(0)
@@ -289,6 +289,6 @@ func InitStats(amfID string) {
 	amfStats.n2HandoverFail.WithLabelValues(amfID, "", "", "success").Add(0)
 	amfStats.nfNonReachable.WithLabelValues(amfID, "", "success").Add(0)
 	amfStats.gnbDisconnect.WithLabelValues("", "", "success").Add(0)
-	amfStats.gnbConnect.WithLabelValues("", "", "").Add(0)
+	amfStats.gnbConnect.Add(0)
 	amfStats.AuthRequestTotal.WithLabelValues("").Add(0)
 }
