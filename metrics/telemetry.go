@@ -206,20 +206,6 @@ func SetGnbSessProfileStats(id, ip, state, tac string, count uint64) {
 	amfStats.gnbSessionProfile.WithLabelValues(id, ip, state, tac).Set(float64(count))
 }
 
-func InitStats(amfID string) {
-	logger.InitLog.Info("Entering InitStats")
-	amfStats.ueReg.WithLabelValues(amfID, "success").Add(0)
-	amfStats.ueReg.WithLabelValues(amfID, "failure").Add(0)
-	amfStats.ueDeregistered.WithLabelValues(amfID, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "success").Add(0)
-	amfStats.ngapMsg.WithLabelValues(amfID, "", "In", "", "").Add(0)
-	amfStats.ueConnRelease.WithLabelValues(amfID, "", "In", "success").Add(0)
-	amfStats.ueAuthFail.WithLabelValues(amfID, "", "", "success").Add(0)
-	amfStats.pagingFail.WithLabelValues(amfID, "", "success").Add(0)
-	amfStats.xnHandoverFail.WithLabelValues(amfID, "", "", "success").Add(0)
-	amfStats.n2HandoverFail.WithLabelValues(amfID, "", "", "success").Add(0)
-	amfStats.nfNonReachable.WithLabelValues(amfID, "", "success").Add(0)
-}
-
 // IncrementUeRegStats increments registration level stats
 func IncrementUeRegStats(amfID, result string) {
 	amfStats.ueReg.WithLabelValues(amfID, result).Inc()
@@ -288,4 +274,21 @@ func IncrementGnbConnStats(gnbid, gnbip, name string) {
 // IncrementAuthReqStats maintains gnb connection level stats
 func IncrementAuthReqStats(supi string) {
 	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
+}
+
+func InitStats(amfID string) {
+	logger.InitLog.Info("Entering InitStats")
+	amfStats.ueReg.WithLabelValues(amfID, "success").Add(0)
+	amfStats.ueReg.WithLabelValues(amfID, "failure").Add(0)
+	amfStats.ueDeregistered.WithLabelValues(amfID, string(nas.MsgTypeDeregistrationRequestUEOriginatingDeregistration), "out", "success").Add(0)
+	amfStats.ngapMsg.WithLabelValues(amfID, "", "In", "", "").Add(0)
+	amfStats.ueConnRelease.WithLabelValues(amfID, "", "In", "success").Add(0)
+	amfStats.ueAuthFail.WithLabelValues(amfID, "", "", "success").Add(0)
+	amfStats.pagingFail.WithLabelValues(amfID, "", "success").Add(0)
+	amfStats.xnHandoverFail.WithLabelValues(amfID, "", "", "success").Add(0)
+	amfStats.n2HandoverFail.WithLabelValues(amfID, "", "", "success").Add(0)
+	amfStats.nfNonReachable.WithLabelValues(amfID, "", "success").Add(0)
+	amfStats.gnbDisconnect.WithLabelValues("", "", "success").Add(0)
+	amfStats.gnbConnect.WithLabelValues("", "", "").Add(0)
+	amfStats.AuthRequestTotal.WithLabelValues("").Add(0)
 }
