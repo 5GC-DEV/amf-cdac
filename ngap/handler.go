@@ -1793,9 +1793,11 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	if uEContextRequest != nil {
 		ran.Log.Debug("Trigger initial Context Setup procedure")
 		ranUe.UeContextRequest = true
+		ran.Log.Debug("value: ", ranUe.UeContextRequest)
 		// TODO: Trigger Initial Context Setup procedure
 	} else {
 		ranUe.UeContextRequest = false
+		ran.Log.Debug("value: ", ranUe.UeContextRequest)
 	}
 
 	// TS 23.502 4.2.2.2.3 step 6a Nnrf_NFDiscovery_Request (NF type, AMF Set)

@@ -817,6 +817,7 @@ func (ue *AmfUe) ClearRegistrationRequestData(accessType models.AccessType) {
 		ue.RanUe[accessType].UeContextRequest = false
 		ue.RanUe[accessType].RecvdInitialContextSetupResponse = false
 	}
+	ue.GmmLog.Debugf("value: ", ue.RanUe[accessType].UeContextRequest)
 	ue.RetransmissionOfInitialNASMsg = false
 	ue.OnGoing[accessType].Procedure = OnGoingProcedureNothing
 }

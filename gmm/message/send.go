@@ -294,10 +294,12 @@ func SendRegistrationAccept(
 		ue.GmmLog.Errorln("Error in sending RegistrationAccept")
 		return
 	}
-
+	ue.GmmLog.Info("value: ", ue.RanUe[anType].UeContextRequest)
 	if ue.RanUe[anType].UeContextRequest {
+		ue.GmmLog.Info("UeContextRequest requested")
 		ngap_message.SendInitialContextSetupRequest(ue, anType, nasMsg, pduSessionResourceSetupList, nil, nil, nil)
 	} else {
+		ue.GmmLog.Infoln("UeContextRequest not requested")
 		ngap_message.SendDownlinkNasTransport(ue.RanUe[models.AccessType__3_GPP_ACCESS], nasMsg, nil)
 	}
 
