@@ -135,7 +135,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
 		return
 	}
-	logger.NgapLog.Infof("NGAP procedureCode=%d", pdu.InitiatingMessage.ProcedureCode.Value)
+	// logger.NgapLog.Infof("NGAP procedureCode=%d", pdu.InitiatingMessage.ProcedureCode.Value)
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
