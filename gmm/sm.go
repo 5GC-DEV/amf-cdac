@@ -431,8 +431,6 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		if !ok {
 			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
 			return
-		} else {
-			logger.GmmLog.Info("amfue amfuengapid: ", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
 		}
 		gmmMessage, ok := args[ArgNASMessage].(*nas.GmmMessage)
 		if !ok {

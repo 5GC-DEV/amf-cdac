@@ -31,8 +31,8 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 
 	if ue.AmfUe == nil {
 		ue.AmfUe = nas_security.FetchUeContextWithMobileIdentity(nasPdu)
-		if ue.AmfUe == nil || ue.AmfUe.RanUe == nil {
-			logger.NasLog.Debug("ue.amfue or ue.amfue.ranue is nil so creating new amfue")
+		if ue.AmfUe == nil {
+			logger.NasLog.Debug("creating new amfue")
 			ue.AmfUe = amfSelf.NewAmfUe("")
 		} else {
 			if amfSelf.EnableSctpLb && amfSelf.EnableDbStore {
