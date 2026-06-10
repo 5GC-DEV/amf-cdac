@@ -198,6 +198,7 @@ func SendSecurityModeCommand(ue *context.RanUe, eapSuccess bool, eapMessage stri
 		return
 	}
 	ue.AmfUe.GmmLog.Infoln("send Security Mode Command")
+	ue.AmfUe.GmmLog.Infof("send sec mode command with ranuengapid:%d, amfuengapid:%d", ue.RanUeNgapId, ue.AmfUeNgapId)
 
 	nasMsg, err := BuildSecurityModeCommand(ue.AmfUe, eapSuccess, eapMessage)
 	if err != nil {
@@ -283,7 +284,7 @@ func SendRegistrationAccept(
 	pduSessionResourceSetupList *ngapType.PDUSessionResourceSetupListCxtReq,
 ) {
 	ue.GmmLog.Infoln("send Registration Accept")
-
+	ue.GmmLog.Infof("send reg accept with ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 	nasMsg, err := BuildRegistrationAccept(ue, anType, pDUSessionStatus, reactivationResult, errPduSessionId, errCause)
 	if err != nil {
 		ue.GmmLog.Errorln(err.Error())

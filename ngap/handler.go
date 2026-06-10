@@ -139,6 +139,9 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 				}
 			}
 			ranUe = ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
+			if ranUe != nil {
+				ran.Log.Infof("for uplink nas transport fetched ranuengapid:%d, amfuengapid:%d", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
+			}
 		case ngapType.ProcedureCodeHandoverCancel:
 			ngapMsg := initiatingMessage.Value.HandoverCancel
 			for i := 0; i < len(ngapMsg.ProtocolIEs.List); i++ {
@@ -903,7 +906,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 
-	ranUe.Log.Infof("Uplink NAS Transport (RAN UE NGAP ID: %d)", ranUe.RanUeNgapId)
+	ranUe.Log.Infof("Uplink NAS Transport (RAN UE NGAP ID: %d), (AMF UE NGAP ID: %d)", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
 
 	if userLocationInformation != nil {
 		ranUe.UpdateLocation(userLocationInformation)

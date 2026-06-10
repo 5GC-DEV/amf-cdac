@@ -206,7 +206,10 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
 			// TODO: concurrent on per-UE message
+			logger.NgapLog.Infof("SCTP packet received from %s, ppid=%d", conn.RemoteAddr(), info.PPID)
+			logger.NgapLog.Infof("Before HandleMessage")
 			handler.HandleMessage(conn, buf[:n])
+			logger.NgapLog.Infof("After HandleMessage")
 		}
 	}
 }

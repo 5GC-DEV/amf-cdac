@@ -117,12 +117,12 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 func Dispatch(conn net.Conn, msg []byte) {
 	var ran *context.AmfRan
 	amfSelf := context.AMF_Self()
-
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
 		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
 		ran = amfSelf.NewAmfRan(conn)
 	}
+	logger.NgapLog.Info("NGAP packet received from gNB=%s", ran.Name)
 
 	if len(msg) == 0 {
 		ran.Log.Infoln("RAN close the connection")
@@ -135,7 +135,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
 		return
 	}
-
+	logger.NgapLog.Infof("NGAP procedureCode=%d", pdu.InitiatingMessage.ProcedureCode.Value)
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/

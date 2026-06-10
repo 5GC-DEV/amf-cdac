@@ -2393,6 +2393,7 @@ func HandleRegistrationComplete(ue *context.AmfUe, accessType models.AccessType,
 	registrationComplete *nasMessage.RegistrationComplete,
 ) error {
 	ue.GmmLog.Info("Handle Registration Complete")
+	ue.GmmLog.Infof("With Ranuengaid: %d,Amfuengapid: %d", ue.RanUe[accessType].RanUeNgapId, ue.RanUe[accessType].AmfUeNgapId)
 
 	if ue.T3550 != nil {
 		ue.T3550.Stop()
@@ -2426,6 +2427,7 @@ func HandleSecurityModeComplete(ue *context.AmfUe, anType models.AccessType, pro
 	securityModeComplete *nasMessage.SecurityModeComplete,
 ) error {
 	ue.GmmLog.Info("Handle Security Mode Complete")
+	ue.GmmLog.Infof("With Ranuengaid: %d,Amfuengapid: %d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 
 	if ue.MacFailed {
 		return fmt.Errorf("NAS message integrity check failed")

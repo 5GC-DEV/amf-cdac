@@ -148,7 +148,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		}
 		return nil, "", problemDetails, nil
 	}
-
+	ue.ProducerLog.Debugf("n1n2 ue ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 	if requestData.N1MessageContainer != nil {
 		switch requestData.N1MessageContainer.N1MessageClass {
 		case models.N1MessageClass_SM:
@@ -236,6 +236,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 			err    error
 		)
 		if n1Msg != nil {
+			ue.ProducerLog.Debug("contains n1 message")
 			nasPdu, err = gmm_message.BuildDLNASTransport(ue, n1MsgType, n1Msg, uint8(requestData.PduSessionId), nil, nil, 0)
 			if err != nil {
 				ue.ProducerLog.Errorf("Build DL NAS Transport error: %+v", err)
@@ -258,6 +259,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 
 		// TODO: only support transfer N2 SM information now
 		if n2Info != nil {
+			ue.ProducerLog.Debugln("contains n2info")
 			smInfo := requestData.N2InfoContainer.SmInfo
 			switch smInfo.N2InfoContent.NgapIeType {
 			case models.NgapIeType_PDU_RES_SETUP_REQ:
@@ -347,6 +349,7 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 	// Case A (UE is CM-IDLE in 3GPP access and the associated access type is 3GPP access)
 	// in subclause 5.2.2.3.1.2 of TS29518
 	if anType == models.AccessType__3_GPP_ACCESS {
+		logger.NgapLog.Info("access 3gpp")
 		if requestData.SkipInd && n2Info == nil {
 			n1n2MessageTransferRspData.Cause = models.N1N2MessageTransferCause_N1_MSG_NOT_TRANSFERRED
 		} else {

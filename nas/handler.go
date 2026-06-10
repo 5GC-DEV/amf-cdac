@@ -17,6 +17,7 @@ import (
 )
 
 func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
+	logger.NasLog.Debug("handling NAS")
 	amfSelf := context.AMF_Self()
 
 	if ue == nil {
@@ -101,6 +102,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 		ue.AmfUe.NASLog.Errorln(err)
 		return
 	}
+	logger.NasLog.Infof("msg type: , ranuengapid, amfuengaid", msg.GmmHeader.GetMessageType(), ue.RanUeNgapId, ue.AmfUeNgapId)
 	if err := Dispatch(ue.AmfUe, ue.Ran.AnType, procedureCode, msg); err != nil {
 		ue.AmfUe.NASLog.Errorf("handle NAS Error: %v", err)
 	}
