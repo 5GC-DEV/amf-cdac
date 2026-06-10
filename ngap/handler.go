@@ -1260,6 +1260,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 					})
 				}
 			}
+			// } else {
+			// 	gmm.SetDeregisteredState(amfUe, util.AnTypeToNas(ran.AnType))
+			// }
 		}
 	}
 

@@ -426,6 +426,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 		}
 	case GmmMessageEvent:
 		amfUe, ok := args[ArgAmfUe].(*context.AmfUe)
+		procedureCode := args[ArgProcedureCode].(int64)
 		if !ok {
 			logger.GmmLog.Errorln("invalid type assertion for ArgAmfUe")
 			return
@@ -493,7 +494,17 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				if err != nil {
 					logger.GmmLog.Errorln(err)
 				} else {
+					amfUe.GmmLog.Debug("amfue state after transition: ", amfUe.State[accessType])
 					amfUe.GmmLog.Info("state reset to Deregistered")
+					err := GmmFSM.SendEvent(state, GmmMessageEvent, fsm.ArgsType{
+						ArgAmfUe:         amfUe,
+						ArgAccessType:    accessType,
+						ArgNASMessage:    gmmMessage,
+						ArgProcedureCode: procedureCode,
+					})
+					if err != nil {
+						logger.GmmLog.Errorln(err)
+					}
 				}
 			}
 		}
