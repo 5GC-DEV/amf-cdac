@@ -214,10 +214,11 @@ type AmfUe struct {
 	// GmmLog      *logrus.Entry `json:"gmmLog,omitempty" yaml:"gmmLog" bson:"gmmLog,omitempty"`
 	// TxLog       *logrus.Entry `json:"txLog,omitempty" yaml:"txLog" bson:"txLog,omitempty"`
 	// ProducerLog *logrus.Entry `json:"producerLog,omitempty" yaml:"producerLog" bson:"producerLog,omitempty"`
-	NASLog      *zap.SugaredLogger `json:"-"`
-	GmmLog      *zap.SugaredLogger `json:"-"`
-	TxLog       *zap.SugaredLogger `json:"-"`
-	ProducerLog *zap.SugaredLogger `json:"-"`
+	NASLog         *zap.SugaredLogger `json:"-"`
+	GmmLog         *zap.SugaredLogger `json:"-"`
+	TxLog          *zap.SugaredLogger `json:"-"`
+	ProducerLog    *zap.SugaredLogger `json:"-"`
+	Skipentryevent bool
 }
 
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {

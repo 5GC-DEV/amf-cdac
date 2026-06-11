@@ -26,7 +26,11 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.EntryEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		accessType := args[ArgAccessType].(models.AccessType)
-		amfUe.ClearRegistrationRequestData(accessType)
+		if !amfUe.Skipentryevent {
+			amfUe.ClearRegistrationRequestData(accessType)
+		} else {
+			amfUe.GmmLog.Debug("skipentry evnet true, not clearing reg req")
+		}
 		amfUe.GmmLog.Debugln("EntryEvent at GMM State[DeRegistered]")
 	case GmmMessageEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
@@ -496,6 +500,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				} else {
 					amfUe.GmmLog.Debug("amfue state after transition: ", amfUe.State[accessType])
 					amfUe.GmmLog.Info("state reset to Deregistered")
+					amfUe.Skipentryevent = true
 					err := GmmFSM.SendEvent(state, GmmMessageEvent, fsm.ArgsType{
 						ArgAmfUe:         amfUe,
 						ArgAccessType:    accessType,
