@@ -122,7 +122,9 @@ func Dispatch(conn net.Conn, msg []byte) {
 		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
 		ran = amfSelf.NewAmfRan(conn)
 	}
-	logger.NgapLog.Info("NGAP packet received from gNB=%s", ran.Name)
+	if ran.Name != "" {
+		logger.NgapLog.Info("NGAP packet received from gNB=%s", ran.Name)
+	}
 
 	if len(msg) == 0 {
 		ran.Log.Infoln("RAN close the connection")
