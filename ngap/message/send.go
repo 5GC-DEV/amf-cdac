@@ -670,7 +670,9 @@ func SendPaging(ue *context.AmfUe, ngapBuf []byte) {
 			if context.InTaiList(item.Tai, taiList) {
 				ue.GmmLog.Infof("send Paging to TAI(%+v, Tac:%+v)",
 					item.Tai.PlmnId, item.Tai.Tac)
-				ue.GmmLog.Infof("send paging with ranuengapid:%d, amfuengapid:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId, ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
+				if ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
+					ue.GmmLog.Infof("send paging with ranuengapid:%d, amfuengapid:%d", ue.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId, ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
+				}
 				SendToRan(ran, ngapBuf)
 				break
 			}

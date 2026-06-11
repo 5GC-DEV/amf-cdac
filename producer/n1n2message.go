@@ -148,7 +148,9 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		}
 		return nil, "", problemDetails, nil
 	}
-	ue.ProducerLog.Debugf("n1n2 ue ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
+	if ue.RanUe[anType] != nil {
+		ue.ProducerLog.Debugf("n1n2 ue ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
+	}
 	if requestData.N1MessageContainer != nil {
 		switch requestData.N1MessageContainer.N1MessageClass {
 		case models.N1MessageClass_SM:
