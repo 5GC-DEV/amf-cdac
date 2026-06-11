@@ -2393,7 +2393,7 @@ func HandleRegistrationComplete(ue *context.AmfUe, accessType models.AccessType,
 	registrationComplete *nasMessage.RegistrationComplete,
 ) error {
 	ue.GmmLog.Info("Handle Registration Complete")
-	if ue.RanUe != nil {
+	if ue.RanUe[accessType] != nil {
 		ue.GmmLog.Infof("With Ranuengaid: %d,Amfuengapid: %d", ue.RanUe[accessType].RanUeNgapId, ue.RanUe[accessType].AmfUeNgapId)
 	}
 
@@ -2429,7 +2429,7 @@ func HandleSecurityModeComplete(ue *context.AmfUe, anType models.AccessType, pro
 	securityModeComplete *nasMessage.SecurityModeComplete,
 ) error {
 	ue.GmmLog.Info("Handle Security Mode Complete")
-	if ue.RanUe != nil {
+	if ue.RanUe[anType] != nil {
 		ue.GmmLog.Infof("With Ranuengaid: %d,Amfuengapid: %d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 	}
 

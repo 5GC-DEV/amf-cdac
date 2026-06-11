@@ -286,7 +286,7 @@ func SendRegistrationAccept(
 	pduSessionResourceSetupList *ngapType.PDUSessionResourceSetupListCxtReq,
 ) {
 	ue.GmmLog.Infoln("send Registration Accept")
-	if ue != nil {
+	if ue.RanUe[anType] != nil {
 		ue.GmmLog.Infof("send reg accept with ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 	}
 	nasMsg, err := BuildRegistrationAccept(ue, anType, pDUSessionStatus, reactivationResult, errPduSessionId, errCause)
