@@ -197,8 +197,8 @@ func SendSecurityModeCommand(ue *context.RanUe, eapSuccess bool, eapMessage stri
 		logger.GmmLog.Error("amfue nil while sending securitymodecommand")
 		return
 	}
-	ue.AmfUe.GmmLog.Infoln("send Security Mode Command")
-	if ue != nil {
+	logger.GmmLog.Info("send Security Mode Command")
+	if ue != nil && ue.AmfUe != nil {
 		ue.AmfUe.GmmLog.Infof("send sec mode command with ranuengapid:%d, amfuengapid:%d", ue.RanUeNgapId, ue.AmfUeNgapId)
 	}
 
