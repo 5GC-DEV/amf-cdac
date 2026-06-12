@@ -1252,9 +1252,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 							}
 						} else if response == nil {
 							if amfUe != nil && amfUe.RanUe != nil && amfUe.RanUe[ran.AnType] != nil {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
 							} else {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
 						}
 					}
@@ -1273,9 +1273,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 							}
 						} else if response == nil {
 							if amfUe != nil && amfUe.RanUe != nil && amfUe.RanUe[ran.AnType] != nil {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
 							} else {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
 						}
 						return true
@@ -2859,13 +2859,13 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							if amfUe != nil && amfUe.RanUe != nil && amfUe.RanUe[ran.AnType] != nil {
 								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
 							} else {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
 						} else if response == nil {
 							if amfUe != nil && amfUe.RanUe != nil && amfUe.RanUe[ran.AnType] != nil {
 								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error, amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
 							} else {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
 						}
 					}
@@ -2890,7 +2890,7 @@ func HandleUEContextReleaseRequest(ran *context.AmfRan, message *ngapType.NGAPPD
 							if amfUe != nil && amfUe.RanUe != nil && amfUe.RanUe[ran.AnType] != nil {
 								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error, amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
 							} else {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
 						}
 						return true
