@@ -1250,13 +1250,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 								ranUelog = amfUe.RanUe[ran.AnType]
 							}
 							if ranUelog != nil {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), ranUelog.AmfUeNgapId, ranUelog.RanUeNgapId)
 							} else {
 								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil", err.Error())
 							}
 						} else if response == nil {
 							if ranUelog != nil {
-								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), amfUe.RanUe[ran.AnType].AmfUeNgapId, amfUe.RanUe[ran.AnType].RanUeNgapId)
+								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], amfuengapid:%d, ranuengapid:%d", err.Error(), ranUelog.AmfUeNgapId, ranUelog.RanUeNgapId)
 							} else {
 								ran.Log.Errorf("Send Update SmContextDeactivate UpCnxState Error[%s], Ranue nil")
 							}
