@@ -299,7 +299,7 @@ func SendRegistrationAccept(
 		ue.GmmLog.Errorln("Error in sending RegistrationAccept")
 		return
 	}
-
+	ue.GmmLog.Info("value: ", ue.RanUe[anType].UeContextRequest)
 	if ue.RanUe[anType].UeContextRequest {
 		ngap_message.SendInitialContextSetupRequest(ue, anType, nasMsg, pduSessionResourceSetupList, nil, nil, nil)
 	} else {
