@@ -491,6 +491,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 			msgType := gmmMessage.GetMessageType()
 			if msgType == nas.MsgTypeRegistrationRequest {
 				// called SendEvent() to move to deregistered state if state mismatch occurs
+				amfUe.Skipentryevent = true
 				err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
 					ArgAmfUe:      amfUe,
 					ArgAccessType: accessType,
@@ -500,7 +501,6 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				} else {
 					amfUe.GmmLog.Debug("amfue state after transition: ", amfUe.State[accessType])
 					amfUe.GmmLog.Info("state reset to Deregistered")
-					amfUe.Skipentryevent = true
 					err := GmmFSM.SendEvent(state, GmmMessageEvent, fsm.ArgsType{
 						ArgAmfUe:         amfUe,
 						ArgAccessType:    accessType,
