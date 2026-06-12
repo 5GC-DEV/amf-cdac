@@ -26,7 +26,7 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.EntryEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		accessType := args[ArgAccessType].(models.AccessType)
-		//amfUe.ClearRegistrationRequestData(accessType)
+		// amfUe.ClearRegistrationRequestData(accessType)
 		if !amfUe.Skipentryevent {
 			amfUe.ClearRegistrationRequestData(accessType)
 		} else {
