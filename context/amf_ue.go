@@ -1237,12 +1237,47 @@ func (ue *AmfUe) StoreSmContext(pduSessionID int32, smContext *SmContext) {
 	ue.SmContextList.Store(pduSessionID, smContext)
 }
 
-func (ue *AmfUe) SmContextFindByPDUSessionID(pduSessionID int32) (*SmContext, bool) {
+/*func (ue *AmfUe) SmContextFindByPDUSessionID(pduSessionID int32) (*SmContext, bool) {
 	if value, ok := ue.SmContextList.Load(pduSessionID); ok {
 		return value.(*SmContext), true
 	} else {
 		return nil, false
 	}
+}*/
+
+func (ue *AmfUe) SmContextFindByPDUSessionID(pduSessionID int32) (*SmContext, bool) {
+	ue.GmmLog.Infof("Searching SM Context for PDU Session ID=%d SUPI=%s ", pduSessionID, ue.Supi)
+
+	if value, ok := ue.SmContextList.Load(pduSessionID); ok {
+		smContext := value.(*SmContext)
+
+		ue.GmmLog.Infof(
+			"SM Context found for PDU Session ID=%d, AccessType=%s, Ref=%s SUPI=%s ",
+			pduSessionID,
+			smContext.AccessType(),
+			smContext.SmContextRef,
+			ue.Supi,
+		)
+
+		return smContext, true
+	}
+
+	ue.GmmLog.Warnf(
+		"SM Context not found for PDU Session ID=%d",
+		pduSessionID,
+	)
+
+	ue.SmContextList.Range(func(key, value interface{}) bool {
+		if id, ok := key.(int32); ok {
+			ue.GmmLog.Infof(
+				"Available SM Context PDU Session ID=%d SUPI=%s",
+				id, ue.Supi,
+			)
+		}
+		return true
+	})
+
+	return nil, false
 }
 
 func (ue *AmfUe) SetEventChannel(handler func(*AmfUe, NgapMsg)) {

@@ -152,11 +152,24 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 		ue.ProducerLog.Debugf("n1n2 ue ranuengapid:%d,amfuengapid:%d", ue.RanUe[anType].RanUeNgapId, ue.RanUe[anType].AmfUeNgapId)
 	}
 	if requestData.N1MessageContainer != nil {
+		ue.ProducerLog.Infof(
+			"N1MessageContainer present. Class=%s PduSessionId=%d supi=%s",
+			requestData.N1MessageContainer.N1MessageClass,
+			requestData.PduSessionId, ue.Supi,
+		)
 		switch requestData.N1MessageContainer.N1MessageClass {
 		case models.N1MessageClass_SM:
-			ue.ProducerLog.Debugf("Receive N1 SM Message (PDU Session ID: %d)", requestData.PduSessionId)
+			ue.ProducerLog.Debugf("Receive N1 SM Message (PDU Session ID: %d) SUPI=%s", requestData.PduSessionId, ue.Supi)
 			n1MsgType = nasMessage.PayloadContainerTypeN1SMInfo
+			ue.ProducerLog.Infof(
+				"Searching SM Context for PDU Session ID=%d",
+				requestData.PduSessionId,
+			)
 			if smContext, ok = ue.SmContextFindByPDUSessionID(requestData.PduSessionId); !ok {
+				ue.ProducerLog.Errorf(
+					"SM Context not found for PDU Session ID=%d SUPI=%s",
+					requestData.PduSessionId, ue.Supi,
+				)
 				problemDetails = &models.ProblemDetails{
 					Status: http.StatusNotFound,
 					Cause:  "CONTEXT_NOT_FOUND",
@@ -164,23 +177,44 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 				return nil, "", problemDetails, nil
 			} else {
 				anType = smContext.AccessType()
+				ue.ProducerLog.Infof(
+					"SM Context found. PDU Session ID=%d AccessType=%s",
+					requestData.PduSessionId,
+					anType,
+				)
 			}
 		case models.N1MessageClass_SMS:
+			ue.ProducerLog.Infof("Received N1 SMS Message")
 			n1MsgType = nasMessage.PayloadContainerTypeSMS
 		case models.N1MessageClass_LPP:
+			ue.ProducerLog.Infof("Received N1 LPP Message")
 			n1MsgType = nasMessage.PayloadContainerTypeLPP
 		case models.N1MessageClass_UPDP:
+			ue.ProducerLog.Infof("Received N1 UE Policy Message")
 			n1MsgType = nasMessage.PayloadContainerTypeUEPolicy
 		default:
 		}
 	}
 
 	if requestData.N2InfoContainer != nil {
+		ue.ProducerLog.Infof(
+			"N2InfoContainer present. Class=%s PduSessionId=%d",
+			requestData.N2InfoContainer.N2InformationClass,
+			requestData.PduSessionId,
+		)
 		switch requestData.N2InfoContainer.N2InformationClass {
 		case models.N2InformationClass_SM:
 			ue.ProducerLog.Debugf("Receive N2 SM Message (PDU Session ID: %d)", requestData.PduSessionId)
 			if smContext == nil {
+				ue.ProducerLog.Infof(
+					"SM Context is nil, searching using PDU Session ID=%d",
+					requestData.PduSessionId,
+				)
 				if smContext, ok = ue.SmContextFindByPDUSessionID(requestData.PduSessionId); !ok {
+					ue.ProducerLog.Errorf(
+						"SM Context not found for PDU Session ID=%d, SUPI=%s",
+						requestData.PduSessionId, ue.Supi,
+					)
 					problemDetails = &models.ProblemDetails{
 						Status: http.StatusNotFound,
 						Cause:  "CONTEXT_NOT_FOUND",
@@ -188,6 +222,11 @@ func N1N2MessageTransferProcedure(ueContextID string, reqUri string,
 					return nil, "", problemDetails, nil
 				} else {
 					anType = smContext.AccessType()
+					ue.ProducerLog.Infof(
+						"SM Context found. PDU Session ID=%d AccessType=%s",
+						requestData.PduSessionId,
+						anType,
+					)
 				}
 			}
 		default:
