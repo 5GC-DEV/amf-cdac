@@ -211,15 +211,17 @@ func SendSecurityModeCommand(ue *context.RanUe, eapSuccess bool, eapMessage stri
 
 	amfUe := ue.AmfUe
 
-	if context.AMF_Self().T3560Cfg.Enable {
-		cfg := context.AMF_Self().T3560Cfg
-		amfUe.T3560 = context.NewTimer(cfg.ExpireTime, cfg.MaxRetryTimes, func(expireTimes int32) {
-			amfUe.GmmLog.Warnf("T3560 expires, retransmit Security Mode Command (retry: %d)", expireTimes)
-			ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
-		}, func() {
-			amfUe.GmmLog.Warnf("T3560 Expires %d times, abort security mode control procedure", cfg.MaxRetryTimes)
-			amfUe.Remove()
-		})
+	if amfUe != nil {
+		if context.AMF_Self().T3560Cfg.Enable {
+			cfg := context.AMF_Self().T3560Cfg
+			amfUe.T3560 = context.NewTimer(cfg.ExpireTime, cfg.MaxRetryTimes, func(expireTimes int32) {
+				amfUe.GmmLog.Warnf("T3560 expires, retransmit Security Mode Command (retry: %d)", expireTimes)
+				ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
+			}, func() {
+				amfUe.GmmLog.Warnf("T3560 Expires %d times, abort security mode control procedure", cfg.MaxRetryTimes)
+				amfUe.Remove()
+			})
+		}
 	}
 }
 
