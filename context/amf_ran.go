@@ -118,6 +118,7 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 }
 
 func (ran *AmfRan) RemoveAllUeInRan() {
+	logger.ContextLog.Info("in RemoveAllUeInRan")
 	for _, ranUe := range ran.RanUeList {
 		if err := ranUe.Remove(); err != nil {
 			logger.ContextLog.Errorf("Remove RanUe error: %v", err)

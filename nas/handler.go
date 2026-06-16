@@ -54,6 +54,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 					if ue.AmfUe != nil {
 						ue.AmfUe.Remove()
 					} else {
+						logger.NasLog.Info("handlenas ue remove")
 						if err := ue.Remove(); err != nil {
 							logger.NasLog.Errorf("error removing ue: %v", err)
 						}

@@ -897,6 +897,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	ranUe.Ran = ran
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {
+		ran.Log.Info("handling uplinknas ue remove")
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
@@ -1000,7 +1001,7 @@ func HandleNGReset(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 					ran.Log.Warnf("RanUeNgapID[%d]", ueAssociatedLogicalNGConnectionItem.RANUENGAPID.Value)
 				}
 			}
-
+			ran.Log.Info("in handlengreset")
 			err := ranUe.Remove()
 			if err != nil {
 				ran.Log.Errorln(err.Error())
@@ -1725,6 +1726,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 	ranUe := ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 
 	if ranUe != nil && ranUe.AmfUe == nil {
+		ran.Log.Debug("in IUM ue remove")
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
@@ -1780,6 +1782,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 						if ranUe != nil && ranUe.AmfUe != nil {
 							ranUe.AmfUe.Remove()
 						} else if ranUe != nil {
+							ran.Log.Debug("in initialuemseeage ue remove")
 							if err := ranUe.Remove(); err != nil {
 								ranUe.Log.Errorf("could not remove ranUe: %v", err)
 							}

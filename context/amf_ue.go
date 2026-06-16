@@ -670,6 +670,7 @@ func (ue *AmfUe) CmIdle(anType models.AccessType) bool {
 }
 
 func (ue *AmfUe) Remove() {
+	logger.ContextLog.Info("in AMFUE remove")
 	for _, ranUe := range ue.RanUe {
 		if err := ranUe.Remove(); err != nil {
 			logger.ContextLog.Errorf("Remove RanUe error: %v", err)
