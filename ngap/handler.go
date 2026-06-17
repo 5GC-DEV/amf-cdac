@@ -119,6 +119,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 			}
 
 		case ngapType.ProcedureCodeUplinkNASTransport:
+			ran.Log.Info("case uplinknastransport")
 			ngapMsg := initiatingMessage.Value.UplinkNASTransport
 			if ngapMsg == nil {
 				ran.Log.Errorln("UplinkNasTransport is nil")
@@ -888,12 +889,15 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	}
 
+	ran.Log.Info("uplinknas ranuengapid used to fetch ranue: ", rANUENGAPID.Value)
 	ranUe := ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	if ranUe == nil {
 		ran.Log.Errorf("No UE Context[RanUeNgapID: %d]", rANUENGAPID.Value)
 		return
 	}
-
+	if ranUe.RanUeNgapId != 0 {
+		ran.Log.Info("uplinknas ranuengapid from fetched ranue: ", ranUe.RanUeNgapId)
+	}
 	ranUe.Ran = ran
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {

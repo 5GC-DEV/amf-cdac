@@ -131,7 +131,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Remove()
 		return
 	}
-
+	logger.NgapLog.Info("length of msg: ", len(msg))
 	pdu, err := ngap.Decoder(msg)
 	if err != nil {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
