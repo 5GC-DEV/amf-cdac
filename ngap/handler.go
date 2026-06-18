@@ -864,6 +864,8 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			if aMFUENGAPID == nil {
 				ran.Log.Errorln("AmfUeNgapID is nil")
 				return
+			} else {
+				ran.Log.Info("amfuengapid:%d", aMFUENGAPID.Value)
 			}
 		case ngapType.ProtocolIEIDRANUENGAPID:
 			rANUENGAPID = ie.Value.RANUENGAPID
@@ -889,7 +891,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		}
 	}
 
-	ran.Log.Info("uplinknas ranuengapid used to fetch ranue: ", rANUENGAPID.Value)
+	ran.Log.Info("(uplinknas) ranuengapid used to fetch ranue: ", rANUENGAPID.Value)
 	ranUe := ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	if ranUe == nil {
 		ran.Log.Errorf("No UE Context[RanUeNgapID: %d]", rANUENGAPID.Value)
@@ -898,6 +900,10 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	if ranUe.RanUeNgapId != 0 {
 		ran.Log.Info("uplinknas ranuengapid from fetched ranue: ", ranUe.RanUeNgapId)
 	}
+	if ranUe.AmfUeNgapId != 0 {
+		ran.Log.Info("uplinknas amfuengapid from fetched ranue: ", ranUe.AmfUeNgapId)
+	}
+
 	ranUe.Ran = ran
 	amfUe := ranUe.AmfUe
 	if amfUe == nil {
@@ -909,6 +915,12 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ran.Log.Errorf("No UE Context of RanUe with RANUENGAPID[%d] AMFUENGAPID[%d] ",
 			rANUENGAPID.Value, aMFUENGAPID.Value)
 		return
+	}
+	if amfUe.RanUe != nil && amfUe.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId != 0 {
+		ran.Log.Info("From fetched ranue-amfue ranuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId)
+	}
+	if amfUe.RanUe != nil && amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId != 0 {
+		ran.Log.Info("From fetched ranue-amfue amfuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
 	}
 
 	ranUe.Log.Infof("Uplink NAS Transport (RAN UE NGAP ID: %d), (AMF UE NGAP ID: %d)", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
