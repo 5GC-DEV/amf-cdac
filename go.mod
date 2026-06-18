@@ -29,7 +29,7 @@ require (
 	github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260616123254-27b81785b4cd
 )
 
-require github.com/5GC-DEV/util-cdac v0.0.0-20260618120052-421c29cef9de // indirect
+require github.com/5GC-DEV/util-cdac v0.0.0-20260618131328-27c0fce82aa6
 
 require (
 	github.com/aead/cmac v0.0.0-20160719120800-7af84192f0b1 // indirect
