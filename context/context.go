@@ -134,6 +134,8 @@ func (context *AMFContext) TmsiAllocate() int32 {
 }
 
 func (context *AMFContext) AllocateAmfUeNgapID() (int64, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	var val int64
 	var err error
 	if context.EnableDbStore {

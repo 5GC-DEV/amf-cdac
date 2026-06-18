@@ -40,8 +40,8 @@ var (
 func AllocateUniqueID(generator **idgenerator.IDGenerator, idName string) (int64, error) {
 	// Use MongoDB increment field to generate new offset.
 	// generate ids between offset to 8192 above offset.
-	dbMutex.Lock()
-	defer dbMutex.Unlock()
+	// dbMutex.Lock()
+	// defer dbMutex.Unlock()
 	if *generator == nil {
 		logger.DataRepoLog.Infof("generator null. fetch offset from db")
 		val := mongoapi.CommonDBClient.GetUniqueIdentity(idName)
