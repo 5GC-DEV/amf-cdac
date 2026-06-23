@@ -4,10 +4,10 @@ github.com/5GC-DEV/nas-cdac v0.4.1 h1:/MSU4mRd+HuDw3CY5hmFND9Vuv0ye/uwzfgJHkzkOE
 github.com/5GC-DEV/nas-cdac v0.4.1/go.mod h1:5pLUEpSbRMY3org3mxHjjvX60KzjKWnr9a5iFyeTvHw=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31 h1:EQu1JPd1A7x5xQNw53wXTE5slWvCE3cttWFyqMMm4EQ=
 github.com/5GC-DEV/ngap-cdac v0.0.0-20251211084619-a3518c35bc31/go.mod h1:0RoJ2GgMzm+tqwCasiGq9FmD6mhTG6uznEB24VzneuA=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260616123254-27b81785b4cd h1:BbwPlo4plE5RBPT8HKLwmnbXoR3RiTmlKrZ0OxcNHw0=
-github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260616123254-27b81785b4cd/go.mod h1:KLX5UeLe67E9SQC/vVNArCa4KK4luoDNAS0kRGkdE74=
-github.com/5GC-DEV/util-cdac v0.0.0-20260618120052-421c29cef9de h1:G6KHuxHpxc/6OoXpiiLgeqRi+ytF3tVxTkZ6LQ3QCR0=
-github.com/5GC-DEV/util-cdac v0.0.0-20260618120052-421c29cef9de/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260619115852-5a3dc2407427 h1:zrA+rKg07X9UGgmwxjzIt6Wx6kpPEXGgG+pNXX4SgRk=
+github.com/5GC-DEV/openapi-cdac v1.0.1-0.20260619115852-5a3dc2407427/go.mod h1:C9NUfKZO1bMwFxB/ZSKqSS6g0B3gBA+n1B1N2YZoCh0=
+github.com/5GC-DEV/util-cdac v0.0.0-20260618131328-27c0fce82aa6 h1:thM0xQtsUfX6fwGkrBoGokWYxDMmoV7l+UlP5nmm5YU=
+github.com/5GC-DEV/util-cdac v0.0.0-20260618131328-27c0fce82aa6/go.mod h1:IHTEJn2S2C/SDlKxFkgXbepYFhgxSTm7uhbxHOF42xQ=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/Microsoft/go-winio v0.5.2 h1:a9IhgEQBCUEk6QCdml9CiJGhAws+YwffDHEMp1VMrpA=
