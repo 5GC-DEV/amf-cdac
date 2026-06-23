@@ -88,12 +88,14 @@ func (ranUe *RanUe) Remove() error {
 	if ranUe == nil {
 		return fmt.Errorf("RanUe not found in RemoveRanUe")
 	}
+	logger.ContextLog.Infof("Removing RanUe: AmfUeNgapId=%d RanUeNgapId=%d RanUe=%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
 	ran := ranUe.Ran
 	if ran == nil {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
 	if ranUe.AmfUe != nil {
 		amfUe := ranUe.AmfUe
+		logger.ContextLog.Infof("Removing RanUe: IMSI=%s", amfUe.Supi)
 		if amfUe.RanUe[ran.AnType] == ranUe {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
@@ -103,6 +105,7 @@ func (ranUe *RanUe) Remove() error {
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
 			ran.RanUeList = append(ran.RanUeList[:index], ran.RanUeList[index+1:]...)
+			logger.ContextLog.Infof("Removed RanUe from RanUeList: AmfUeNgapId=%d RanUeNgapId=%d Index=%d ", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, index)
 			break
 		}
 	}
@@ -115,7 +118,7 @@ func (ranUe *RanUe) Remove() error {
 	} else {
 		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
 	}
-	logger.ContextLog.Info("Released Amfuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe)
+	logger.ContextLog.Infof("Released Amfuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe)
 	return nil
 }
 

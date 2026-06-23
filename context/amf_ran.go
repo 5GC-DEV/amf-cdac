@@ -135,6 +135,8 @@ func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
 		}
 		if ranUe.RanUeNgapId == ranUeNgapID {
 			return ranUe
+		} else {
+			ran.Log.Warnf("RanUe lookup failed: RanUeNgapId=%d", ranUeNgapID)
 		}
 	}
 	ran.Log.Infof("RanUe does not exist")
