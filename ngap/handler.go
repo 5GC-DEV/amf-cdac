@@ -1796,6 +1796,7 @@ func HandleInitialUEMessage(ran *context.AmfRan, message *ngapType.NGAPPDU, sctp
 						rsp.GnbId = ran.GnbId
 						rsp.Msg = sctplbMsg.Msg
 						if ranUe != nil && ranUe.AmfUe != nil {
+							ran.Log.Debug("in initialuemessage amfue remove")
 							ranUe.AmfUe.Remove()
 						} else if ranUe != nil {
 							ran.Log.Debug("in initialuemseeage ue remove")

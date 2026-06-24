@@ -52,6 +52,7 @@ func HandleNAS(ue *context.RanUe, procedureCode int64, nasPdu []byte) {
 					rsp.GnbId = ue.Ran.GnbId
 					rsp.Msg = ue.SctplbMsg
 					if ue.AmfUe != nil {
+						logger.NasLog.Debug("handlenas amfue remove")
 						ue.AmfUe.Remove()
 					} else {
 						logger.NasLog.Info("handlenas ue remove")

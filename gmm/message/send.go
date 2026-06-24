@@ -103,6 +103,7 @@ func SendAuthenticationRequest(ue *context.RanUe) {
 		}, func() {
 			amfUe.GmmLog.Warnf("T3560 Expires %d times, abort authentication procedure & ongoing 5GMM procedure",
 				cfg.MaxRetryTimes)
+			amfUe.GmmLog.Info("amfue removing as part of abort authentication procedure")
 			amfUe.Remove()
 		})
 	}
@@ -219,6 +220,7 @@ func SendSecurityModeCommand(ue *context.RanUe, eapSuccess bool, eapMessage stri
 				ngap_message.SendDownlinkNasTransport(ue, nasMsg, nil)
 			}, func() {
 				amfUe.GmmLog.Warnf("T3560 Expires %d times, abort security mode control procedure", cfg.MaxRetryTimes)
+				amfUe.GmmLog.Info("amfue removing as part of abort sec mod control procedure")
 				amfUe.Remove()
 			})
 		}
@@ -252,16 +254,19 @@ func SendDeregistrationRequest(ue *context.RanUe, accessType uint8, reRegistrati
 			case nasMessage.AccessType3GPP:
 				amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
 				amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.GmmLog.Info("amfue removing as part of abort deregistration procedure 3gpp")
 				amfUe.Remove()
 			case nasMessage.AccessTypeNon3GPP:
 				amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
 				amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.GmmLog.Info("amfue removing as part of abort deregistration procedure non 3gpp")
 				amfUe.Remove()
 			default:
 				amfUe.GmmLog.Warnln("UE accessType[3GPP] transfer to Deregistered state")
 				amfUe.State[models.AccessType__3_GPP_ACCESS].Set(context.Deregistered)
 				amfUe.GmmLog.Warnln("UE accessType[Non3GPP] transfer to Deregistered state")
 				amfUe.State[models.AccessType_NON_3_GPP_ACCESS].Set(context.Deregistered)
+				amfUe.GmmLog.Info("amfue removing as part of abort deregistration procedure default")
 				amfUe.Remove()
 			}
 		})
