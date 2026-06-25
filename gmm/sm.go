@@ -9,6 +9,8 @@ package gmm
 
 import (
 	"fmt"
+	"runtime"
+	"sync/atomic"
 
 	"github.com/5GC-DEV/nas-cdac"
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
@@ -26,14 +28,35 @@ func DeRegistered(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 	case fsm.EntryEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		accessType := args[ArgAccessType].(models.AccessType)
-		// amfUe.ClearRegistrationRequestData(accessType)
-		if !amfUe.Skipentryevent {
-			amfUe.ClearRegistrationRequestData(accessType)
+
+		amfUe.GmmLog.Warnf("EntryEvent at GMM State[DeRegistered]: supi=%s suci=%s accessType=%v skipEntryEvent=%v ongoingProcedure=%v authCtxPresent=%v",
+			amfUe.Supi, amfUe.Suci, accessType, atomic.LoadInt32(&amfUe.Skipentryevent),
+			amfUe.OnGoing[accessType].Procedure, amfUe.AuthenticationCtx != nil)
+
+		// Log stacktrace to trace what triggered DeRegistered entry
+		buf := make([]byte, 2048)
+		n := runtime.Stack(buf, false)
+		amfUe.GmmLog.Warnf("DeRegistered EntryEvent stacktrace:\n%s", buf[:n])
+
+		// Atomically read and reset — no mutex needed, no deadlock risk
+		skip := atomic.SwapInt32(&amfUe.Skipentryevent, 0) == 1
+
+		if skip {
+			// Skipentryevent was 1 (true) — skip clearing
+			amfUe.GmmLog.Warnf("DeRegistered EntryEvent: Skipentryevent was true, skipping ClearRegistrationRequestData for supi=%s suci=%s",
+				amfUe.Supi, amfUe.Suci)
 		} else {
-			amfUe.GmmLog.Debug("skipentry evnet true, not clearing reg req")
-			amfUe.Skipentryevent = false
+			// Skipentryevent was 0 (false) — proceed with clearing
+			if amfUe.AuthenticationCtx != nil {
+				amfUe.GmmLog.Errorf("DeRegistered EntryEvent: AuthenticationCtx is non-nil but ClearRegistrationRequestData is about to be called — possible auth data wipe during active 5G-AKA for supi=%s suci=%s",
+					amfUe.Supi, amfUe.Suci)
+			}
+			amfUe.GmmLog.Warnf("DeRegistered EntryEvent: calling ClearRegistrationRequestData for supi=%s suci=%s",
+				amfUe.Supi, amfUe.Suci)
+			amfUe.ClearRegistrationRequestData(accessType)
 		}
-		amfUe.GmmLog.Debugln("EntryEvent at GMM State[DeRegistered]")
+
+		amfUe.GmmLog.Debugln("EntryEvent at GMM State[DeRegistered] complete")
 	case GmmMessageEvent:
 		amfUe := args[ArgAmfUe].(*context.AmfUe)
 		procedureCode := args[ArgProcedureCode].(int64)
@@ -494,7 +517,7 @@ func ContextSetup(state *fsm.State, event fsm.EventType, args fsm.ArgsType) {
 				gmmMessage.GetMessageType(), state.Current())
 			msgType := gmmMessage.GetMessageType()
 			if msgType == nas.MsgTypeRegistrationRequest {
-				amfUe.Skipentryevent = true
+				atomic.StoreInt32(&amfUe.Skipentryevent, 1) // was: amfUe.Skipentryevent = true
 				// called SendEvent() to move to deregistered state if state mismatch occurs
 				err := GmmFSM.SendEvent(state, ContextSetupFailEvent, fsm.ArgsType{
 					ArgAmfUe:      amfUe,
