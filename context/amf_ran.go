@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 
 	"github.com/5GC-DEV/ngap-cdac/ngapConvert"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
@@ -44,7 +45,8 @@ type AmfRan struct {
 	SupportedTAList []SupportedTAI // TODO SupportedTaList store and recover from DB
 
 	/* RAN UE List */
-	RanUeList []*RanUe `json:"-"` // RanUeNgapId as key
+	RanUeList     []*RanUe `json:"-"` // RanUeNgapId as key
+	RanUeListLock sync.RWMutex
 
 	Amf2RanMsgChan chan *sdcoreAmfServer.AmfMessage `json:"-"`
 	/* logger */
@@ -111,9 +113,19 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 	ranUe.RanUeNgapId = ranUeNgapID
 	ranUe.Ran = ran
 	ranUe.Log = ran.Log.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	ran.RanUeListLock.Lock()
+	defer ran.RanUeListLock.Unlock()
 	ran.RanUeList = append(ran.RanUeList, &ranUe)
 	self.RanUePool.Store(ranUe.AmfUeNgapId, &ranUe)
-	ran.Log.Info("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
+	ran.Log.Infof("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
+	ran.Log.Infof("RanUeList size: %d", len(ran.RanUeList))
+	for i, ue := range ran.RanUeList {
+		if ue == nil {
+			ran.Log.Infof("RanUeList[%d] = nil", i)
+			continue
+		}
+		ran.Log.Infof("RanUeList[%d]: RanUeNgapId=%d AmfUeNgapId=%d", i, ue.RanUeNgapId, ue.AmfUeNgapId)
+	}
 	return &ranUe, nil
 }
 
@@ -127,6 +139,8 @@ func (ran *AmfRan) RemoveAllUeInRan() {
 }
 
 func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
+	ran.RanUeListLock.RLock()
+	defer ran.RanUeListLock.RUnlock()
 	// TODO - need fix..Make this map so search is fast
 	for _, ranUe := range ran.RanUeList {
 		if ranUe == nil {

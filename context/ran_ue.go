@@ -101,6 +101,8 @@ func (ranUe *RanUe) Remove() error {
 		}
 		ranUe.DetachAmfUe()
 	}
+	ran.RanUeListLock.Lock()
+	defer ran.RanUeListLock.Unlock()
 
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
