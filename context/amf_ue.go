@@ -16,6 +16,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -214,11 +215,12 @@ type AmfUe struct {
 	// GmmLog      *logrus.Entry `json:"gmmLog,omitempty" yaml:"gmmLog" bson:"gmmLog,omitempty"`
 	// TxLog       *logrus.Entry `json:"txLog,omitempty" yaml:"txLog" bson:"txLog,omitempty"`
 	// ProducerLog *logrus.Entry `json:"producerLog,omitempty" yaml:"producerLog" bson:"producerLog,omitempty"`
-	NASLog         *zap.SugaredLogger `json:"-"`
-	GmmLog         *zap.SugaredLogger `json:"-"`
-	TxLog          *zap.SugaredLogger `json:"-"`
-	ProducerLog    *zap.SugaredLogger `json:"-"`
-	Skipentryevent bool
+	NASLog      *zap.SugaredLogger `json:"-"`
+	GmmLog      *zap.SugaredLogger `json:"-"`
+	TxLog       *zap.SugaredLogger `json:"-"`
+	ProducerLog *zap.SugaredLogger `json:"-"`
+	// Skipentryevent bool
+	Skipentryevent int32 // 0 = false, 1 = true
 }
 
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {
@@ -995,21 +997,54 @@ func (ue *AmfUe) SelectSecurityAlg(intOrder, encOrder []uint8) {
 
 // this is clearing the transient data of registration request, this is called entrypoint of Deregistration and Registration state
 func (ue *AmfUe) ClearRegistrationRequestData(accessType models.AccessType) {
+	ue.GmmLog.Warnf("ClearRegistrationRequestData called for accessType=%v, supi=%s, suci=%s, ongoingProcedure=%v, authCtx=%v, registrationType=%v",
+		accessType, ue.Supi, ue.Suci, ue.OnGoing[accessType].Procedure, ue.AuthenticationCtx != nil, ue.RegistrationType5GS)
+
+	// Log call stack to trace who triggered the clear
+	buf := make([]byte, 2048)
+	n := runtime.Stack(buf, false)
+	ue.GmmLog.Warnf("ClearRegistrationRequestData stacktrace:\n%s", buf[:n])
+
+	if ue.RegistrationRequest != nil {
+		ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationRequest (was non-nil)")
+	}
 	ue.RegistrationRequest = nil
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: RegistrationType5GS %v -> 0", ue.RegistrationType5GS)
 	ue.RegistrationType5GS = 0
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: IdentityTypeUsedForRegistration %v -> 0", ue.IdentityTypeUsedForRegistration)
 	ue.IdentityTypeUsedForRegistration = 0
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: AuthFailureCauseSynchFailureTimes %v -> 0", ue.AuthFailureCauseSynchFailureTimes)
 	ue.AuthFailureCauseSynchFailureTimes = 0
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: ServingAmfChanged %v -> false", ue.ServingAmfChanged)
 	ue.ServingAmfChanged = false
+
+	if ue.RegistrationAcceptForNon3GPPAccess != nil {
+		ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationAcceptForNon3GPPAccess (was non-nil)")
+	}
 	ue.RegistrationAcceptForNon3GPPAccess = nil
+
 	if ue.RanUe != nil && ue.RanUe[accessType] != nil {
+		ue.GmmLog.Debugf("ClearRegistrationRequestData: RanUe[%v] UeContextRequest %v -> false, RecvdInitialContextSetupResponse %v -> false",
+			accessType, ue.RanUe[accessType].UeContextRequest, ue.RanUe[accessType].RecvdInitialContextSetupResponse)
 		ue.RanUe[accessType].UeContextRequest = false
 		ue.RanUe[accessType].RecvdInitialContextSetupResponse = false
+		ue.GmmLog.Debugf("ClearRegistrationRequestData: after reset UeContextRequest=%v", ue.RanUe[accessType].UeContextRequest)
+	} else {
+		ue.GmmLog.Warnf("ClearRegistrationRequestData: RanUe is nil or RanUe[%v] is nil — skipping UeContextRequest reset", accessType)
 	}
-	if ue.RanUe != nil && ue.RanUe[accessType] != nil {
-		ue.GmmLog.Debugf("value: ", ue.RanUe[accessType].UeContextRequest)
-	}
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: RetransmissionOfInitialNASMsg %v -> false", ue.RetransmissionOfInitialNASMsg)
 	ue.RetransmissionOfInitialNASMsg = false
+
+	ue.GmmLog.Debugf("ClearRegistrationRequestData: OnGoing[%v].Procedure %v -> OnGoingProcedureNothing",
+		accessType, ue.OnGoing[accessType].Procedure)
 	ue.OnGoing[accessType].Procedure = OnGoingProcedureNothing
+
+	ue.GmmLog.Warnf("ClearRegistrationRequestData complete for supi=%s suci=%s", ue.Supi, ue.Suci)
 }
 
 // this method called when we are reusing the same uecontext during the registration procedure
