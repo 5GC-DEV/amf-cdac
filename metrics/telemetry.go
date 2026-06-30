@@ -22,22 +22,29 @@ import (
 
 // AmfStats captures AMF level stats
 type AmfStats struct {
-	ngapMsg           *prometheus.CounterVec
-	gnbSessionProfile *prometheus.GaugeVec
-	ueReg             *prometheus.CounterVec
-	ueDeregistered    *prometheus.CounterVec
-	ueConnRelease     *prometheus.CounterVec
-	gnbDisconnect     *prometheus.CounterVec
-	ueAuthFail        *prometheus.CounterVec
-	pagingFail        *prometheus.CounterVec
-	xnHandoverFail    *prometheus.CounterVec
-	n2HandoverFail    *prometheus.CounterVec
-	nfNonReachable    *prometheus.CounterVec
-	noOfUeConnect     *prometheus.GaugeVec
-	noOfActiveSub     prometheus.Gauge
-	noOfActiveGnb     prometheus.Gauge
-	gnbConnect        prometheus.Counter
-	AuthRequestTotal  *prometheus.CounterVec
+	ngapMsg             *prometheus.CounterVec
+	gnbSessionProfile   *prometheus.GaugeVec
+	ueReg               *prometheus.CounterVec
+	ueDeregistered      *prometheus.CounterVec
+	ueConnRelease       *prometheus.CounterVec
+	ueConnReleaseTotal  prometheus.Counter
+	gnbDisconnect       *prometheus.CounterVec
+	gnbDisconnectTotal  prometheus.Counter
+	ueAuthFail          *prometheus.CounterVec
+	ueAuthFailTotal     prometheus.Counter
+	pagingFail          *prometheus.CounterVec
+	pagingFailTotal     prometheus.Counter
+	xnHandoverFail      *prometheus.CounterVec
+	xnHandoverFailTotal prometheus.Counter
+	n2HandoverFail      *prometheus.CounterVec
+	n2HandoverFailTotal prometheus.Counter
+	nfNonReachable      *prometheus.CounterVec
+	noOfUeConnect       *prometheus.GaugeVec
+	noOfActiveSub       prometheus.Gauge
+	noOfActiveGnb       prometheus.Gauge
+	gnbConnect          prometheus.Counter
+	authRequest         *prometheus.CounterVec
+	authRequestTotal    prometheus.Counter
 }
 
 var amfStats *AmfStats
@@ -65,32 +72,32 @@ func initAmfStats() *AmfStats {
 		}, []string{"amf_id", "msg_type", "direction", "result"}),
 
 		ueConnRelease: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "ue_connection_release_total",
-			Help: "Total number of ue release",
+			Name: "amf_ue_connection_release",
+			Help: "count of ue release",
 		}, []string{"amf_id", "ran_Ue_Ngap_Id", "direction", "result"}),
 
 		gnbDisconnect: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "gnb_disconnection_total",
+			Name: "amf_gnb_disconnected",
 			Help: "gnb disconnection counters",
 		}, []string{"id", "ip", "result"}),
 
 		ueAuthFail: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "ue_authentication_failure_total",
+			Name: "amf_ue_authentication_fail",
 			Help: "ue authentication fail counters ",
 		}, []string{"amf_id", "suci", "ausf_id", "result"}),
 
 		pagingFail: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "ue_paging_failures_total",
+			Name: "amf_ue_paging_failures",
 			Help: "ue paging failure counters ",
 		}, []string{"amf_id", "suci", "result"}),
 
 		xnHandoverFail: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "xn_handover_failures_total",
+			Name: "amf_xn_handover_failures",
 			Help: "xn handover failure counters",
 		}, []string{"amf_id", "suci", "target_gnbip", "result"}),
 
 		n2HandoverFail: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "n2_handover_failures_total",
+			Name: "amf_n2_handover_failures",
 			Help: "n2 handover failure counters",
 		}, []string{"amf_id", "suci", "target_gnbip", "result"}),
 
@@ -119,10 +126,45 @@ func initAmfStats() *AmfStats {
 			Help: "Counter of total gNB connections",
 		}),
 
-		AuthRequestTotal: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: "amf_auth_request_total",
-			Help: "Counter of total authentication request send",
+		authRequest: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_auth_request",
+			Help: "Counter of authentication request send",
 		}, []string{"supi"}),
+
+		ueConnReleaseTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_ue_connection_release_total",
+			Help: "Total count of ue release",
+		}),
+
+		authRequestTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_auth_request_total",
+			Help: "Total count of authentication request send",
+		}),
+
+		gnbDisconnectTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_gnb_disconnected_total",
+			Help: "Total count of gnb disconnection",
+		}),
+
+		ueAuthFailTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_ue_authentication_fail_total",
+			Help: "Total count of ue authentication failures",
+		}),
+
+		pagingFailTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_ue_paging_failures_total",
+			Help: "Total count of ue paging failures",
+		}),
+
+		xnHandoverFailTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_xn_handover_failures_total",
+			Help: "Total count of xn handover failures",
+		}),
+
+		n2HandoverFailTotal: prometheus.NewCounter(prometheus.CounterOpts{
+			Name: "amf_n2_handover_failures_total",
+			Help: "Total count of n2 handover failures",
+		}),
 	}
 }
 
@@ -174,7 +216,28 @@ func (ps *AmfStats) register() error {
 	if err := prometheus.Register(ps.gnbConnect); err != nil {
 		return err
 	}
-	if err := prometheus.Register(ps.AuthRequestTotal); err != nil {
+	if err := prometheus.Register(ps.authRequest); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.ueConnReleaseTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.authRequestTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.gnbDisconnectTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.ueAuthFailTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.pagingFailTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.xnHandoverFailTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.n2HandoverFailTotal); err != nil {
 		return err
 	}
 	return nil
@@ -273,7 +336,42 @@ func IncrementGnbConnStats() {
 
 // IncrementAuthReqStats maintains gnb connection level stats
 func IncrementAuthReqStats(supi string) {
-	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
+	amfStats.authRequest.WithLabelValues(supi).Inc()
+}
+
+// IncrementUeConnRelStatsTotal maintains total ue connection release stats
+func IncrementUeConnRelStatsTotal() {
+	amfStats.ueConnReleaseTotal.Inc()
+}
+
+// IncrementAuthReqStatsTotal maintains total ue auth request send stats
+func IncrementAuthReqStatsTotal() {
+	amfStats.authRequestTotal.Inc()
+}
+
+// IncrementAuthReqStatsTotal maintains total ue auth request send stats
+func IncrementGnbDisconnStatsTotal() {
+	amfStats.gnbDisconnectTotal.Inc()
+}
+
+// IncrementUeAuthFailStatstotal maintains total ue authentication fail stats
+func IncrementUeAuthFailStatstotal() {
+	amfStats.ueAuthFailTotal.Inc()
+}
+
+// IncrementUeAuthFailStatstotal maintains total ue authentication fail stats
+func IncrementUePagingFailStatsTotal() {
+	amfStats.pagingFailTotal.Inc()
+}
+
+// IncrementXnHandoverFailStatsTotal maintains total ue authentication fail stats
+func IncrementXnHandoverFailStatsTotal() {
+	amfStats.xnHandoverFailTotal.Inc()
+}
+
+// IncrementN2HandoverFailStatsTotal maintains total ue authentication fail stats
+func IncrementN2HandoverFailStatsTotal() {
+	amfStats.n2HandoverFailTotal.Inc()
 }
 
 func InitStats(amfID string) {
@@ -290,5 +388,12 @@ func InitStats(amfID string) {
 	amfStats.nfNonReachable.WithLabelValues(amfID, "", "success").Add(0)
 	amfStats.gnbDisconnect.WithLabelValues("", "", "success").Add(0)
 	amfStats.gnbConnect.Add(0)
-	amfStats.AuthRequestTotal.WithLabelValues("").Add(0)
+	amfStats.authRequest.WithLabelValues("").Add(0)
+	amfStats.ueConnReleaseTotal.Add(0)
+	amfStats.authRequestTotal.Add(0)
+	amfStats.gnbDisconnectTotal.Add(0)
+	amfStats.ueAuthFailTotal.Add(0)
+	amfStats.pagingFailTotal.Add(0)
+	amfStats.xnHandoverFailTotal.Add(0)
+	amfStats.n2HandoverFailTotal.Add(0)
 }

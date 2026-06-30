@@ -1151,6 +1151,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			ran.Log.Errorln(err.Error())
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
 		return
 	}
@@ -1277,6 +1278,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			ran.Log.Errorln(err.Error())
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
 
 		amfUe.PublishUeCtxtInfo()
@@ -1288,6 +1290,7 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			ran.Log.Errorln(err.Error())
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
 
 		// Valid Security is not exist for this UE then only delete AMfUe Context
@@ -3433,9 +3436,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
 		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+		metrics.IncrementXnHandoverFailStatsTotal()
 	} else {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+		metrics.IncrementXnHandoverFailStatsTotal()
 	}
 }
 
@@ -3602,6 +3607,7 @@ func HandleHandoverRequestAcknowledge(ran *context.AmfRan, message *ngapType.NGA
 			}
 			ngap_message.SendHandoverPreparationFailure(sourceUe, *cause, nil)
 			metrics.IncrementN2HandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+			metrics.IncrementN2HandoverFailStatsTotal()
 			return
 		}
 		ngap_message.SendHandoverCommand(sourceUe, pduSessionResourceHandoverList, pduSessionResourceToReleaseList,
