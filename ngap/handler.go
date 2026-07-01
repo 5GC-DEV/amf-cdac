@@ -865,7 +865,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				ran.Log.Errorln("AmfUeNgapID is nil")
 				return
 			} else {
-				ran.Log.Info("amfuengapid:%d", aMFUENGAPID.Value)
+				ran.Log.Infof("amfuengapid:%d", aMFUENGAPID.Value)
 			}
 		case ngapType.ProtocolIEIDRANUENGAPID:
 			rANUENGAPID = ie.Value.RANUENGAPID
@@ -873,6 +873,8 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			if rANUENGAPID == nil {
 				ran.Log.Errorln("RanUeNgapID is nil")
 				return
+			} else {
+				ran.Log.Infof("ranuengapid:%d", rANUENGAPID.Value)
 			}
 		case ngapType.ProtocolIEIDNASPDU:
 			nASPDU = ie.Value.NASPDU

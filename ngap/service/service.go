@@ -23,7 +23,7 @@ type NGAPHandler struct {
 	HandleNotification func(conn net.Conn, notification sctp.Notification)
 }
 
-const readBufSize uint32 = 131072
+const readBufSize uint32 = 524288 // 131072
 
 // set default read timeout to 2 seconds
 var readTimeout syscall.Timeval = syscall.Timeval{Sec: 2, Usec: 0}
