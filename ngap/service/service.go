@@ -12,6 +12,7 @@ import (
 	"net"
 	"sync"
 	"syscall"
+	"time"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
 	"github.com/5GC-DEV/ngap-cdac"
@@ -168,11 +169,14 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 		}
 		connections.Delete(conn)
 	}()
+	start := time.Now()
+	recvTime := time.Now()
 
 	for {
 		buf := make([]byte, bufsize)
 
 		n, info, notification, err := conn.SCTPRead(buf)
+		logger.NgapLog.Infof("SCTPRead returned at %s bytes=%d", recvTime.Format(time.RFC3339Nano), n)
 		if err != nil {
 			switch err {
 			case io.EOF, io.ErrUnexpectedEOF:
@@ -202,14 +206,15 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 				continue
 			}
 
-			logger.NgapLog.Debugf("Read %d bytes", n)
+			// logger.NgapLog.Debugf("Read %d bytes", n)
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
 			if info.SSN != 0 {
-				logger.NgapLog.Debugf("SSN: %d", info.SSN)
+				logger.NgapLog.Debugf("Time=%s SSN=%d", time.Now().Format(time.RFC3339Nano), info.SSN)
 			}
 			if info.TSN != 0 {
 				logger.NgapLog.Debugf("TSN: %d", info.TSN)
+				logger.NgapLog.Debugf("Time=%s TSN=%d", time.Now().Format(time.RFC3339Nano), info.TSN)
 			}
 			// TODO: concurrent on per-UE message
 			if conn.RemoteAddr() != nil {
@@ -218,9 +223,9 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			if info.PPID != 0 {
 				logger.NgapLog.Infof("ppid:%d", info.PPID)
 			}
-			logger.NgapLog.Infof("Before HandleMessage")
+			logger.NgapLog.Infof("Before HandleMessage time=%s", start.Format(time.RFC3339Nano))
 			handler.HandleMessage(conn, buf[:n])
-			logger.NgapLog.Infof("After HandleMessage")
+			logger.NgapLog.Infof("After HandleMessage time=%s duration=%v", time.Now().Format(time.RFC3339Nano), time.Since(start))
 		}
 	}
 }
