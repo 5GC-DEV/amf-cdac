@@ -17,6 +17,7 @@ import (
 	"git.cs.nctu.edu.tw/calee/sctp"
 	"github.com/5GC-DEV/ngap-cdac"
 	"github.com/omec-project/amf/logger"
+	"github.com/omec-project/amf/metrics"
 )
 
 type NGAPHandler struct {
@@ -225,6 +226,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			}
 			logger.NgapLog.Infof("Before HandleMessage time=%s", start.Format(time.RFC3339Nano))
 			handler.HandleMessage(conn, buf[:n])
+			metrics.ObserveHandleMessageDuration(time.Since(start))
 			logger.NgapLog.Infof("After HandleMessage time=%s duration=%v", time.Now().Format(time.RFC3339Nano), time.Since(start))
 		}
 	}

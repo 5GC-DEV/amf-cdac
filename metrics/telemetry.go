@@ -13,6 +13,7 @@ package metrics
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/omec-project/amf/logger"
 	"github.com/prometheus/client_golang/prometheus"
@@ -21,22 +22,23 @@ import (
 
 // AmfStats captures AMF level stats
 type AmfStats struct {
-	ngapMsg           *prometheus.CounterVec
-	gnbSessionProfile *prometheus.GaugeVec
-	ueReg             *prometheus.CounterVec
-	ueDeregistered    *prometheus.CounterVec
-	ueConnRelease     *prometheus.CounterVec
-	gnbDisconnect     *prometheus.CounterVec
-	ueAuthFail        *prometheus.CounterVec
-	pagingFail        *prometheus.CounterVec
-	xnHandoverFail    *prometheus.CounterVec
-	n2HandoverFail    *prometheus.CounterVec
-	nfNonReachable    *prometheus.CounterVec
-	noOfUeConnect     *prometheus.GaugeVec
-	noOfActiveSub     prometheus.Gauge
-	noOfActiveGnb     prometheus.Gauge
-	gnbConnect        *prometheus.CounterVec
-	AuthRequestTotal  *prometheus.CounterVec
+	ngapMsg               *prometheus.CounterVec
+	gnbSessionProfile     *prometheus.GaugeVec
+	ueReg                 *prometheus.CounterVec
+	ueDeregistered        *prometheus.CounterVec
+	ueConnRelease         *prometheus.CounterVec
+	gnbDisconnect         *prometheus.CounterVec
+	ueAuthFail            *prometheus.CounterVec
+	pagingFail            *prometheus.CounterVec
+	xnHandoverFail        *prometheus.CounterVec
+	n2HandoverFail        *prometheus.CounterVec
+	nfNonReachable        *prometheus.CounterVec
+	noOfUeConnect         *prometheus.GaugeVec
+	noOfActiveSub         prometheus.Gauge
+	noOfActiveGnb         prometheus.Gauge
+	gnbConnect            *prometheus.CounterVec
+	AuthRequestTotal      *prometheus.CounterVec
+	handleMessageDuration prometheus.Histogram
 }
 
 var amfStats *AmfStats
@@ -122,6 +124,12 @@ func initAmfStats() *AmfStats {
 			Name: "amf_auth_request_total",
 			Help: "Counter of total authentication request send",
 		}, []string{"supi"}),
+
+		handleMessageDuration: prometheus.NewHistogram(prometheus.HistogramOpts{
+			Name:    "amf_handle_message_duration_seconds",
+			Help:    "Time spent processing NGAP HandleMessage",
+			Buckets: prometheus.DefBuckets,
+		}),
 	}
 }
 
@@ -174,6 +182,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.AuthRequestTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.handleMessageDuration); err != nil {
 		return err
 	}
 	return nil
@@ -273,4 +284,8 @@ func IncrementGnbConnStats(gnbid, gnbip, name string) {
 // IncrementAuthReqStats maintains gnb connection level stats
 func IncrementAuthReqStats(supi string) {
 	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
+}
+
+func ObserveHandleMessageDuration(duration time.Duration) {
+	amfStats.handleMessageDuration.Observe(duration.Seconds())
 }
