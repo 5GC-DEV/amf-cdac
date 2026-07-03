@@ -170,7 +170,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 		}
 		connections.Delete(conn)
 	}()
-	start := time.Now()
+	// start := time.Now()
 	recvTime := time.Now()
 
 	for {
@@ -224,6 +224,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			if info.PPID != 0 {
 				logger.NgapLog.Infof("ppid:%d", info.PPID)
 			}
+			start := time.Now()
 			logger.NgapLog.Infof("Before HandleMessage time=%s", start.Format(time.RFC3339Nano))
 			handler.HandleMessage(conn, buf[:n])
 			metrics.ObserveHandleMessageDuration(time.Since(start))
