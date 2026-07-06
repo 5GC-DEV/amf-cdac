@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/5GC-DEV/nas-cdac/nasMessage"
 	libngap "github.com/5GC-DEV/ngap-cdac"
@@ -106,8 +107,17 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 					// Described in TS 23.502 4.2.2.2.2 step 4 (without UDSF deployment)
 
 					if amfUe, ok := amfSelf.AmfUeFindByGuti(guti); ok {
+						lockWaitStart := time.Now()
+						logger.NgapLog.Infof("Waiting for AmfUe mutex at %s", lockWaitStart.Format(time.RFC3339Nano))
 						amfUe.Mutex.Lock()
-						defer amfUe.Mutex.Unlock()
+						lockAcquired := time.Now()
+						logger.NgapLog.Infof("Acquired AmfUe mutex at %s (wait=%v)", lockAcquired.Format(time.RFC3339Nano), lockAcquired.Sub(lockWaitStart))
+						// defer amfUe.Mutex.Unlock()
+						defer func() {
+							unlockTime := time.Now()
+							logger.NgapLog.Infof("Releasing AmfUe mutex at %s (held=%v)", unlockTime.Format(time.RFC3339Nano), unlockTime.Sub(lockAcquired))
+							amfUe.Mutex.Unlock()
+						}()
 						ranUe, err = ran.NewRanUe(rANUENGAPID.Value)
 						if err != nil {
 							ran.Log.Errorf("NewRanUe Error: %+v", err)
