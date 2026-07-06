@@ -39,6 +39,7 @@ type AmfStats struct {
 	gnbConnect            *prometheus.CounterVec
 	AuthRequestTotal      *prometheus.CounterVec
 	handleMessageDuration prometheus.Histogram
+	sctpReadDuration      prometheus.Histogram
 }
 
 var amfStats *AmfStats
@@ -130,6 +131,12 @@ func initAmfStats() *AmfStats {
 			Help:    "Time spent processing NGAP HandleMessage",
 			Buckets: prometheus.DefBuckets,
 		}),
+
+		sctpReadDuration: prometheus.NewHistogram(prometheus.HistogramOpts{
+			Name:    "amf_sctp_read_duration_seconds",
+			Help:    "Time spent blocked in SCTPRead",
+			Buckets: prometheus.DefBuckets,
+		}),
 	}
 }
 
@@ -185,6 +192,9 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.handleMessageDuration); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.sctpReadDuration); err != nil {
 		return err
 	}
 	return nil
@@ -288,4 +298,8 @@ func IncrementAuthReqStats(supi string) {
 
 func ObserveHandleMessageDuration(duration time.Duration) {
 	amfStats.handleMessageDuration.Observe(duration.Seconds())
+}
+
+func ObserveSCTPReadDuration(duration time.Duration) {
+	amfStats.sctpReadDuration.Observe(duration.Seconds())
 }

@@ -171,13 +171,18 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 		connections.Delete(conn)
 	}()
 	// start := time.Now()
-	recvTime := time.Now()
+	// recvTime := time.Now()
 
 	for {
 		buf := make([]byte, bufsize)
-
+		readStart := time.Now()
 		n, info, notification, err := conn.SCTPRead(buf)
-		logger.NgapLog.Infof("SCTPRead returned at %s bytes=%d", recvTime.Format(time.RFC3339Nano), n)
+		readEnd := time.Now()
+		metrics.ObserveSCTPReadDuration(readEnd.Sub(readStart))
+
+		logger.NgapLog.Infof("SCTPRead start=%s end=%s duration=%v", readStart.Format(time.RFC3339Nano), readEnd.Format(time.RFC3339Nano), readEnd.Sub(readStart))
+		// recvTime := time.Now()
+		// logger.NgapLog.Infof("SCTPRead returned at %s bytes=%d", recvTime.Format(time.RFC3339Nano), n)
 		if err != nil {
 			switch err {
 			case io.EOF, io.ErrUnexpectedEOF:
@@ -224,11 +229,12 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			if info.PPID != 0 {
 				logger.NgapLog.Infof("ppid:%d", info.PPID)
 			}
-			start := time.Now()
-			logger.NgapLog.Infof("Before HandleMessage time=%s", start.Format(time.RFC3339Nano))
+			handleStart := time.Now()
+			logger.NgapLog.Infof("HandleMessage start=%s", handleStart.Format(time.RFC3339Nano))
 			handler.HandleMessage(conn, buf[:n])
-			metrics.ObserveHandleMessageDuration(time.Since(start))
-			logger.NgapLog.Infof("After HandleMessage time=%s duration=%v", time.Now().Format(time.RFC3339Nano), time.Since(start))
+			handleEnd := time.Now()
+			metrics.ObserveHandleMessageDuration(handleEnd.Sub(handleStart))
+			logger.NgapLog.Infof("HandleMessage end=%s duration=%v", handleEnd.Format(time.RFC3339Nano), handleEnd.Sub(handleStart))
 		}
 	}
 }
