@@ -503,22 +503,42 @@ func (ue *AmfUe) Remove() {
 
 	if len(ue.Supi) > 0 {
 		AMF_Self().UePool.Delete(ue.Supi)
-		count := 0
-		AMF_Self().UePool.Range(func(key, value interface{}) bool {
-			count++
-			return true
-		})
-		metrics.SetNoOfActiveSubStats(uint64(count))
+		// count := 0
+		// AMF_Self().UePool.Range(func(key, value interface{}) bool {
+		// 	count++
+		// 	return true
+		// })
+		// metrics.SetNoOfActiveSubStats(uint64(count))
 	}
 	if ue.EventChannel != nil {
 		ue.EventChannel.Event <- "quit"
 	}
 }
 
+func UpdateActiveSubscribersMetric() {
+	activeUE := 0
+	AMF_Self().UePool.Range(func(key, value interface{}) bool {
+		ue := value.(*AmfUe)
+
+		// Count only connected UEs
+		for _, ranUe := range ue.RanUe {
+			if ranUe != nil {
+				activeUE++
+				break // Count each UE only once
+			}
+		}
+
+		return true
+	})
+
+	// metrics.GetMetrics().NoOfActiveSub.Set(float64(activeUE))
+}
+
 func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 	ue.Mutex.Lock()
 	defer ue.Mutex.Unlock()
 	delete(ue.RanUe, anType)
+	UpdateActiveSubscribersMetric()
 }
 
 func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
@@ -544,6 +564,7 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	UpdateActiveSubscribersMetric()
 }
 
 func (ue *AmfUe) GetAnType() models.AccessType {
