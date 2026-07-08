@@ -216,11 +216,11 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
 			if info.SSN != 0 {
-				logger.NgapLog.Debugf("Time=%s SSN=%d", time.Now().Format(time.RFC3339Nano), info.SSN)
+				logger.NgapLog.Infof("Time=%s SSN=%d", time.Now().Format(time.RFC3339Nano), info.SSN)
 			}
 			if info.TSN != 0 {
-				logger.NgapLog.Debugf("TSN: %d", info.TSN)
-				logger.NgapLog.Debugf("Time=%s TSN=%d", time.Now().Format(time.RFC3339Nano), info.TSN)
+				logger.NgapLog.Infof("TSN: %d", info.TSN)
+				logger.NgapLog.Infof("Time=%s TSN=%d", time.Now().Format(time.RFC3339Nano), info.TSN)
 			}
 			// TODO: concurrent on per-UE message
 			if conn.RemoteAddr() != nil {

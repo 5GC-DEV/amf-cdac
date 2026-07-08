@@ -907,7 +907,7 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 	ranUe := ran.RanUeFindByRanUeNgapID(rANUENGAPID.Value)
 	if ranUe == nil {
 		ran.Log.Errorf("No UE Context[RanUeNgapID: %d]", rANUENGAPID.Value)
-		ran.Log.Infof("RanUeList size: %d", len(ran.RanUeList))
+		ran.Log.Debugf("RanUeList size: %d", len(ran.RanUeList))
 		for i, ue := range ran.RanUeList {
 			if ue == nil {
 				ran.Log.Infof("RanUeList[%d] = nil", i)
