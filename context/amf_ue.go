@@ -519,7 +519,7 @@ func UpdateActiveSubscribersMetric() {
 	activeUE := 0
 	AMF_Self().UePool.Range(func(key, value interface{}) bool {
 		ue := value.(*AmfUe)
-
+		ue.Mutex.Lock()
 		// Count only connected UEs
 		for _, ranUe := range ue.RanUe {
 			if ranUe != nil {
@@ -527,17 +527,17 @@ func UpdateActiveSubscribersMetric() {
 				break // Count each UE only once
 			}
 		}
-
+		ue.Mutex.Unlock()
 		return true
 	})
-
+	metrics.SetNoOfActiveSubStats(uint64(activeUE))
 	// metrics.GetMetrics().NoOfActiveSub.Set(float64(activeUE))
 }
 
 func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 	ue.Mutex.Lock()
-	defer ue.Mutex.Unlock()
 	delete(ue.RanUe, anType)
+	ue.Mutex.Unlock()
 	UpdateActiveSubscribersMetric()
 }
 
