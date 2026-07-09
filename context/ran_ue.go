@@ -95,6 +95,7 @@ func (ranUe *RanUe) Remove() error {
 	if ranUe.AmfUe != nil {
 		amfUe := ranUe.AmfUe
 		if amfUe.RanUe[ran.AnType] == ranUe {
+			logger.ContextLog.Info("---detaching ranue")
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
