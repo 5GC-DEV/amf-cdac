@@ -20,6 +20,32 @@ import (
 	"github.com/omec-project/amf/metrics"
 )
 
+type Packet struct {
+	Conn net.Conn
+	Data []byte
+}
+
+type WorkerPool struct {
+	ringBuffer *RingBuffer
+	handler    NGAPHandler
+}
+
+type RingBuffer struct {
+	buffer   []Packet
+	head     int
+	tail     int
+	count    int
+	size     int
+	mutex    sync.Mutex
+	notEmpty *sync.Cond
+	notFull  *sync.Cond
+}
+
+var (
+	ringBuffer *RingBuffer
+	workerPool *WorkerPool
+)
+
 type NGAPHandler struct {
 	HandleMessage      func(conn net.Conn, msg []byte)
 	HandleNotification func(conn net.Conn, notification sctp.Notification)
@@ -41,6 +67,25 @@ var sctpConfig sctp.SocketConfig = sctp.SocketConfig{
 	AssocInfo: &sctp.AssocInfo{AsocMaxRxt: 4},
 }
 
+func InitWorkerPool(handler NGAPHandler) {
+	ringBuffer = NewRingBuffer(8000)
+
+	wp := NewWorkerPool(ringBuffer, handler)
+	wp.Start(5)
+}
+
+func NewWorkerPool(rb *RingBuffer, handler NGAPHandler) *WorkerPool {
+	return &WorkerPool{
+		ringBuffer: rb,
+		handler:    handler,
+	}
+}
+
+func (wp *WorkerPool) Start(n int) {
+	for i := 0; i < n; i++ {
+		go wp.worker(i)
+	}
+}
 func Run(addresses []string, port int, handler NGAPHandler) {
 	ips := []net.IPAddr{}
 
@@ -162,6 +207,83 @@ func Stop() {
 	logger.NgapLog.Infof("SCTP server closed")
 }
 
+// func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) {
+// 	defer func() {
+// 		// if AMF call Stop(), then conn.Close() will return EBADF because conn has been closed inside Stop()
+// 		if err := conn.Close(); err != nil && err != syscall.EBADF {
+// 			logger.NgapLog.Errorf("close connection error: %+v", err)
+// 		}
+// 		connections.Delete(conn)
+// 	}()
+// 	// start := time.Now()
+// 	// recvTime := time.Now()
+
+// 	for {
+// 		buf := make([]byte, bufsize)
+// 		readStart := time.Now()
+// 		n, info, notification, err := conn.SCTPRead(buf)
+// 		readEnd := time.Now()
+// 		metrics.ObserveSCTPReadDuration(readEnd.Sub(readStart))
+
+// 		logger.NgapLog.Infof("SCTPRead start=%s end=%s duration=%v", readStart.Format(time.RFC3339Nano), readEnd.Format(time.RFC3339Nano), readEnd.Sub(readStart))
+// 		// recvTime := time.Now()
+// 		// logger.NgapLog.Infof("SCTPRead returned at %s bytes=%d", recvTime.Format(time.RFC3339Nano), n)
+// 		if err != nil {
+// 			switch err {
+// 			case io.EOF, io.ErrUnexpectedEOF:
+// 				logger.NgapLog.Debugln("read EOF from client")
+// 				return
+// 			case syscall.EAGAIN:
+// 				logger.NgapLog.Debugln("SCTP read timeout")
+// 				continue
+// 			case syscall.EINTR:
+// 				logger.NgapLog.Debugf("SCTPRead: %+v", err)
+// 				continue
+// 			default:
+// 				logger.NgapLog.Errorf("handle connection[addr: %+v] error: %+v", conn.RemoteAddr(), err)
+// 				return
+// 			}
+// 		}
+
+// 		if notification != nil {
+// 			if handler.HandleNotification != nil {
+// 				handler.HandleNotification(conn, notification)
+// 			} else {
+// 				logger.NgapLog.Warnf("received sctp notification[type 0x%x] but not handled", notification.Type())
+// 			}
+// 		} else {
+// 			if info == nil || info.PPID != ngap.PPID {
+// 				logger.NgapLog.Warnln("received SCTP PPID != 60, discard this packet")
+// 				continue
+// 			}
+
+// 			// logger.NgapLog.Debugf("Read %d bytes", n)
+// 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
+
+// 			if info.SSN != 0 {
+// 				logger.NgapLog.Infof("Time=%s SSN=%d", time.Now().Format(time.RFC3339Nano), info.SSN)
+// 			}
+// 			if info.TSN != 0 {
+// 				logger.NgapLog.Infof("TSN: %d", info.TSN)
+// 				logger.NgapLog.Infof("Time=%s TSN=%d", time.Now().Format(time.RFC3339Nano), info.TSN)
+// 			}
+// 			// TODO: concurrent on per-UE message
+// 			if conn.RemoteAddr() != nil {
+// 				logger.NgapLog.Infof("SCTP packet received from %s", conn.RemoteAddr())
+// 			}
+// 			if info.PPID != 0 {
+// 				logger.NgapLog.Infof("ppid:%d", info.PPID)
+// 			}
+// 			handleStart := time.Now()
+// 			logger.NgapLog.Infof("HandleMessage start=%s", handleStart.Format(time.RFC3339Nano))
+// handler.HandleMessage(conn, buf[:n])
+// 			handleEnd := time.Now()
+// 			metrics.ObserveHandleMessageDuration(handleEnd.Sub(handleStart))
+// 			logger.NgapLog.Infof("HandleMessage end=%s duration=%v", handleEnd.Format(time.RFC3339Nano), handleEnd.Sub(handleStart))
+// 		}
+// 	}
+// }
+
 func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) {
 	defer func() {
 		// if AMF call Stop(), then conn.Close() will return EBADF because conn has been closed inside Stop()
@@ -170,30 +292,32 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 		}
 		connections.Delete(conn)
 	}()
-	// start := time.Now()
-	// recvTime := time.Now()
 
 	for {
 		buf := make([]byte, bufsize)
+
 		readStart := time.Now()
 		n, info, notification, err := conn.SCTPRead(buf)
 		readEnd := time.Now()
+
 		metrics.ObserveSCTPReadDuration(readEnd.Sub(readStart))
 
 		logger.NgapLog.Infof("SCTPRead start=%s end=%s duration=%v", readStart.Format(time.RFC3339Nano), readEnd.Format(time.RFC3339Nano), readEnd.Sub(readStart))
-		// recvTime := time.Now()
-		// logger.NgapLog.Infof("SCTPRead returned at %s bytes=%d", recvTime.Format(time.RFC3339Nano), n)
+
 		if err != nil {
 			switch err {
 			case io.EOF, io.ErrUnexpectedEOF:
 				logger.NgapLog.Debugln("read EOF from client")
 				return
+
 			case syscall.EAGAIN:
 				logger.NgapLog.Debugln("SCTP read timeout")
 				continue
+
 			case syscall.EINTR:
 				logger.NgapLog.Debugf("SCTPRead: %+v", err)
 				continue
+
 			default:
 				logger.NgapLog.Errorf("handle connection[addr: %+v] error: %+v", conn.RemoteAddr(), err)
 				return
@@ -212,29 +336,109 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 				continue
 			}
 
-			// logger.NgapLog.Debugf("Read %d bytes", n)
 			logger.NgapLog.Debugf("Packet content: %+v", hex.Dump(buf[:n]))
 
 			if info.SSN != 0 {
 				logger.NgapLog.Infof("Time=%s SSN=%d", time.Now().Format(time.RFC3339Nano), info.SSN)
 			}
+
 			if info.TSN != 0 {
 				logger.NgapLog.Infof("TSN: %d", info.TSN)
 				logger.NgapLog.Infof("Time=%s TSN=%d", time.Now().Format(time.RFC3339Nano), info.TSN)
 			}
-			// TODO: concurrent on per-UE message
+
 			if conn.RemoteAddr() != nil {
 				logger.NgapLog.Infof("SCTP packet received from %s", conn.RemoteAddr())
 			}
+
 			if info.PPID != 0 {
 				logger.NgapLog.Infof("ppid:%d", info.PPID)
 			}
-			handleStart := time.Now()
-			logger.NgapLog.Infof("HandleMessage start=%s", handleStart.Format(time.RFC3339Nano))
-			handler.HandleMessage(conn, buf[:n])
-			handleEnd := time.Now()
-			metrics.ObserveHandleMessageDuration(handleEnd.Sub(handleStart))
-			logger.NgapLog.Infof("HandleMessage end=%s duration=%v", handleEnd.Format(time.RFC3339Nano), handleEnd.Sub(handleStart))
+
+			//------------------------------------------------------------------
+			// Copy packet before pushing into ring buffer
+			//------------------------------------------------------------------
+
+			packetData := make([]byte, n)
+			copy(packetData, buf[:n])
+
+			packet := Packet{
+				Conn: conn,
+				Data: packetData,
+			}
+
+			//------------------------------------------------------------------
+			// Producer pushes packet to ring buffer
+			//------------------------------------------------------------------
+
+			ringBuffer.Push(packet)
+
+			logger.NgapLog.Infof("Packet queued to ring buffer, size=%d", n)
+			// Immediately continue to next SCTPRead()
 		}
 	}
+}
+
+func (wp *WorkerPool) worker(id int) {
+	for {
+		packet := wp.ringBuffer.Pop()
+
+		handleStart := time.Now()
+
+		logger.NgapLog.Infof("Worker-%d HandleMessage start=%s", id, handleStart.Format(time.RFC3339Nano))
+
+		wp.handler.HandleMessage(packet.Conn, packet.Data)
+
+		handleEnd := time.Now()
+
+		metrics.ObserveHandleMessageDuration(handleEnd.Sub(handleStart))
+
+		logger.NgapLog.Infof("Worker-%d HandleMessage end=%s duration=%v", id, handleEnd.Format(time.RFC3339Nano), handleEnd.Sub(handleStart))
+	}
+}
+
+func NewRingBuffer(size int) *RingBuffer {
+	rb := &RingBuffer{
+		buffer: make([]Packet, size),
+		size:   size,
+	}
+	rb.notEmpty = sync.NewCond(&rb.mutex)
+	rb.notFull = sync.NewCond(&rb.mutex)
+	return rb
+}
+func (rb *RingBuffer) Push(packet Packet) {
+	rb.mutex.Lock()
+	defer rb.mutex.Unlock()
+
+	// Wait if buffer is full
+	for rb.count == rb.size {
+		rb.notFull.Wait()
+	}
+
+	rb.buffer[rb.tail] = packet
+
+	rb.tail = (rb.tail + 1) % rb.size
+
+	rb.count++
+
+	rb.notEmpty.Signal()
+}
+func (rb *RingBuffer) Pop() Packet {
+	rb.mutex.Lock()
+	defer rb.mutex.Unlock()
+
+	// Wait if buffer empty
+	for rb.count == 0 {
+		rb.notEmpty.Wait()
+	}
+
+	packet := rb.buffer[rb.head]
+
+	rb.head = (rb.head + 1) % rb.size
+
+	rb.count--
+
+	rb.notFull.Signal()
+
+	return packet
 }

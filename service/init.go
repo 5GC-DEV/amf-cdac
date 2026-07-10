@@ -387,6 +387,7 @@ func (amf *AMF) Start() {
 		HandleMessage:      ngap.Dispatch,
 		HandleNotification: ngap.HandleSCTPNotification,
 	}
+	ngap_service.InitWorkerPool(ngapHandler)
 	ngap_service.Run(self.NgapIpList, self.NgapPort, ngapHandler)
 
 	go amf.SendNFProfileUpdateToNrf()
