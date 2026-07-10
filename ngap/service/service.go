@@ -68,7 +68,7 @@ func InitWorkerPool(handler NGAPHandler) {
 	ringBuffer = NewRingBuffer(8000)
 
 	wp := NewWorkerPool(ringBuffer, handler)
-	wp.Start(1)
+	wp.Start(5)
 }
 
 func NewWorkerPool(rb *RingBuffer, handler NGAPHandler) *WorkerPool {
@@ -353,10 +353,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 				logger.NgapLog.Infof("ppid:%d", info.PPID)
 			}
 
-			//------------------------------------------------------------------
 			// Copy packet before pushing into ring buffer
-			//------------------------------------------------------------------
-
 			packetData := make([]byte, n)
 			copy(packetData, buf[:n])
 
@@ -365,12 +362,11 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 				Data: packetData,
 			}
 
-			//------------------------------------------------------------------
 			// Producer pushes packet to ring buffer
-			//------------------------------------------------------------------
-
+			pushStart := time.Now()
 			ringBuffer.Push(packet)
-
+			pushEnd := time.Now()
+			logger.NgapLog.Infof("push start=%s end=%s duration=%v", pushStart.Format(time.RFC3339Nano), pushEnd.Format(time.RFC3339Nano), pushEnd.Sub(pushStart))
 			logger.NgapLog.Infof("Packet queued to ring buffer, size=%d", n)
 			// Immediately continue to next SCTPRead()
 		}
