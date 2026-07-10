@@ -43,7 +43,7 @@ type RingBuffer struct {
 
 var (
 	ringBuffer *RingBuffer
-	workerPool *WorkerPool
+	// workerPool *WorkerPool
 )
 
 type NGAPHandler struct {
