@@ -71,7 +71,7 @@ func InitWorkerPool(handler NGAPHandler) {
 	ringBuffer = NewRingBuffer(8000)
 
 	wp := NewWorkerPool(ringBuffer, handler)
-	wp.Start(5)
+	wp.Start(1)
 }
 
 func NewWorkerPool(rb *RingBuffer, handler NGAPHandler) *WorkerPool {
@@ -86,6 +86,7 @@ func (wp *WorkerPool) Start(n int) {
 		go wp.worker(i)
 	}
 }
+
 func Run(addresses []string, port int, handler NGAPHandler) {
 	ips := []net.IPAddr{}
 
@@ -406,6 +407,7 @@ func NewRingBuffer(size int) *RingBuffer {
 	rb.notFull = sync.NewCond(&rb.mutex)
 	return rb
 }
+
 func (rb *RingBuffer) Push(packet Packet) {
 	rb.mutex.Lock()
 	defer rb.mutex.Unlock()
@@ -423,6 +425,7 @@ func (rb *RingBuffer) Push(packet Packet) {
 
 	rb.notEmpty.Signal()
 }
+
 func (rb *RingBuffer) Pop() Packet {
 	rb.mutex.Lock()
 	defer rb.mutex.Unlock()
