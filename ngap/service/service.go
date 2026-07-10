@@ -41,10 +41,7 @@ type RingBuffer struct {
 	notFull  *sync.Cond
 }
 
-var (
-	ringBuffer *RingBuffer
-	// workerPool *WorkerPool
-)
+var ringBuffer *RingBuffer
 
 type NGAPHandler struct {
 	HandleMessage      func(conn net.Conn, msg []byte)
