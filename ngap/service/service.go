@@ -68,7 +68,7 @@ func InitWorkerPool(handler NGAPHandler) {
 	ringBuffer = NewRingBuffer(8000)
 
 	wp := NewWorkerPool(ringBuffer, handler)
-	wp.Start(5)
+	wp.Start(2)
 }
 
 func NewWorkerPool(rb *RingBuffer, handler NGAPHandler) *WorkerPool {
@@ -407,7 +407,11 @@ func (rb *RingBuffer) Push(packet Packet) {
 
 	// Wait if buffer is full
 	for rb.count == rb.size {
+		waitStart := time.Now()
+		logger.NgapLog.Warnf("Producer waiting: RingBuffer FULL (count=%d size=%d)", rb.count, rb.size)
 		rb.notFull.Wait()
+		waitEnd := time.Now()
+		logger.NgapLog.Warnf("Producer awakened after %v (count=%d size=%d)", waitEnd.Sub(waitStart), rb.count, rb.size)
 	}
 
 	rb.buffer[rb.tail] = packet
@@ -425,7 +429,11 @@ func (rb *RingBuffer) Pop() Packet {
 
 	// Wait if buffer empty
 	for rb.count == 0 {
+		waitStart := time.Now()
+		logger.NgapLog.Infof("Worker waiting: RingBuffer EMPTY")
 		rb.notEmpty.Wait()
+		waitEnd := time.Now()
+		logger.NgapLog.Infof("Worker awakened after %v (count=%d)", waitEnd.Sub(waitStart), rb.count)
 	}
 
 	packet := rb.buffer[rb.head]
