@@ -480,6 +480,7 @@ func (rb *RingBuffer) Push(packet Packet) bool {
 	rb.enqueuePos = pos + 1                // safe: only this goroutine touches it
 	return true
 }
+
 func (rb *RingBuffer) PushBlocking(packet Packet) {
 	spins := 0
 	for !rb.Push(packet) {
