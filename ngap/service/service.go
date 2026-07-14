@@ -10,7 +10,9 @@ import (
 	"encoding/hex"
 	"io"
 	"net"
+	"runtime"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -30,15 +32,36 @@ type WorkerPool struct {
 	handler    NGAPHandler
 }
 
+type cell struct {
+	sequence uint64
+	data     Packet
+}
+
+//	type RingBuffer struct {
+//		buffer   []Packet
+//		head     int
+//		tail     int
+//		count    int
+//		size     int
+//		mutex    sync.Mutex
+//		notEmpty *sync.Cond
+//		notFull  *sync.Cond
+//	}
 type RingBuffer struct {
-	buffer   []Packet
-	head     int
-	tail     int
-	count    int
-	size     int
-	mutex    sync.Mutex
-	notEmpty *sync.Cond
-	notFull  *sync.Cond
+	buffer     []cell
+	bufferMask uint64 // size-1, size must be a power of two
+
+	// enqueuePos is owned exclusively by the single producer goroutine.
+	// It does NOT need to be an atomic type for correctness of Push itself
+	// (only one writer, no CAS needed) — it's kept as uint64 here purely
+	// as a plain field. Do not read/write it from any other goroutine.
+	enqueuePos uint64
+	_          [56]byte // padding, avoids false sharing with dequeuePos
+
+	// dequeuePos IS shared across multiple consumer goroutines, so it
+	// still needs atomic + CAS.
+	dequeuePos uint64
+	_          [56]byte
 }
 
 var ringBuffer *RingBuffer
@@ -65,7 +88,7 @@ var sctpConfig sctp.SocketConfig = sctp.SocketConfig{
 }
 
 func InitWorkerPool(handler NGAPHandler) {
-	ringBuffer = NewRingBuffer(8000)
+	ringBuffer = NewRingBuffer(8192)
 
 	wp := NewWorkerPool(ringBuffer, handler)
 	wp.Start(2)
@@ -364,7 +387,8 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 
 			// Producer pushes packet to ring buffer
 			pushStart := time.Now()
-			ringBuffer.Push(packet)
+			// ringBuffer.Push(packet)
+			ringBuffer.PushBlocking(packet)
 			pushEnd := time.Now()
 			logger.NgapLog.Infof("push start=%s end=%s duration=%v", pushStart.Format(time.RFC3339Nano), pushEnd.Format(time.RFC3339Nano), pushEnd.Sub(pushStart))
 			logger.NgapLog.Infof("Packet queued to ring buffer, size=%d", n)
@@ -375,7 +399,8 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 
 func (wp *WorkerPool) worker(id int) {
 	for {
-		packet := wp.ringBuffer.Pop()
+		// packet := wp.ringBuffer.Pop()
+		packet := wp.ringBuffer.PopBlocking()
 
 		handleStart := time.Now()
 
@@ -391,58 +416,145 @@ func (wp *WorkerPool) worker(id int) {
 	}
 }
 
+//	func NewRingBuffer(size int) *RingBuffer {
+//		rb := &RingBuffer{
+//			buffer: make([]Packet, size),
+//			size:   size,
+//		}
+//		rb.notEmpty = sync.NewCond(&rb.mutex)
+//		rb.notFull = sync.NewCond(&rb.mutex)
+//		return rb
+//	}
+//
+// NewRingBuffer creates a ring buffer. size MUST be a power of two.
 func NewRingBuffer(size int) *RingBuffer {
-	rb := &RingBuffer{
-		buffer: make([]Packet, size),
-		size:   size,
+	if size <= 0 || size&(size-1) != 0 {
+		panic("RingBuffer size must be a power of two")
 	}
-	rb.notEmpty = sync.NewCond(&rb.mutex)
-	rb.notFull = sync.NewCond(&rb.mutex)
+	rb := &RingBuffer{
+		buffer:     make([]cell, size),
+		bufferMask: uint64(size - 1),
+	}
+	for i := range rb.buffer {
+		rb.buffer[i].sequence = uint64(i)
+	}
 	return rb
 }
 
-func (rb *RingBuffer) Push(packet Packet) {
-	rb.mutex.Lock()
-	defer rb.mutex.Unlock()
+// func (rb *RingBuffer) Push(packet Packet) {
+// 	rb.mutex.Lock()
+// 	defer rb.mutex.Unlock()
 
-	// Wait if buffer is full
-	for rb.count == rb.size {
-		waitStart := time.Now()
-		logger.NgapLog.Warnf("Producer waiting: RingBuffer FULL (count=%d size=%d)", rb.count, rb.size)
-		rb.notFull.Wait()
-		waitEnd := time.Now()
-		logger.NgapLog.Warnf("Producer awakened after %v (count=%d size=%d)", waitEnd.Sub(waitStart), rb.count, rb.size)
+// 	// Wait if buffer is full
+// 	for rb.count == rb.size {
+// 		waitStart := time.Now()
+// 		logger.NgapLog.Warnf("Producer waiting: RingBuffer FULL (count=%d size=%d)", rb.count, rb.size)
+// 		rb.notFull.Wait()
+// 		waitEnd := time.Now()
+// 		logger.NgapLog.Warnf("Producer awakened after %v (count=%d size=%d)", waitEnd.Sub(waitStart), rb.count, rb.size)
+// 	}
+
+// 	rb.buffer[rb.tail] = packet
+
+// 	rb.tail = (rb.tail + 1) % rb.size
+
+// 	rb.count++
+
+//		rb.notEmpty.Signal()
+//	}
+func (rb *RingBuffer) Push(packet Packet) bool {
+	pos := rb.enqueuePos
+	c := &rb.buffer[pos&rb.bufferMask]
+
+	seq := atomic.LoadUint64(&c.sequence)
+	diff := int64(seq) - int64(pos)
+
+	if diff != 0 {
+		// diff < 0: consumers haven't freed this slot yet -> full.
+		// diff > 0: should never happen with a single producer.
+		return false
 	}
 
-	rb.buffer[rb.tail] = packet
-
-	rb.tail = (rb.tail + 1) % rb.size
-
-	rb.count++
-
-	rb.notEmpty.Signal()
+	c.data = packet
+	atomic.StoreUint64(&c.sequence, pos+1) // publish to consumers
+	rb.enqueuePos = pos + 1                // safe: only this goroutine touches it
+	return true
+}
+func (rb *RingBuffer) PushBlocking(packet Packet) {
+	spins := 0
+	for !rb.Push(packet) {
+		backoff(&spins)
+	}
 }
 
-func (rb *RingBuffer) Pop() Packet {
-	rb.mutex.Lock()
-	defer rb.mutex.Unlock()
+// func (rb *RingBuffer) Pop() Packet {
+// 	rb.mutex.Lock()
+// 	defer rb.mutex.Unlock()
 
-	// Wait if buffer empty
-	for rb.count == 0 {
-		waitStart := time.Now()
-		logger.NgapLog.Infof("Worker waiting: RingBuffer EMPTY")
-		rb.notEmpty.Wait()
-		waitEnd := time.Now()
-		logger.NgapLog.Infof("Worker awakened after %v (count=%d)", waitEnd.Sub(waitStart), rb.count)
+// 	// Wait if buffer empty
+// 	for rb.count == 0 {
+// 		waitStart := time.Now()
+// 		logger.NgapLog.Infof("Worker waiting: RingBuffer EMPTY")
+// 		rb.notEmpty.Wait()
+// 		waitEnd := time.Now()
+// 		logger.NgapLog.Infof("Worker awakened after %v (count=%d)", waitEnd.Sub(waitStart), rb.count)
+// 	}
+
+// 	packet := rb.buffer[rb.head]
+
+// 	rb.head = (rb.head + 1) % rb.size
+
+// 	rb.count--
+
+// 	rb.notFull.Signal()
+
+//		return packet
+//	}
+func (rb *RingBuffer) Pop() (Packet, bool) {
+	pos := atomic.LoadUint64(&rb.dequeuePos)
+
+	for {
+		c := &rb.buffer[pos&rb.bufferMask]
+		seq := atomic.LoadUint64(&c.sequence)
+		diff := int64(seq) - int64(pos+1)
+
+		switch {
+		case diff == 0:
+			// Slot published and ready to read. Try to claim it —
+			// this is the contention point between consumers.
+			if atomic.CompareAndSwapUint64(&rb.dequeuePos, pos, pos+1) {
+				packet := c.data
+				atomic.StoreUint64(&c.sequence, pos+rb.bufferMask+1) // free slot for producer
+				return packet, true
+			}
+			pos = atomic.LoadUint64(&rb.dequeuePos) // lost race, retry
+
+		case diff < 0:
+			return Packet{}, false // empty
+
+		default:
+			pos = atomic.LoadUint64(&rb.dequeuePos)
+		}
 	}
+}
+func (rb *RingBuffer) PopBlocking() Packet {
+	spins := 0
+	for {
+		if p, ok := rb.Pop(); ok {
+			return p
+		}
+		backoff(&spins)
+	}
+}
 
-	packet := rb.buffer[rb.head]
-
-	rb.head = (rb.head + 1) % rb.size
-
-	rb.count--
-
-	rb.notFull.Signal()
-
-	return packet
+func backoff(spins *int) {
+	*spins++
+	switch {
+	case *spins < 30:
+		runtime.Gosched()
+	case *spins < 200:
+		time.Sleep(50 * time.Microsecond)
+	default:
+		time.Sleep(1 * time.Millisecond)
+	}
 }
