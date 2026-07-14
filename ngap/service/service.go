@@ -538,6 +538,7 @@ func (rb *RingBuffer) Pop() (Packet, bool) {
 		}
 	}
 }
+
 func (rb *RingBuffer) PopBlocking() Packet {
 	spins := 0
 	for {
