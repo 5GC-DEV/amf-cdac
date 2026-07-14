@@ -91,7 +91,7 @@ func InitWorkerPool(handler NGAPHandler) {
 	ringBuffer = NewRingBuffer(8192)
 
 	wp := NewWorkerPool(ringBuffer, handler)
-	wp.Start(2)
+	wp.Start(5)
 }
 
 func NewWorkerPool(rb *RingBuffer, handler NGAPHandler) *WorkerPool {
