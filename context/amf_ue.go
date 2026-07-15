@@ -16,7 +16,6 @@ import (
 	"os"
 	"reflect"
 	"regexp"
-	"runtime"
 	"strconv"
 	"sync"
 	"time"
@@ -1001,30 +1000,30 @@ func (ue *AmfUe) ClearRegistrationRequestData(accessType models.AccessType) {
 		accessType, ue.Supi, ue.Suci, ue.OnGoing[accessType].Procedure, ue.AuthenticationCtx != nil, ue.RegistrationType5GS)
 
 	// Log call stack to trace who triggered the clear
-	buf := make([]byte, 2048)
-	n := runtime.Stack(buf, false)
-	ue.GmmLog.Warnf("ClearRegistrationRequestData stacktrace:\n%s", buf[:n])
+	// buf := make([]byte, 2048)
+	// n := runtime.Stack(buf, false)
+	// ue.GmmLog.Warnf("ClearRegistrationRequestData stacktrace:\n%s", buf[:n])
 
-	if ue.RegistrationRequest != nil {
-		ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationRequest (was non-nil)")
-	}
+	// if ue.RegistrationRequest != nil {
+	// 	ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationRequest (was non-nil)")
+	// }
 	ue.RegistrationRequest = nil
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: RegistrationType5GS %v -> 0", ue.RegistrationType5GS)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: RegistrationType5GS %v -> 0", ue.RegistrationType5GS)
 	ue.RegistrationType5GS = 0
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: IdentityTypeUsedForRegistration %v -> 0", ue.IdentityTypeUsedForRegistration)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: IdentityTypeUsedForRegistration %v -> 0", ue.IdentityTypeUsedForRegistration)
 	ue.IdentityTypeUsedForRegistration = 0
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: AuthFailureCauseSynchFailureTimes %v -> 0", ue.AuthFailureCauseSynchFailureTimes)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: AuthFailureCauseSynchFailureTimes %v -> 0", ue.AuthFailureCauseSynchFailureTimes)
 	ue.AuthFailureCauseSynchFailureTimes = 0
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: ServingAmfChanged %v -> false", ue.ServingAmfChanged)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: ServingAmfChanged %v -> false", ue.ServingAmfChanged)
 	ue.ServingAmfChanged = false
 
-	if ue.RegistrationAcceptForNon3GPPAccess != nil {
-		ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationAcceptForNon3GPPAccess (was non-nil)")
-	}
+	// if ue.RegistrationAcceptForNon3GPPAccess != nil {
+	// 	ue.GmmLog.Debugf("ClearRegistrationRequestData: clearing RegistrationAcceptForNon3GPPAccess (was non-nil)")
+	// }
 	ue.RegistrationAcceptForNon3GPPAccess = nil
 
 	if ue.RanUe != nil && ue.RanUe[accessType] != nil {
@@ -1037,11 +1036,11 @@ func (ue *AmfUe) ClearRegistrationRequestData(accessType models.AccessType) {
 		ue.GmmLog.Warnf("ClearRegistrationRequestData: RanUe is nil or RanUe[%v] is nil — skipping UeContextRequest reset", accessType)
 	}
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: RetransmissionOfInitialNASMsg %v -> false", ue.RetransmissionOfInitialNASMsg)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: RetransmissionOfInitialNASMsg %v -> false", ue.RetransmissionOfInitialNASMsg)
 	ue.RetransmissionOfInitialNASMsg = false
 
-	ue.GmmLog.Debugf("ClearRegistrationRequestData: OnGoing[%v].Procedure %v -> OnGoingProcedureNothing",
-		accessType, ue.OnGoing[accessType].Procedure)
+	// ue.GmmLog.Debugf("ClearRegistrationRequestData: OnGoing[%v].Procedure %v -> OnGoingProcedureNothing",
+	// accessType, ue.OnGoing[accessType].Procedure)
 	ue.OnGoing[accessType].Procedure = OnGoingProcedureNothing
 
 	ue.GmmLog.Warnf("ClearRegistrationRequestData complete for supi=%s suci=%s", ue.Supi, ue.Suci)
