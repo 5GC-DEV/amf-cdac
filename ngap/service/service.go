@@ -25,6 +25,7 @@ import (
 type Packet struct {
 	Conn net.Conn
 	Data []byte
+	TSN  uint32
 }
 
 type WorkerPool struct {
@@ -380,6 +381,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			packet := Packet{
 				Conn: conn,
 				Data: packetData,
+				TSN:  info.TSN,
 			}
 
 			// Producer pushes packet to ring buffer
@@ -397,11 +399,11 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 func (wp *WorkerPool) worker(id int) {
 	for {
 		// packet := wp.ringBuffer.Pop()
-		packet := wp.ringBuffer.PopBlocking()
+		packet := wp.ringBuffer.PopBlocking(id)
 
 		handleStart := time.Now()
 
-		logger.NgapLog.Infof("Worker-%d HandleMessage start=%s", id, handleStart.Format(time.RFC3339Nano))
+		logger.NgapLog.Infof("Worker-%d HandleMessage start=%s for the packet TSN=%d", id, handleStart.Format(time.RFC3339Nano), packet.TSN)
 
 		wp.handler.HandleMessage(packet.Conn, packet.Data)
 
@@ -409,7 +411,7 @@ func (wp *WorkerPool) worker(id int) {
 
 		metrics.ObserveHandleMessageDuration(handleEnd.Sub(handleStart))
 
-		logger.NgapLog.Infof("Worker-%d HandleMessage end=%s duration=%v", id, handleEnd.Format(time.RFC3339Nano), handleEnd.Sub(handleStart))
+		logger.NgapLog.Infof("Worker-%d HandleMessage end=%s for the packet TSN=%d duration=%v", id, handleEnd.Format(time.RFC3339Nano), packet.TSN, handleEnd.Sub(handleStart))
 	}
 }
 
@@ -461,12 +463,12 @@ func NewRingBuffer(size int) *RingBuffer {
 //	}
 func (rb *RingBuffer) Push(packet Packet) bool {
 	pos := atomic.LoadUint64(&rb.enqueuePos)
-
 	for {
 		c := &rb.buffer[pos&rb.bufferMask]
 		seq := atomic.LoadUint64(&c.sequence)
 		diff := int64(seq) - int64(pos)
-
+		index := pos & rb.bufferMask
+		logger.NgapLog.Infof("[PUSH-TRY] TSN=%d pos=%d index=%d seq=%d", packet.TSN, pos, index, seq)
 		switch {
 		case diff == 0:
 			// Slot free for writing. Try to claim it — this is the
@@ -474,10 +476,11 @@ func (rb *RingBuffer) Push(packet Packet) bool {
 			if atomic.CompareAndSwapUint64(&rb.enqueuePos, pos, pos+1) {
 				c.data = packet
 				atomic.StoreUint64(&c.sequence, pos+1) // publish to consumers
+				logger.NgapLog.Infof("[PUSH-OK ] TSN=%d pos=%d index=%d newSeq=%d", packet.TSN, pos, index, pos+1)
 				return true
 			}
+			logger.NgapLog.Infof("[PUSH-RETRY] TSN=%d oldPos=%d newPos=%d", packet.TSN, pos, atomic.LoadUint64(&rb.enqueuePos))
 			pos = atomic.LoadUint64(&rb.enqueuePos) // lost the race, retry
-
 		case diff < 0:
 			return false // full
 
@@ -517,38 +520,39 @@ func (rb *RingBuffer) PushBlocking(packet Packet) {
 
 //		return packet
 //	}
-func (rb *RingBuffer) Pop() (Packet, bool) {
+func (rb *RingBuffer) Pop(workerID int) (Packet, bool) {
 	pos := atomic.LoadUint64(&rb.dequeuePos)
 
 	for {
 		c := &rb.buffer[pos&rb.bufferMask]
 		seq := atomic.LoadUint64(&c.sequence)
 		diff := int64(seq) - int64(pos+1)
-
+		index := pos & rb.bufferMask
+		logger.NgapLog.Infof("[POP-TRY ] worker=%d pos=%d index=%d seq=%d", workerID, pos, index, seq)
 		switch {
 		case diff == 0:
 			// Slot published and ready to read. Try to claim it —
 			// this is the contention point between consumers.
 			if atomic.CompareAndSwapUint64(&rb.dequeuePos, pos, pos+1) {
 				packet := c.data
+				logger.NgapLog.Infof("[POP-OK ] worker=%d TSN=%d pos=%d index=%d", workerID, packet.TSN, pos, index)
 				atomic.StoreUint64(&c.sequence, pos+rb.bufferMask+1) // free slot for producer
 				return packet, true
 			}
+			logger.NgapLog.Infof("[POP-RETRY] worker=%d oldPos=%d newPos=%d", workerID, pos, atomic.LoadUint64(&rb.dequeuePos))
 			pos = atomic.LoadUint64(&rb.dequeuePos) // lost race, retry
-
 		case diff < 0:
 			return Packet{}, false // empty
-
 		default:
 			pos = atomic.LoadUint64(&rb.dequeuePos)
 		}
 	}
 }
 
-func (rb *RingBuffer) PopBlocking() Packet {
+func (rb *RingBuffer) PopBlocking(workerID int) Packet {
 	spins := 0
 	for {
-		if p, ok := rb.Pop(); ok {
+		if p, ok := rb.Pop(workerID); ok {
 			return p
 		}
 		backoff(&spins)
