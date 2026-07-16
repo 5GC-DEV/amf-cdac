@@ -51,15 +51,12 @@ type RingBuffer struct {
 	buffer     []cell
 	bufferMask uint64 // size-1, size must be a power of two
 
-	// enqueuePos is owned exclusively by the single producer goroutine.
-	// It does NOT need to be an atomic type for correctness of Push itself
-	// (only one writer, no CAS needed) — it's kept as uint64 here purely
-	// as a plain field. Do not read/write it from any other goroutine.
+	// enqueuePos is shared across multiple producer goroutines
+	// (one per gNB connection), so it needs atomic + CAS.
 	enqueuePos uint64
 	_          [56]byte // padding, avoids false sharing with dequeuePos
 
-	// dequeuePos IS shared across multiple consumer goroutines, so it
-	// still needs atomic + CAS.
+	// dequeuePos is shared across multiple consumer goroutines.
 	dequeuePos uint64
 	_          [56]byte
 }
@@ -463,22 +460,31 @@ func NewRingBuffer(size int) *RingBuffer {
 //		rb.notEmpty.Signal()
 //	}
 func (rb *RingBuffer) Push(packet Packet) bool {
-	pos := rb.enqueuePos
-	c := &rb.buffer[pos&rb.bufferMask]
+	pos := atomic.LoadUint64(&rb.enqueuePos)
 
-	seq := atomic.LoadUint64(&c.sequence)
-	diff := int64(seq) - int64(pos)
+	for {
+		c := &rb.buffer[pos&rb.bufferMask]
+		seq := atomic.LoadUint64(&c.sequence)
+		diff := int64(seq) - int64(pos)
 
-	if diff != 0 {
-		// diff < 0: consumers haven't freed this slot yet -> full.
-		// diff > 0: should never happen with a single producer.
-		return false
+		switch {
+		case diff == 0:
+			// Slot free for writing. Try to claim it — this is the
+			// contention point between the 2+ producer goroutines.
+			if atomic.CompareAndSwapUint64(&rb.enqueuePos, pos, pos+1) {
+				c.data = packet
+				atomic.StoreUint64(&c.sequence, pos+1) // publish to consumers
+				return true
+			}
+			pos = atomic.LoadUint64(&rb.enqueuePos) // lost the race, retry
+
+		case diff < 0:
+			return false // full
+
+		default:
+			pos = atomic.LoadUint64(&rb.enqueuePos)
+		}
 	}
-
-	c.data = packet
-	atomic.StoreUint64(&c.sequence, pos+1) // publish to consumers
-	rb.enqueuePos = pos + 1                // safe: only this goroutine touches it
-	return true
 }
 
 func (rb *RingBuffer) PushBlocking(packet Packet) {
