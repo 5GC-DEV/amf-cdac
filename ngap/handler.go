@@ -937,10 +937,10 @@ func HandleUplinkNasTransport(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		return
 	}
 	if amfUe.RanUe != nil && amfUe.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId != 0 {
-		ran.Log.Info("From fetched ranue-amfue ranuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId)
+		ran.Log.Infof("From fetched ranue-amfue ranuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].RanUeNgapId)
 	}
 	if amfUe.RanUe != nil && amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId != 0 {
-		ran.Log.Info("From fetched ranue-amfue amfuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
+		ran.Log.Infof("From fetched ranue-amfue amfuengapid:%d", amfUe.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId)
 	}
 
 	ranUe.Log.Infof("Uplink NAS Transport (RAN UE NGAP ID: %d), (AMF UE NGAP ID: %d)", ranUe.RanUeNgapId, ranUe.AmfUeNgapId)
