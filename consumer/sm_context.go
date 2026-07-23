@@ -466,6 +466,11 @@ func SendUpdateSmContextRequest(smContext *amf_context.SmContext,
 	response *models.UpdateSmContextResponse, errorResponse *models.UpdateSmContextErrorResponse,
 	problemDetail *models.ProblemDetails, err1 error,
 ) {
+	if smContext == nil {
+		err1 = openapi.ReportError("smContext is nil")
+		return response, errorResponse, problemDetail, err1
+	}
+
 	configuration := Nsmf_PDUSession.NewConfiguration()
 	configuration.SetBasePath(smContext.SmfUri())
 	client := Nsmf_PDUSession.NewAPIClient(configuration)
