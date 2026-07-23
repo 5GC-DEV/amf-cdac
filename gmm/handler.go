@@ -767,6 +767,7 @@ func HandleInitialRegistration(ue *context.AmfUe, anType models.AccessType) erro
 		gmm_message.SendRegistrationAccept(ue, anType, nil, nil, nil, nil, nil)
 		metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
 		metrics.SetNoOfUeConnectionStats(context.AMF_Self().NfId, ue.Suci, ue.Guti, 1)
+		context.UpdateActiveSubscribersMetric()
 		// count := 0
 		// context.AMF_Self().UePool.Range(func(key, value interface{}) bool {
 		// 	count++
@@ -975,7 +976,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 				} else {
 					gmm_message.SendRegistrationAccept(ue, anType, pduSessionStatus,
 						reactivationResult, errPduSessionId, errCause, &ctxList)
-					metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
+					// metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
 				}
 				switch requestData.N1MessageContainer.N1MessageClass {
 				case models.N1MessageClass_SM:
@@ -1084,7 +1085,7 @@ func HandleMobilityAndPeriodicRegistrationUpdating(ue *context.AmfUe, anType mod
 		if anType == models.AccessType__3_GPP_ACCESS {
 			gmm_message.SendRegistrationAccept(ue, anType, pduSessionStatus, reactivationResult,
 				errPduSessionId, errCause, &ctxList)
-			metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
+			// metrics.IncrementUeRegStats(context.AMF_Self().NfId, "success")
 		} else {
 			ngap_message.SendInitialContextSetupRequest(ue, anType, nil, &ctxList, nil, nil, nil)
 			registrationAccept, err := gmm_message.BuildRegistrationAccept(ue, anType,
