@@ -564,7 +564,7 @@ func (ue *AmfUe) AttachRanUe(ranUe *RanUe) {
 	ue.NASLog = logger.NasLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.GmmLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
 	ue.TxLog = logger.GmmLog.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
-	UpdateActiveSubscribersMetric()
+	// UpdateActiveSubscribersMetric()
 }
 
 func (ue *AmfUe) GetAnType() models.AccessType {
