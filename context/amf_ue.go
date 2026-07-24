@@ -516,10 +516,12 @@ func (ue *AmfUe) Remove() {
 }
 
 func UpdateActiveSubscribersMetric() {
+	logger.ContextLog.Info("---in UpdateActiveSubscribersMetric")
 	activeUE := 0
 	AMF_Self().UePool.Range(func(key, value interface{}) bool {
 		ue := value.(*AmfUe)
 		ue.Mutex.Lock()
+		logger.ContextLog.Infof("UE %v RanUe map: %+v", key, ue.RanUe)
 		// Count only connected UEs
 		for _, ranUe := range ue.RanUe {
 			if ranUe != nil {
@@ -530,13 +532,16 @@ func UpdateActiveSubscribersMetric() {
 		ue.Mutex.Unlock()
 		return true
 	})
+	logger.ContextLog.Infof("computed activeUE=%d", activeUE)
 	metrics.SetNoOfActiveSubStats(uint64(activeUE))
 	// metrics.GetMetrics().NoOfActiveSub.Set(float64(activeUE))
 }
 
 func (ue *AmfUe) DetachRanUe(anType models.AccessType) {
 	ue.Mutex.Lock()
+	logger.ContextLog.Infof("---DetachRanUe: before delete, UE %s RanUe map: %+v", ue.Supi, ue.RanUe)
 	delete(ue.RanUe, anType)
+	logger.ContextLog.Infof("---DetachRanUe: deleted anType=%v, after delete RanUe map: %+v", anType, ue.RanUe)
 	ue.Mutex.Unlock()
 	UpdateActiveSubscribersMetric()
 }
