@@ -563,6 +563,7 @@ type NgapMsg struct {
 	SctplbMsg *sdcoreAmfServer.SctplbMessage
 	NgapMsg   *ngapType.NGAPPDU
 	Ran       *AmfRan
+	Sqn       int
 }
 
 type SbiResponseMsg struct {
@@ -1323,6 +1324,7 @@ func (ue *AmfUe) SetEventChannel(handler func(*AmfUe, NgapMsg)) {
 		ue.EventChannel = ue.NewEventChannel()
 		ue.EventChannel.AmfUe = ue
 		ue.EventChannel.UpdateNgapHandler(handler)
+		ue.EventChannel.prevSqn = -1 // no message processed yet
 		go ue.EventChannel.Start()
 	}
 }

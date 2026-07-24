@@ -13,6 +13,7 @@ import (
 	"reflect"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
+	"github.com/5GC-DEV/nas-cdac"
 	"github.com/5GC-DEV/ngap-cdac"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
@@ -117,6 +118,11 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 func Dispatch(conn net.Conn, msg []byte) {
 	var ran *context.AmfRan
 	amfSelf := context.AMF_Self()
+	var aMFUENGAPID *ngapType.AMFUENGAPID
+	var rANUENGAPID *ngapType.RANUENGAPID
+	var nASPDU *ngapType.NASPDU
+	var userLocationInformation *ngapType.UserLocationInformation
+
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
 		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
@@ -137,7 +143,55 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
 		return
 	}
-	// logger.NgapLog.Infof("NGAP procedureCode=%d", pdu.InitiatingMessage.ProcedureCode.Value)
+	nasPdu := pdu.InitiatingMessage.Value.UplinkNASTransport.ProtocolIEs.List
+	for i := 0; i < len(nasPdu); i++ {
+		ie := nasPdu[i]
+		switch ie.Id.Value {
+		case ngapType.ProtocolIEIDAMFUENGAPID:
+			aMFUENGAPID = ie.Value.AMFUENGAPID
+			ran.Log.Debugln("decode IE AmfUeNgapID")
+			if aMFUENGAPID == nil {
+				ran.Log.Errorln("AmfUeNgapID is nil")
+				return
+			} else {
+				ran.Log.Infof("amfuengapid:%d", aMFUENGAPID.Value)
+			}
+		case ngapType.ProtocolIEIDRANUENGAPID:
+			rANUENGAPID = ie.Value.RANUENGAPID
+			ran.Log.Debugln("decode IE RanUeNgapID")
+			if rANUENGAPID == nil {
+				ran.Log.Errorln("RanUeNgapID is nil")
+				return
+			} else {
+				ran.Log.Infof("ranuengapid:%d", rANUENGAPID.Value)
+			}
+		case ngapType.ProtocolIEIDNASPDU:
+			nASPDU = ie.Value.NASPDU
+			ran.Log.Debugln("decode IE NasPdu")
+			if nASPDU == nil {
+				ran.Log.Errorln("nASPDU is nil")
+				return
+			}
+		case ngapType.ProtocolIEIDUserLocationInformation:
+			userLocationInformation = ie.Value.UserLocationInformation
+			ran.Log.Debugln("decode IE UserLocationInformation")
+			if userLocationInformation == nil {
+				ran.Log.Errorln("UserLocationInformation is nil")
+				return
+			}
+		}
+	}
+	sqn := -1
+	if isSecurityProtected(nASPDU.Value) {
+		if len(nASPDU.Value) < 7 {
+			ran.Log.Warnln("security-protected NAS PDU too short to contain sqn")
+		} else {
+			sqn = int(nASPDU.Value[6])
+		}
+	}
+	// sqn := int(nASPDU.Value[6])
+	ran.Log.Info("sqn: ", sqn)
+
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
@@ -157,6 +211,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 				Ran:       ran,
 				NgapMsg:   pdu,
 				SctplbMsg: nil,
+				Sqn:       sqn,
 			}
 			if ranUe.Ran != nil {
 				if ranUe.Ran.GnbId == ran.GnbId {
@@ -169,7 +224,8 @@ func Dispatch(conn net.Conn, msg []byte) {
 			} else {
 				amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
 			}
-			eventChan.SubmitMessage(ngapMsg)
+			// eventChan.SubmitMessage(ngapMsg)
+			eventChan.SubmitNgapMessage(ngapMsg)
 		}
 	} else {
 		go DispatchNgapMsg(ran, pdu, nil)
@@ -375,4 +431,12 @@ func HandleSCTPNotificationLb(gnbId string) {
 
 	ran.Log.Infoln("SCTP state is SCTP_SHUTDOWN_COMP, close the connection")
 	ran.Remove()
+}
+
+func isSecurityProtected(payload []byte) bool {
+	if len(payload) < 2 {
+		return false
+	}
+	securityHeaderType := nas.GetSecurityHeaderType(payload) & 0x0f
+	return securityHeaderType != nas.SecurityHeaderTypePlainNas
 }
