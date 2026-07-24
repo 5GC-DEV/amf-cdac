@@ -143,54 +143,56 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
 		return
 	}
-	nasPdu := pdu.InitiatingMessage.Value.UplinkNASTransport.ProtocolIEs.List
-	for i := 0; i < len(nasPdu); i++ {
-		ie := nasPdu[i]
-		switch ie.Id.Value {
-		case ngapType.ProtocolIEIDAMFUENGAPID:
-			aMFUENGAPID = ie.Value.AMFUENGAPID
-			ran.Log.Debugln("decode IE AmfUeNgapID")
-			if aMFUENGAPID == nil {
-				ran.Log.Errorln("AmfUeNgapID is nil")
-				return
-			} else {
-				ran.Log.Infof("amfuengapid:%d", aMFUENGAPID.Value)
-			}
-		case ngapType.ProtocolIEIDRANUENGAPID:
-			rANUENGAPID = ie.Value.RANUENGAPID
-			ran.Log.Debugln("decode IE RanUeNgapID")
-			if rANUENGAPID == nil {
-				ran.Log.Errorln("RanUeNgapID is nil")
-				return
-			} else {
-				ran.Log.Infof("ranuengapid:%d", rANUENGAPID.Value)
-			}
-		case ngapType.ProtocolIEIDNASPDU:
-			nASPDU = ie.Value.NASPDU
-			ran.Log.Debugln("decode IE NasPdu")
-			if nASPDU == nil {
-				ran.Log.Errorln("nASPDU is nil")
-				return
-			}
-		case ngapType.ProtocolIEIDUserLocationInformation:
-			userLocationInformation = ie.Value.UserLocationInformation
-			ran.Log.Debugln("decode IE UserLocationInformation")
-			if userLocationInformation == nil {
-				ran.Log.Errorln("UserLocationInformation is nil")
-				return
-			}
-		}
-	}
 	sqn := -1
-	if isSecurityProtected(nASPDU.Value) {
-		if len(nASPDU.Value) < 7 {
-			ran.Log.Warnln("security-protected NAS PDU too short to contain sqn")
-		} else {
-			sqn = int(nASPDU.Value[6])
+	if pdu.InitiatingMessage.ProcedureCode.Value == ngapType.ProcedureCodeUplinkNASTransport {
+		nasPdu := pdu.InitiatingMessage.Value.UplinkNASTransport.ProtocolIEs.List
+		for i := 0; i < len(nasPdu); i++ {
+			ie := nasPdu[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				aMFUENGAPID = ie.Value.AMFUENGAPID
+				ran.Log.Debugln("decode IE AmfUeNgapID")
+				if aMFUENGAPID == nil {
+					ran.Log.Errorln("AmfUeNgapID is nil")
+					return
+				} else {
+					ran.Log.Infof("amfuengapid:%d", aMFUENGAPID.Value)
+				}
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				rANUENGAPID = ie.Value.RANUENGAPID
+				ran.Log.Debugln("decode IE RanUeNgapID")
+				if rANUENGAPID == nil {
+					ran.Log.Errorln("RanUeNgapID is nil")
+					return
+				} else {
+					ran.Log.Infof("ranuengapid:%d", rANUENGAPID.Value)
+				}
+			case ngapType.ProtocolIEIDNASPDU:
+				nASPDU = ie.Value.NASPDU
+				ran.Log.Debugln("decode IE NasPdu")
+				if nASPDU == nil {
+					ran.Log.Errorln("nASPDU is nil")
+					return
+				}
+			case ngapType.ProtocolIEIDUserLocationInformation:
+				userLocationInformation = ie.Value.UserLocationInformation
+				ran.Log.Debugln("decode IE UserLocationInformation")
+				if userLocationInformation == nil {
+					ran.Log.Errorln("UserLocationInformation is nil")
+					return
+				}
+			}
 		}
+		if isSecurityProtected(nASPDU.Value) {
+			if len(nASPDU.Value) < 7 {
+				ran.Log.Warnln("security-protected NAS PDU too short to contain sqn")
+			} else {
+				sqn = int(nASPDU.Value[6])
+			}
+		}
+		// sqn := int(nASPDU.Value[6])
+		ran.Log.Info("sqn: ", sqn)
 	}
-	// sqn := int(nASPDU.Value[6])
-	ran.Log.Info("sqn: ", sqn)
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
