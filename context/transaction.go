@@ -13,7 +13,7 @@ import (
 	"github.com/omec-project/amf/logger"
 )
 
-const sqnGracePeriod = 30 * time.Millisecond
+const sqnGracePeriod = 50 * time.Millisecond
 const sqnModulus = 256 // sqn is a single byte, wraps mod 256
 
 type EventChannel struct {
@@ -134,7 +134,7 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 		toSendNow = append(toSendNow, msg)
 
 	default:
-		// Out of order: buffer it and start the grace-period timer.
+		// Out of order condition : buffer it and start the grace-period timer.
 		heldCopy := msg
 		tx.held = &heldCopy
 		tx.heldTimer = time.AfterFunc(sqnGracePeriod, func() {

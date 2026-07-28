@@ -390,7 +390,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			ringBuffer.PushBlocking(packet)
 			pushEnd := time.Now()
 			logger.NgapLog.Infof("push start=%s end=%s duration=%v", pushStart.Format(time.RFC3339Nano), pushEnd.Format(time.RFC3339Nano), pushEnd.Sub(pushStart))
-			logger.NgapLog.Infof("Packet queued to ring buffer, size=%d", n)
+			logger.NgapLog.Debugf("Packet queued to ring buffer, size=%d", n)
 			// Immediately continue to next SCTPRead()
 		}
 	}
@@ -468,7 +468,7 @@ func (rb *RingBuffer) Push(packet Packet) bool {
 		seq := atomic.LoadUint64(&c.sequence)
 		diff := int64(seq) - int64(pos)
 		index := pos & rb.bufferMask
-		logger.NgapLog.Infof("[PUSH-TRY] TSN=%d pos=%d index=%d seq=%d", packet.TSN, pos, index, seq)
+		logger.NgapLog.Debugf("[PUSH-TRY] TSN=%d pos=%d index=%d seq=%d", packet.TSN, pos, index, seq)
 		switch {
 		case diff == 0:
 			// Slot free for writing. Try to claim it — this is the
@@ -479,7 +479,7 @@ func (rb *RingBuffer) Push(packet Packet) bool {
 				logger.NgapLog.Infof("[PUSH-OK ] TSN=%d pos=%d index=%d newSeq=%d", packet.TSN, pos, index, pos+1)
 				return true
 			}
-			logger.NgapLog.Infof("[PUSH-RETRY] TSN=%d oldPos=%d newPos=%d", packet.TSN, pos, atomic.LoadUint64(&rb.enqueuePos))
+			logger.NgapLog.Debugf("[PUSH-RETRY] TSN=%d oldPos=%d newPos=%d", packet.TSN, pos, atomic.LoadUint64(&rb.enqueuePos))
 			pos = atomic.LoadUint64(&rb.enqueuePos) // lost the race, retry
 		case diff < 0:
 			return false // full
@@ -528,7 +528,7 @@ func (rb *RingBuffer) Pop(workerID int) (Packet, bool) {
 		seq := atomic.LoadUint64(&c.sequence)
 		diff := int64(seq) - int64(pos+1)
 		index := pos & rb.bufferMask
-		logger.NgapLog.Infof("[POP-TRY ] worker=%d pos=%d index=%d seq=%d", workerID, pos, index, seq)
+		logger.NgapLog.Debugf("[POP-TRY ] worker=%d pos=%d index=%d seq=%d", workerID, pos, index, seq)
 		switch {
 		case diff == 0:
 			// Slot published and ready to read. Try to claim it —
@@ -539,7 +539,7 @@ func (rb *RingBuffer) Pop(workerID int) (Packet, bool) {
 				atomic.StoreUint64(&c.sequence, pos+rb.bufferMask+1) // free slot for producer
 				return packet, true
 			}
-			logger.NgapLog.Infof("[POP-RETRY] worker=%d oldPos=%d newPos=%d", workerID, pos, atomic.LoadUint64(&rb.dequeuePos))
+			logger.NgapLog.Debugf("[POP-RETRY] worker=%d oldPos=%d newPos=%d", workerID, pos, atomic.LoadUint64(&rb.dequeuePos))
 			pos = atomic.LoadUint64(&rb.dequeuePos) // lost race, retry
 		case diff < 0:
 			return Packet{}, false // empty
