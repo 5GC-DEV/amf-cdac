@@ -13,8 +13,10 @@ import (
 	"github.com/omec-project/amf/logger"
 )
 
-const sqnGracePeriod = 100 * time.Millisecond
-const sqnModulus = 256 // sqn is a single byte, wraps mod 256
+const (
+	sqnGracePeriod = 100 * time.Millisecond
+	sqnModulus     = 256 // sqn is a single byte, wraps mod 256
+)
 
 type EventChannel struct {
 	Message       chan interface{}
