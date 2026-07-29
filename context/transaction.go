@@ -90,20 +90,24 @@ func (tx *EventChannel) SubmitMessage(msg interface{}) {
 }
 
 func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
+	recvTime := time.Now()
 	if msg.Sqn < 0 {
 		tx.Message <- msg
 		return
 	}
 
 	var toSendNow []NgapMsg
+	var decision string
 
 	tx.seqMu.Lock()
 	expected := (tx.prevSqn + 1) % sqnModulus
+	prevSqnBefore := tx.prevSqn
 
 	switch {
 	case tx.prevSqn == -1 || msg.Sqn == expected:
 		// In order (or very first message for this UE). Accept it and
 		// advance prevSqn immediately.
+		decision = "immediate"
 		tx.prevSqn = msg.Sqn
 		toSendNow = append(toSendNow, msg)
 
@@ -127,6 +131,7 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 		// out-of-order message. This shouldn't normally happen with
 		// only a single held slot; log it and let this one through
 		// rather than silently dropping it.
+		decision = "passthrough-collision"
 		tx.AmfUe.TxLog.Warnf(
 			"held buffer already occupied (held sqn=%d), passing sqn=%d through unordered",
 			tx.held.Sqn, msg.Sqn)
@@ -135,26 +140,30 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 
 	default:
 		// Out of order condition : buffer it and start the grace-period timer.
+		decision = "held"
 		heldCopy := msg
 		tx.held = &heldCopy
 		tx.heldTimer = time.AfterFunc(sqnGracePeriod, func() {
 			tx.releaseHeldAfterTimeout(heldCopy.Sqn)
 		})
 	}
+	tx.AmfUe.TxLog.Infof("SUBMIT sqn=%d prevSqnBefore=%d expected=%d decision=%s time=%s", msg.Sqn, prevSqnBefore, expected, decision, recvTime.Format(time.RFC3339Nano))
 	tx.seqMu.Unlock()
-
 	// Send outside the lock so a blocked/slow channel send never holds
 	// seqMu and stalls other producers submitting for this UE.
 	for _, m := range toSendNow {
+		tx.AmfUe.TxLog.Infof("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, time.Now().Format(time.RFC3339Nano))
 		tx.Message <- m
 	}
 }
 
 func (tx *EventChannel) releaseHeldAfterTimeout(expectedSqn int) {
+	fireTime := time.Now()
 	tx.seqMu.Lock()
 	var toSend *NgapMsg
 	if tx.held != nil && tx.held.Sqn == expectedSqn {
-		tx.AmfUe.TxLog.Warnf("grace period expired waiting for predecessor of sqn=%d, processing out of order", expectedSqn)
+		tx.AmfUe.TxLog.Infof("grace period expired waiting for predecessor of sqn=%d, processing out of order", expectedSqn)
+		tx.AmfUe.TxLog.Infof("TIMEOUT-RELEASE sqn=%d prevSqnBefore=%d time=%s", expectedSqn, tx.prevSqn, fireTime.Format(time.RFC3339Nano))
 		tx.prevSqn = tx.held.Sqn
 		toSend = tx.held
 		tx.held = nil
