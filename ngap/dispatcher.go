@@ -228,8 +228,23 @@ func Dispatch(conn net.Conn, msg []byte) {
 	if ranUe != nil {
 		amfUe := ranUe.AmfUe
 		if amfUe != nil {
-			logger.NgapLog.Debugf("ranUe context FOUND: procedureCode=%v time=%s",
-				pdu.InitiatingMessage.ProcedureCode.Value, time.Now().Format(time.RFC3339Nano))
+			var procCode int64 = -1
+			switch pdu.Present {
+			case ngapType.NGAPPDUPresentInitiatingMessage:
+				if pdu.InitiatingMessage != nil {
+					procCode = pdu.InitiatingMessage.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentSuccessfulOutcome:
+				if pdu.SuccessfulOutcome != nil {
+					procCode = pdu.SuccessfulOutcome.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
+				if pdu.UnsuccessfulOutcome != nil {
+					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
+				}
+			}
+			logger.NgapLog.Infof("ranUe context FOUND: procedureCode=%v time=%s",
+				procCode, time.Now().Format(time.RFC3339Nano))
 			amfUe.SetEventChannel(NgapMsgHandler)
 			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
 			eventChan := amfUe.EventChannel
@@ -260,8 +275,23 @@ func Dispatch(conn net.Conn, msg []byte) {
 			eventChan.SubmitNgapMessage(ngapMsg)
 		}
 	} else {
+		var procCode int64 = -1
+		switch pdu.Present {
+		case ngapType.NGAPPDUPresentInitiatingMessage:
+			if pdu.InitiatingMessage != nil {
+				procCode = pdu.InitiatingMessage.ProcedureCode.Value
+			}
+		case ngapType.NGAPPDUPresentSuccessfulOutcome:
+			if pdu.SuccessfulOutcome != nil {
+				procCode = pdu.SuccessfulOutcome.ProcedureCode.Value
+			}
+		case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
+			if pdu.UnsuccessfulOutcome != nil {
+				procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
+			}
+		}
 		logger.NgapLog.Infof("ranUe context NOT FOUND, dispatching unmanaged: procedureCode=%v  time=%s",
-			pdu.InitiatingMessage.ProcedureCode.Value, time.Now().Format(time.RFC3339Nano))
+			procCode, time.Now().Format(time.RFC3339Nano))
 		go DispatchNgapMsg(ran, pdu, nil)
 	}
 }
