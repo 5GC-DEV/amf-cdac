@@ -5138,3 +5138,25 @@ func buildCriticalityDiagnosticsIEItem(ieCriticality aper.Enumerated, ieID int64
 
 	return item
 }
+
+func RemoveAllSessionInRan(ran *context.AmfRan) {
+	logger.ContextLog.Info("in RemoveAllSessionInRan")
+	for _, ranUe := range ran.RanUeList {
+		amfUe := ranUe.AmfUe
+		if amfUe == nil {
+			continue // RanUe never got associated with an AmfUe, nothing to release
+		}
+		amfUe.SmContextList.Range(func(key, value interface{}) bool {
+			smContext := value.(*context.SmContext)
+			detail, err := consumer.SendReleaseSmContextRequest(
+				amfUe, smContext, nil, "", nil,
+			)
+			if err != nil {
+				ranUe.Log.Errorf("Send ReleaseSmContextRequest Error[%s]", err.Error())
+			} else if detail != nil {
+				ranUe.Log.Errorf("Send ReleaseSmContextRequest Error[%s]", detail.Cause)
+			}
+			return true
+		})
+	}
+}

@@ -340,6 +340,7 @@ func HandleSCTPNotification(conn net.Conn, notification sctp.Notification) {
 		}
 	case sctp.SCTP_SHUTDOWN_EVENT:
 		ran.Log.Infoln("SCTP_SHUTDOWN_EVENT notification, close the connection")
+		RemoveAllSessionInRan(ran)
 		ran.Remove()
 	default:
 		ran.Log.Warnf("Non handled notification type: 0x%x", notification.Type())
