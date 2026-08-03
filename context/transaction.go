@@ -61,22 +61,33 @@ func (tx *EventChannel) Start() {
 	for {
 		select {
 		case msg := <-tx.Message:
+			recvAt := time.Now()
 			switch msg := msg.(type) {
 			case NasMsg:
+				tx.AmfUe.TxLog.Infof("HANDLER-START type=NAS recvAt=%s", recvAt.Format(time.RFC3339Nano))
 				tx.NasHandler(tx.AmfUe, msg)
+				tx.AmfUe.TxLog.Infof("HANDLER-END type=NAS duration=%v", time.Since(recvAt))
 			case NgapMsg:
+				tx.AmfUe.TxLog.Infof("HANDLER-START type=NGAP recvAt=%s", recvAt.Format(time.RFC3339Nano))
 				tx.NgapHandler(tx.AmfUe, msg)
+				tx.AmfUe.TxLog.Infof("HANDLER-END type=NGAP duration=%v", time.Since(recvAt))
 			case SbiMsg:
+				tx.AmfUe.TxLog.Infof("HANDLER-START type=SBI reqUri=%s recvAt=%s", msg.ReqUri, recvAt.Format(time.RFC3339Nano))
 				p_1, p_2, p_3, p_4 := tx.SbiHandler(msg.UeContextId, msg.ReqUri, msg.Msg)
+				tx.AmfUe.TxLog.Infof("HANDLER-END type=SBI reqUri=%s duration=%v", msg.ReqUri, time.Since(recvAt))
 				res := SbiResponseMsg{
 					RespData:       p_1,
 					LocationHeader: p_2,
 					ProblemDetails: p_3,
 					TransferErr:    p_4,
 				}
+				resultSendStart := time.Now()
 				msg.Result <- res
+				tx.AmfUe.TxLog.Infof("SBI-RESULT-SENT reqUri=%s blockedFor=%v", msg.ReqUri, time.Since(resultSendStart))
 			case ConfigMsg:
+				tx.AmfUe.TxLog.Infof("HANDLER-START type=CONFIG recvAt=%s", recvAt.Format(time.RFC3339Nano))
 				tx.ConfigHandler(msg.Supi, msg.Sst, msg.Sd, msg.Msg)
+				tx.AmfUe.TxLog.Infof("HANDLER-END type=CONFIG duration=%v", time.Since(recvAt))
 			}
 		case event := <-tx.Event:
 			if event == "quit" {
@@ -94,7 +105,9 @@ func (tx *EventChannel) SubmitMessage(msg interface{}) {
 func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 	recvTime := time.Now()
 	if msg.Sqn < 0 {
+		t0 := time.Now()
 		tx.Message <- msg
+		tx.AmfUe.TxLog.Infof("DISPATCH-DONE (sqn<0) blockedFor=%v", time.Since(t0))
 		return
 	}
 
@@ -153,9 +166,11 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 
 	// Send outside the lock so a blocked/slow channel send never holds
 	// seqMu and stalls other producers submitting for this UE.
+	sendStart := time.Now()
 	for _, m := range toSendNow {
-		tx.AmfUe.TxLog.Infof("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, time.Now().Format(time.RFC3339Nano))
+		tx.AmfUe.TxLog.Infof("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, sendStart.Format(time.RFC3339Nano))
 		tx.Message <- m
+		tx.AmfUe.TxLog.Infof("DISPATCH-DONE sqn=%d blockedFor=%v", m.Sqn, time.Since(sendStart))
 	}
 	tx.seqMu.Unlock()
 }

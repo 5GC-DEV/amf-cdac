@@ -272,7 +272,9 @@ func Dispatch(conn net.Conn, msg []byte) {
 				amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
 			}
 			// eventChan.SubmitMessage(ngapMsg)
+			t0 := time.Now()
 			eventChan.SubmitNgapMessage(ngapMsg)
+			amfUe.TxLog.Infof("SubmitNgapMessage returned, duration=%v", time.Since(t0))
 		}
 	} else {
 		var procCode int64 = -1
