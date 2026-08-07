@@ -12,6 +12,7 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/5GC-DEV/ngap-cdac/ngapConvert"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
@@ -113,8 +114,17 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 	ranUe.RanUeNgapId = ranUeNgapID
 	ranUe.Ran = ran
 	ranUe.Log = ran.Log.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	waitStart := time.Now()
+	ran.Log.Infof("Attempting to acquire Write Lock at %s", waitStart.Format(time.RFC3339Nano))
 	ran.RanUeListLock.Lock()
-	defer ran.RanUeListLock.Unlock()
+	lockAcquired := time.Now()
+	ran.Log.Infof("Write Lock acquired at %s (waited %v)", lockAcquired.Format(time.RFC3339Nano), lockAcquired.Sub(waitStart))
+	defer func() {
+		releaseTime := time.Now()
+		ran.Log.Infof("Releasing Write Lock at %s (held for %v)", releaseTime.Format(time.RFC3339Nano), releaseTime.Sub(lockAcquired))
+		ran.RanUeListLock.Unlock()
+	}()
+	// defer ran.RanUeListLock.Unlock()
 	ran.RanUeList = append(ran.RanUeList, &ranUe)
 	self.RanUePool.Store(ranUe.AmfUeNgapId, &ranUe)
 	ran.Log.Infof("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
@@ -139,8 +149,17 @@ func (ran *AmfRan) RemoveAllUeInRan() {
 }
 
 func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
+	waitStart := time.Now()
+	ran.Log.Infof("Attempting to acquire RLock at %s for RanUeNgapID=%d", waitStart.Format(time.RFC3339Nano), ranUeNgapID)
 	ran.RanUeListLock.RLock()
-	defer ran.RanUeListLock.RUnlock()
+	lockAcquired := time.Now()
+	ran.Log.Infof("RLock acquired at %s for RanUeNgapID=%d (waited %v)", lockAcquired.Format(time.RFC3339Nano), ranUeNgapID, lockAcquired.Sub(waitStart))
+	defer func() {
+		releaseTime := time.Now()
+		ran.Log.Infof("Releasing RLock at %s (held for %v)", releaseTime.Format(time.RFC3339Nano), releaseTime.Sub(lockAcquired))
+		ran.RanUeListLock.RUnlock()
+	}()
+	// defer ran.RanUeListLock.RUnlock()
 	// TODO - need fix..Make this map so search is fast
 	for _, ranUe := range ran.RanUeList {
 		if ranUe == nil {
