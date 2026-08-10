@@ -243,8 +243,8 @@ func Dispatch(conn net.Conn, msg []byte) {
 					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
 				}
 			}
-			logger.NgapLog.Infof("ranUe context FOUND: procedureCode=%v time=%s",
-				procCode, time.Now().Format(time.RFC3339Nano))
+			logger.NgapLog.Infof("ranUe context FOUND: procedureCode=%v time=%s amfuengapid=%d",
+				procCode, time.Now().Format(time.RFC3339Nano), ranUe.AmfUeNgapId)
 			amfUe.SetEventChannel(NgapMsgHandler)
 			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
 			eventChan := amfUe.EventChannel

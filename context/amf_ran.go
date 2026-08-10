@@ -134,7 +134,7 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 			ran.Log.Infof("RanUeList[%d] = nil", i)
 			continue
 		}
-		ran.Log.Debugf("RanUeList[%d]: RanUeNgapId=%d AmfUeNgapId=%d", i, ue.RanUeNgapId, ue.AmfUeNgapId)
+		// ran.Log.Debugf("RanUeList[%d]: RanUeNgapId=%d AmfUeNgapId=%d", i, ue.RanUeNgapId, ue.AmfUeNgapId)
 	}
 	return &ranUe, nil
 }
