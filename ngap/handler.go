@@ -1338,7 +1338,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		}
 
 		amfUe.PublishUeCtxtInfo()
+		amfUe.RanUeMu.Lock()
 		amfUe.RanUe = nil
+		amfUe.RanUeMu.Unlock()
 		ran.Log.Infof("amfue after ranue nil: ", amfUe)
 		context.StoreContextInDB(amfUe)
 	case context.UeContextReleaseUeContext:
@@ -1359,7 +1361,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			context.DeleteContextFromDB(amfUe)
 		} else {
 			amfUe.PublishUeCtxtInfo()
+			amfUe.RanUeMu.Lock()
 			amfUe.RanUe = nil
+			amfUe.RanUeMu.Unlock()
 			ran.Log.Infof("amfue after ranue nil: ", amfUe)
 			context.StoreContextInDB(amfUe)
 		}
