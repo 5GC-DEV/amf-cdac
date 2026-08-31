@@ -114,21 +114,21 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 	ranUe.RanUeNgapId = ranUeNgapID
 	ranUe.Ran = ran
 	ranUe.Log = ran.Log.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
-	waitStart := time.Now()
-	ran.Log.Infof("Attempting to acquire Write Lock at %s", waitStart.Format(time.RFC3339Nano))
+	// waitStart := time.Now()
+	/// ran.Log.Infof("Attempting to acquire Write Lock at %s", waitStart.Format(time.RFC3339Nano))
+	// lockAcquired := time.Now()
+	// ran.Log.Infof("Write Lock acquired at %s (waited %v)", lockAcquired.Format(time.RFC3339Nano), lockAcquired.Sub(waitStart))
+	// defer func() {
+	// 	releaseTime := time.Now()
+	// 	ran.Log.Infof("Releasing Write Lock at %s (held for %v)", releaseTime.Format(time.RFC3339Nano), releaseTime.Sub(lockAcquired))
+	// 	ran.RanUeListLock.Unlock()
+	// }()
 	ran.RanUeListLock.Lock()
-	lockAcquired := time.Now()
-	ran.Log.Infof("Write Lock acquired at %s (waited %v)", lockAcquired.Format(time.RFC3339Nano), lockAcquired.Sub(waitStart))
-	defer func() {
-		releaseTime := time.Now()
-		ran.Log.Infof("Releasing Write Lock at %s (held for %v)", releaseTime.Format(time.RFC3339Nano), releaseTime.Sub(lockAcquired))
-		ran.RanUeListLock.Unlock()
-	}()
-	// defer ran.RanUeListLock.Unlock()
 	ran.RanUeList = append(ran.RanUeList, &ranUe)
+	ran.RanUeListLock.Unlock()
 	self.RanUePool.Store(ranUe.AmfUeNgapId, &ranUe)
 	ran.Log.Infof("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
-	ran.Log.Infof("RanUeList size: %d", len(ran.RanUeList))
+	// ran.Log.Infof("RanUeList size: %d", len(ran.RanUeList))
 	for i, ue := range ran.RanUeList {
 		if ue == nil {
 			ran.Log.Infof("RanUeList[%d] = nil", i)
@@ -141,7 +141,11 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 
 func (ran *AmfRan) RemoveAllUeInRan() {
 	logger.ContextLog.Info("in RemoveAllUeInRan")
-	for _, ranUe := range ran.RanUeList {
+	ran.RanUeListLock.Lock()
+	ranUeListCopy := make([]*RanUe, len(ran.RanUeList))
+	copy(ranUeListCopy, ran.RanUeList)
+	ran.RanUeListLock.Unlock()
+	for _, ranUe := range ranUeListCopy {
 		if err := ranUe.Remove(); err != nil {
 			logger.ContextLog.Errorf("Remove RanUe error: %v", err)
 		}

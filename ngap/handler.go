@@ -358,7 +358,7 @@ func FetchRanUeContext(ran *context.AmfRan, message *ngapType.NGAPPDU) (*context
 				}
 			}
 			ranUe = context.AMF_Self().RanUeFindByAmfUeNgapID(aMFUENGAPID.Value)
-			ran.Log.Info("UEContextReleaseComplete lookup Amfuengapid:%d", aMFUENGAPID.Value)
+			ran.Log.Infof("UEContextReleaseComplete lookup Amfuengapid:%d", aMFUENGAPID.Value)
 
 		case ngapType.ProcedureCodePDUSessionResourceRelease:
 			ngapMsg := successfulOutcome.Value.PDUSessionResourceReleaseResponse
