@@ -1329,13 +1329,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 	case context.UeContextN2NormalRelease:
 		ran.Log.Infof("Release UE[%s] Context : N2 Connection Release", amfUe.Supi)
 		// amfUe.DetachRanUe(ran.AnType)
-		err := ranUe.Remove()
-		if err != nil {
-			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
-		} else {
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
-		}
+		// err := ranUe.Remove()
+		// if err != nil {
+		// 	ran.Log.Errorln(err.Error())
+		// 	metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
+		// } else {
+		// 	metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+		// }
 
 		amfUe.PublishUeCtxtInfo()
 		amfUe.RanUeMu.Lock()
@@ -1343,8 +1343,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		amfUe.RanUeMu.Unlock()
 		ran.Log.Infof("amfue after ranue nil: ", amfUe)
 		context.StoreContextInDB(amfUe)
-	case context.UeContextReleaseUeContext:
-		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
@@ -1352,6 +1350,15 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
 		}
+	case context.UeContextReleaseUeContext:
+		ran.Log.Infof("Release UE[%s] Context : Release Ue Context", amfUe.Supi)
+		// err := ranUe.Remove()
+		// if err != nil {
+		// 	ran.Log.Errorln(err.Error())
+		// 	metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
+		// } else {
+		// 	metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+		// }
 
 		// Valid Security is not exist for this UE then only delete AMfUe Context
 		if !amfUe.SecurityContextAvailable {
@@ -1366,6 +1373,13 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			amfUe.RanUeMu.Unlock()
 			ran.Log.Infof("amfue after ranue nil: ", amfUe)
 			context.StoreContextInDB(amfUe)
+			err := ranUe.Remove()
+			if err != nil {
+				ran.Log.Errorln(err.Error())
+				metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
+			} else {
+				metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			}
 		}
 	case context.UeContextReleaseDueToNwInitiatedDeregistraion:
 		ran.Log.Infof("Release UE[%s] Context Due to Nw Initiated: Release Ue Context", amfUe.Supi)
