@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	sqnGracePeriod = 100 * time.Millisecond
+	sqnGracePeriod = 250 * time.Millisecond
 	sqnModulus     = 256 // sqn is a single byte, wraps mod 256
 )
 
