@@ -378,6 +378,7 @@ type NgapMsg struct {
 	SctplbMsg *sdcoreAmfServer.SctplbMessage
 	NgapMsg   *ngapType.NGAPPDU
 	Ran       *AmfRan
+	Sqn       int
 }
 
 type SbiResponseMsg struct {

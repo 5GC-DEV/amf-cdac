@@ -11,8 +11,10 @@ import (
 	"net"
 	"os"
 	"reflect"
+	"time"
 
 	"git.cs.nctu.edu.tw/calee/sctp"
+	"github.com/5GC-DEV/nas-cdac"
 	"github.com/5GC-DEV/ngap-cdac"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/omec-project/amf/context"
@@ -117,6 +119,10 @@ func DispatchLb(sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2RanMsgChan chan *s
 func Dispatch(conn net.Conn, msg []byte) {
 	var ran *context.AmfRan
 	amfSelf := context.AMF_Self()
+	var aMFUENGAPID *ngapType.AMFUENGAPID
+	var rANUENGAPID *ngapType.RANUENGAPID
+	var nASPDU *ngapType.NASPDU
+	var userLocationInformation *ngapType.UserLocationInformation
 
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
@@ -135,38 +141,154 @@ func Dispatch(conn net.Conn, msg []byte) {
 		ran.Log.Errorf("NGAP decode error: %+v", err)
 		return
 	}
+	sqn := -1
+	switch pdu.Present {
+	case ngapType.NGAPPDUPresentInitiatingMessage:
+		if pdu.InitiatingMessage == nil {
+			ran.Log.Errorln("InitiatingMessage is nil")
+			return
+		}
+		if pdu.InitiatingMessage.ProcedureCode.Value == ngapType.ProcedureCodeUplinkNASTransport {
+			nasPdu := pdu.InitiatingMessage.Value.UplinkNASTransport.ProtocolIEs.List
+			for i := 0; i < len(nasPdu); i++ {
+				ie := nasPdu[i]
+				switch ie.Id.Value {
+				case ngapType.ProtocolIEIDAMFUENGAPID:
+					aMFUENGAPID = ie.Value.AMFUENGAPID
+					ran.Log.Debugln("decode IE AmfUeNgapID")
+					if aMFUENGAPID == nil {
+						ran.Log.Errorln("AmfUeNgapID is nil")
+						return
+					} else {
+						ran.Log.Infof("amfuengapid:%d", aMFUENGAPID.Value)
+					}
+				case ngapType.ProtocolIEIDRANUENGAPID:
+					rANUENGAPID = ie.Value.RANUENGAPID
+					ran.Log.Debugln("decode IE RanUeNgapID")
+					if rANUENGAPID == nil {
+						ran.Log.Errorln("RanUeNgapID is nil")
+						return
+					} else {
+						ran.Log.Infof("ranuengapid:%d", rANUENGAPID.Value)
+					}
+				case ngapType.ProtocolIEIDNASPDU:
+					nASPDU = ie.Value.NASPDU
+					ran.Log.Debugln("decode IE NasPdu")
+					if nASPDU == nil {
+						ran.Log.Errorln("nASPDU is nil")
+						return
+					}
+				case ngapType.ProtocolIEIDUserLocationInformation:
+					userLocationInformation = ie.Value.UserLocationInformation
+					ran.Log.Debugln("decode IE UserLocationInformation")
+					if userLocationInformation == nil {
+						ran.Log.Errorln("UserLocationInformation is nil")
+						return
+					}
+				}
+			}
+			if nASPDU == nil {
+				ran.Log.Errorln("nASPDU is nil after decoding UplinkNASTransport IEs")
+				return
+			}
+			if isSecurityProtected(nASPDU.Value) {
+				if len(nASPDU.Value) < 7 {
+					ran.Log.Warnln("security-protected NAS PDU too short to contain sqn")
+				} else {
+					sqn = int(nASPDU.Value[6])
+				}
+			}
+			ran.Log.Info("sqn: ", sqn)
+		}
+	case ngapType.NGAPPDUPresentSuccessfulOutcome:
+		if pdu.SuccessfulOutcome == nil {
+			ran.Log.Errorln("SuccessfulOutcome is nil")
+			return
+		}
+		ran.Log.Debugf("Received SuccessfulOutcome, procedure code: %d", pdu.SuccessfulOutcome.ProcedureCode.Value)
+
+	case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
+		if pdu.UnsuccessfulOutcome == nil {
+			ran.Log.Errorln("UnsuccessfulOutcome is nil")
+			return
+		}
+		ran.Log.Debugf("Received UnsuccessfulOutcome, procedure code: %d", pdu.UnsuccessfulOutcome.ProcedureCode.Value)
+	default:
+		ran.Log.Errorln("Invalid NGAP PDU type received")
+		return
+	}
 
 	ranUe, _ := FetchRanUeContext(ran, pdu)
 
 	/* uecontext is found, submit the message to transaction queue*/
-	if ranUe != nil && ranUe.AmfUe != nil {
-		ranUe.AmfUe.SetEventChannel(NgapMsgHandler)
-		ranUe.AmfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
-		if ranUe.AmfUe.EventChannel == nil {
-			logger.NgapLog.Error("Eventchannel nil while dispatching the message")
-			return
-		} else {
-			ranUe.AmfUe.EventChannel.UpdateNgapHandler(NgapMsgHandler)
-		}
-		ngapMsg := context.NgapMsg{
-			Ran:       ran,
-			NgapMsg:   pdu,
-			SctplbMsg: nil,
-		}
-		if ranUe.Ran != nil {
-			if ranUe.Ran.GnbId == ran.GnbId {
-				ranUe.AmfUe.TxLog.Infoln("gnbid match")
-				ranUe.Ran.Conn = conn
-			} else {
-				ranUe.AmfUe.TxLog.Infoln("gnbid differ")
-				ranUe.AmfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+	if ranUe != nil {
+		amfUe := ranUe.AmfUe
+		if amfUe != nil {
+			var procCode int64 = -1
+			switch pdu.Present {
+			case ngapType.NGAPPDUPresentInitiatingMessage:
+				if pdu.InitiatingMessage != nil {
+					procCode = pdu.InitiatingMessage.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentSuccessfulOutcome:
+				if pdu.SuccessfulOutcome != nil {
+					procCode = pdu.SuccessfulOutcome.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
+				if pdu.UnsuccessfulOutcome != nil {
+					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
+				}
 			}
+			logger.NgapLog.Infof("ranUe context FOUND: procedureCode=%v time=%s amfuengapid=%d",
+				procCode, time.Now().Format(time.RFC3339Nano), ranUe.AmfUeNgapId)
+			amfUe.SetEventChannel(NgapMsgHandler)
+			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
+			eventChan := amfUe.EventChannel
+			if eventChan == nil {
+				logger.NgapLog.Error("Eventchannel nil while dispatching the message")
+				return
+			} else {
+				eventChan.UpdateNgapHandler(NgapMsgHandler)
+			}
+			ngapMsg := context.NgapMsg{
+				Ran:       ran,
+				NgapMsg:   pdu,
+				SctplbMsg: nil,
+			}
+			if ranUe.Ran != nil {
+				if ranUe.Ran.GnbId == ran.GnbId {
+					amfUe.TxLog.Infoln("gnbid match")
+					ranUe.Ran.Conn = conn
+				} else {
+					amfUe.TxLog.Infoln("gnbid differ")
+					amfUe.TxLog.Infof("In case of Xn handover source RAN gNB id:%s, target RAN gNB id:%s", ranUe.Ran.GnbId, ran.GnbId)
+				}
+			} else {
+				amfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			}
+			t0 := time.Now()
+			eventChan.SubmitNgapMessage(ngapMsg)
+			amfUe.TxLog.Infof("SubmitNgapMessage returned, duration=%v", time.Since(t0))
 		} else {
-			ranUe.AmfUe.TxLog.Errorln("Amfran nil while dispatching the message ")
+			var procCode int64 = -1
+			switch pdu.Present {
+			case ngapType.NGAPPDUPresentInitiatingMessage:
+				if pdu.InitiatingMessage != nil {
+					procCode = pdu.InitiatingMessage.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentSuccessfulOutcome:
+				if pdu.SuccessfulOutcome != nil {
+					procCode = pdu.SuccessfulOutcome.ProcedureCode.Value
+				}
+			case ngapType.NGAPPDUPresentUnsuccessfulOutcome:
+				if pdu.UnsuccessfulOutcome != nil {
+					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
+				}
+			}
+			logger.NgapLog.Infof("ranUe context NOT FOUND, dispatching unmanaged: procedureCode=%v  time=%s",
+				procCode, time.Now().Format(time.RFC3339Nano))
+			go DispatchNgapMsg(ran, pdu, nil)
 		}
-		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
-	} else {
-		go DispatchNgapMsg(ran, pdu, nil)
 	}
 }
 
@@ -369,4 +491,12 @@ func HandleSCTPNotificationLb(gnbId string) {
 
 	ran.Log.Infoln("SCTP state is SCTP_SHUTDOWN_COMP, close the connection")
 	ran.Remove()
+}
+
+func isSecurityProtected(payload []byte) bool {
+	if len(payload) < 2 {
+		return false
+	}
+	securityHeaderType := nas.GetSecurityHeaderType(payload) & 0x0f
+	return securityHeaderType != nas.SecurityHeaderTypePlainNas
 }
