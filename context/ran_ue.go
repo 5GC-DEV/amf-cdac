@@ -99,13 +99,15 @@ func (ranUe *RanUe) Remove() error {
 		}
 		ranUe.DetachAmfUe()
 	}
-
+	ran.RanUeListLock.Lock()
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
 			ran.RanUeList = append(ran.RanUeList[:index], ran.RanUeList[index+1:]...)
+			logger.ContextLog.Debugf("Removed RanUe from RanUeList: AmfUeNgapId=%d RanUeNgapId=%d Index=%d ", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, index)
 			break
 		}
 	}
+	ran.RanUeListLock.Unlock()
 	self := AMF_Self()
 	self.RanUePool.Delete(ranUe.AmfUeNgapId)
 	if self.EnableDbStore {

@@ -151,15 +151,15 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 			tx.releaseHeldAfterTimeout(heldCopy.Sqn)
 		})
 	}
-	tx.AmfUe.TxLog.Infof("SUBMIT sqn=%d prevSqnBefore=%d expected=%d decision=%s time=%s", msg.Sqn, prevSqnBefore, expected, decision, recvTime.Format(time.RFC3339Nano))
+	tx.AmfUe.TxLog.Debugf("SUBMIT sqn=%d prevSqnBefore=%d expected=%d decision=%s time=%s", msg.Sqn, prevSqnBefore, expected, decision, recvTime.Format(time.RFC3339Nano))
 
 	// Send outside the lock so a blocked/slow channel send never holds
 	// seqMu and stalls other producers submitting for this UE.
 	sendStart := time.Now()
 	for _, m := range toSendNow {
-		tx.AmfUe.TxLog.Infof("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, sendStart.Format(time.RFC3339Nano))
+		tx.AmfUe.TxLog.Debugf("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, sendStart.Format(time.RFC3339Nano))
 		tx.Message <- m
-		tx.AmfUe.TxLog.Infof("DISPATCH-DONE sqn=%d blockedFor=%v", m.Sqn, time.Since(sendStart))
+		tx.AmfUe.TxLog.Debugf("DISPATCH-DONE sqn=%d blockedFor=%v", m.Sqn, time.Since(sendStart))
 	}
 	tx.seqMu.Unlock()
 }

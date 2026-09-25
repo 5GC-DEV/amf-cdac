@@ -239,7 +239,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
 				}
 			}
-			logger.NgapLog.Infof("ranUe context FOUND: procedureCode=%v time=%s amfuengapid=%d",
+			logger.NgapLog.Debugf("ranUe context FOUND: procedureCode=%v time=%s amfuengapid=%d",
 				procCode, time.Now().Format(time.RFC3339Nano), ranUe.AmfUeNgapId)
 			amfUe.SetEventChannel(NgapMsgHandler)
 			amfUe.TxLog.Infoln("Uecontext found. queuing ngap message to uechannel")
@@ -268,7 +268,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 			}
 			t0 := time.Now()
 			eventChan.SubmitNgapMessage(ngapMsg)
-			amfUe.TxLog.Infof("SubmitNgapMessage returned, duration=%v", time.Since(t0))
+			amfUe.TxLog.Debugf("SubmitNgapMessage returned, duration=%v", time.Since(t0))
 		} else {
 			var procCode int64 = -1
 			switch pdu.Present {
@@ -285,7 +285,7 @@ func Dispatch(conn net.Conn, msg []byte) {
 					procCode = pdu.UnsuccessfulOutcome.ProcedureCode.Value
 				}
 			}
-			logger.NgapLog.Infof("ranUe context NOT FOUND, dispatching unmanaged: procedureCode=%v  time=%s",
+			logger.NgapLog.Debugf("ranUe context NOT FOUND, dispatching unmanaged: procedureCode=%v  time=%s",
 				procCode, time.Now().Format(time.RFC3339Nano))
 			go DispatchNgapMsg(ran, pdu, nil)
 		}
