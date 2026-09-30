@@ -208,8 +208,10 @@ func DbFetchRanUeByRanUeNgapID(ranUeNgapID int64, ran *AmfRan) *RanUe {
 	// and store in context
 	ranUe := ran.RanUeFindByRanUeNgapIDLocal(ranUeNgapID)
 	if ranUe != nil {
+		ue.TxLog.Info("returned local ranue")
 		return ranUe
 	}
+	ue.TxLog.Info("returned ranue of ue from db")
 	return ue.RanUe[models.AccessType__3_GPP_ACCESS]
 }
 
