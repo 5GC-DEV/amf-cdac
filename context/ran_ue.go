@@ -93,14 +93,18 @@ func (ranUe *RanUe) Remove() error {
 	if ran == nil {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
-	if ranUe.AmfUe != nil {
-		amfUe := ranUe.AmfUe
+	if ranUe.AmfUe == nil {
+		logger.ContextLog.Debug("Amfue context of Ranue nil")
+	}
+	amfUe := ranUe.AmfUe
+	if amfUe != nil {
 		logger.ContextLog.Infof("Removing RanUe: IMSI=%s", amfUe.Supi)
 		if amfUe.RanUe[ran.AnType] == ranUe {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
 	}
+
 	// waitStart := time.Now()
 	// logger.ContextLog.Infof("Attempting to acquire Write Lock at %s", waitStart.Format(time.RFC3339Nano))
 	// lockAcquired := time.Now()
@@ -131,6 +135,9 @@ func (ranUe *RanUe) Remove() error {
 	}
 	logger.ContextLog.Infof("Released Amfuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe)
 	// self.RanUePool.Delete(ranUe.AmfUeNgapId)
+	if amfUe != nil && AMF_Self().EnableDbStore {
+		StoreContextInDB(amfUe)
+	}
 	return nil
 }
 

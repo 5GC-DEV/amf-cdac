@@ -1338,10 +1338,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		// }
 
 		amfUe.PublishUeCtxtInfo()
-		amfUe.RanUeMu.Lock()
-		amfUe.RanUe = nil
-		amfUe.RanUeMu.Unlock()
-		ran.Log.Infof("amfue after ranue nil: ", amfUe)
+		// amfUe.RanUeMu.Lock()
+		// amfUe.RanUe = nil
+		// amfUe.RanUeMu.Unlock()
+		// ran.Log.Infof("amfue after ranue nil: ", amfUe)
 		context.StoreContextInDB(amfUe)
 		err := ranUe.Remove()
 		if err != nil {
@@ -1368,10 +1368,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			context.DeleteContextFromDB(amfUe)
 		} else {
 			amfUe.PublishUeCtxtInfo()
-			amfUe.RanUeMu.Lock()
-			amfUe.RanUe = nil
-			amfUe.RanUeMu.Unlock()
-			ran.Log.Infof("amfue after ranue nil: ", amfUe)
+			// amfUe.RanUeMu.Lock()
+			// amfUe.RanUe = nil
+			// amfUe.RanUeMu.Unlock()
+			// ran.Log.Infof("amfue after ranue nil: ", amfUe)
 			context.StoreContextInDB(amfUe)
 			err := ranUe.Remove()
 			if err != nil {
