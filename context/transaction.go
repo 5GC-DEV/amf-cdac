@@ -153,8 +153,6 @@ func (tx *EventChannel) SubmitNgapMessage(msg NgapMsg) {
 	}
 	tx.AmfUe.TxLog.Debugf("SUBMIT sqn=%d prevSqnBefore=%d expected=%d decision=%s time=%s", msg.Sqn, prevSqnBefore, expected, decision, recvTime.Format(time.RFC3339Nano))
 
-	// Send outside the lock so a blocked/slow channel send never holds
-	// seqMu and stalls other producers submitting for this UE.
 	sendStart := time.Now()
 	for _, m := range toSendNow {
 		tx.AmfUe.TxLog.Debugf("DISPATCH-TO-CHANNEL sqn=%d time=%s", m.Sqn, sendStart.Format(time.RFC3339Nano))

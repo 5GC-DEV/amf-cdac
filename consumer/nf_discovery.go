@@ -41,11 +41,15 @@ func SendNfDiscoveryToNrf(nrfUri string, targetNfType, requestNfType models.NfTy
 	if res != nil && res.StatusCode == http.StatusTemporaryRedirect {
 		err = fmt.Errorf("temporary Redirect For Non NRF Consumer")
 	}
-	defer func() {
-		if bodyCloseErr := res.Body.Close(); bodyCloseErr != nil {
-			err = fmt.Errorf("SearchNFInstances' response body cannot close: %+w", bodyCloseErr)
-		}
-	}()
+	if res != nil && res.Body != nil {
+		defer func() {
+			if bodyCloseErr := res.Body.Close(); bodyCloseErr != nil {
+				err = fmt.Errorf("SearchNFInstances' response body cannot close: %w", bodyCloseErr)
+			}
+		}()
+	} else {
+		logger.ConsumerLog.Error("Response nil from NRF for SearchNFInstances")
+	}
 
 	amfSelf := amf_context.AMF_Self()
 

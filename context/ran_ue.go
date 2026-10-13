@@ -92,8 +92,11 @@ func (ranUe *RanUe) Remove() error {
 	if ran == nil {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
-	if ranUe.AmfUe != nil {
-		amfUe := ranUe.AmfUe
+	if ranUe.AmfUe == nil {
+		logger.ContextLog.Debug("Amfue context of Ranue nil")
+	}
+	amfUe := ranUe.AmfUe
+	if amfUe != nil {
 		if amfUe.RanUe[ran.AnType] == ranUe {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
@@ -116,6 +119,9 @@ func (ranUe *RanUe) Remove() error {
 		}
 	} else {
 		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
+	}
+	if amfUe != nil && AMF_Self().EnableDbStore {
+		StoreContextInDB(amfUe)
 	}
 	return nil
 }
