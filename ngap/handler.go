@@ -1297,7 +1297,6 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 			} else {
 				metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
 			}
-
 		}
 	case context.UeContextReleaseDueToNwInitiatedDeregistraion:
 		ran.Log.Infof("Release UE[%s] Context Due to Nw Initiated: Release Ue Context", amfUe.Supi)

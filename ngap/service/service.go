@@ -93,6 +93,7 @@ func (wp *WorkerPool) Start(n int) {
 		go wp.worker(i)
 	}
 }
+
 func Run(addresses []string, port int, handler NGAPHandler) {
 	ips := []net.IPAddr{}
 
