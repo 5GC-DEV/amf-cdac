@@ -92,20 +92,25 @@ func (ranUe *RanUe) Remove() error {
 	if ran == nil {
 		return fmt.Errorf("RanUe not found in Ran")
 	}
-	if ranUe.AmfUe != nil {
-		amfUe := ranUe.AmfUe
+	if ranUe.AmfUe == nil {
+		logger.ContextLog.Debug("Amfue context of Ranue nil")
+	}
+	amfUe := ranUe.AmfUe
+	if amfUe != nil {
 		if amfUe.RanUe[ran.AnType] == ranUe {
 			ranUe.AmfUe.DetachRanUe(ran.AnType)
 		}
 		ranUe.DetachAmfUe()
 	}
-
+	ran.RanUeListLock.Lock()
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
 			ran.RanUeList = append(ran.RanUeList[:index], ran.RanUeList[index+1:]...)
+			logger.ContextLog.Debugf("Removed RanUe from RanUeList: AmfUeNgapId=%d RanUeNgapId=%d Index=%d ", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, index)
 			break
 		}
 	}
+	ran.RanUeListLock.Unlock()
 	self := AMF_Self()
 	self.RanUePool.Delete(ranUe.AmfUeNgapId)
 	if self.EnableDbStore {
@@ -114,6 +119,9 @@ func (ranUe *RanUe) Remove() error {
 		}
 	} else {
 		amfUeNGAPIDGenerator.FreeID(ranUe.AmfUeNgapId)
+	}
+	if amfUe != nil && AMF_Self().EnableDbStore {
+		StoreContextInDB(amfUe)
 	}
 	return nil
 }

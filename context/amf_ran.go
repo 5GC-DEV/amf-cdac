@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"sync"
 
 	"github.com/5GC-DEV/ngap-cdac/ngapConvert"
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
@@ -44,7 +45,8 @@ type AmfRan struct {
 	SupportedTAList []SupportedTAI // TODO SupportedTaList store and recover from DB
 
 	/* RAN UE List */
-	RanUeList []*RanUe `json:"-"` // RanUeNgapId as key
+	RanUeList     []*RanUe `json:"-"` // RanUeNgapId as key
+	RanUeListLock sync.RWMutex
 
 	Amf2RanMsgChan chan *sdcoreAmfServer.AmfMessage `json:"-"`
 	/* logger */
@@ -111,13 +113,20 @@ func (ran *AmfRan) NewRanUe(ranUeNgapID int64) (*RanUe, error) {
 	ranUe.RanUeNgapId = ranUeNgapID
 	ranUe.Ran = ran
 	ranUe.Log = ran.Log.With(logger.FieldAmfUeNgapID, fmt.Sprintf("AMF_UE_NGAP_ID:%d", ranUe.AmfUeNgapId))
+	ran.RanUeListLock.Lock()
 	ran.RanUeList = append(ran.RanUeList, &ranUe)
+	ran.RanUeListLock.Unlock()
 	self.RanUePool.Store(ranUe.AmfUeNgapId, &ranUe)
+	ran.Log.Debugf("allocated amfuengapid: %d, ranuengapid:%d, ranue:%p", ranUe.AmfUeNgapId, ranUe.RanUeNgapId, ranUe)
 	return &ranUe, nil
 }
 
 func (ran *AmfRan) RemoveAllUeInRan() {
-	for _, ranUe := range ran.RanUeList {
+	ran.RanUeListLock.Lock()
+	ranUeListCopy := make([]*RanUe, len(ran.RanUeList))
+	copy(ranUeListCopy, ran.RanUeList)
+	ran.RanUeListLock.Unlock()
+	for _, ranUe := range ranUeListCopy {
 		if err := ranUe.Remove(); err != nil {
 			logger.ContextLog.Errorf("Remove RanUe error: %v", err)
 		}
@@ -126,6 +135,8 @@ func (ran *AmfRan) RemoveAllUeInRan() {
 
 func (ran *AmfRan) RanUeFindByRanUeNgapIDLocal(ranUeNgapID int64) *RanUe {
 	// TODO - need fix..Make this map so search is fast
+	ran.RanUeListLock.RLock()
+	defer ran.RanUeListLock.RUnlock()
 	for _, ranUe := range ran.RanUeList {
 		if ranUe == nil {
 			ran.Log.Error("ranue nil in the RanUeList")

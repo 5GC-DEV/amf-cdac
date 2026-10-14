@@ -134,12 +134,16 @@ func (context *AMFContext) TmsiAllocate() int32 {
 }
 
 func (context *AMFContext) AllocateAmfUeNgapID() (int64, error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	var val int64
 	var err error
 	if context.EnableDbStore {
+		logger.ContextLog.Debugf("dbstore enabled")
 		var tmp int32
 		tmp, err = context.Drsm.AllocateInt32ID()
 		val = int64(tmp)
+		logger.ContextLog.Debugf("val from dbstore: ", val)
 	} else {
 		val, err = AllocateUniqueID(&amfUeNGAPIDGenerator, "amfUeNgapID")
 	}

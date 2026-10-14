@@ -69,6 +69,7 @@ const (
 type AmfUe struct {
 	Mutex       sync.Mutex `json:"mutex,omitempty" yaml:"mutex" bson:"mutex,omitempty"`
 	StateMu     sync.RWMutex
+	RanUeMu     sync.RWMutex
 	SmctxlistMu sync.RWMutex
 	// Mutex sync.RWMutex `json:"-"`
 	/* the AMF which serving this AmfUe now */
@@ -214,10 +215,11 @@ type AmfUe struct {
 	// GmmLog      *logrus.Entry `json:"gmmLog,omitempty" yaml:"gmmLog" bson:"gmmLog,omitempty"`
 	// TxLog       *logrus.Entry `json:"txLog,omitempty" yaml:"txLog" bson:"txLog,omitempty"`
 	// ProducerLog *logrus.Entry `json:"producerLog,omitempty" yaml:"producerLog" bson:"producerLog,omitempty"`
-	NASLog      *zap.SugaredLogger `json:"-"`
-	GmmLog      *zap.SugaredLogger `json:"-"`
-	TxLog       *zap.SugaredLogger `json:"-"`
-	ProducerLog *zap.SugaredLogger `json:"-"`
+	NASLog         *zap.SugaredLogger `json:"-"`
+	GmmLog         *zap.SugaredLogger `json:"-"`
+	TxLog          *zap.SugaredLogger `json:"-"`
+	ProducerLog    *zap.SugaredLogger `json:"-"`
+	Skipentryevent bool
 }
 
 func (ue *AmfUe) MarshalJSON() ([]byte, error) {
@@ -226,6 +228,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 	smCtxListVal := make(map[string]SmContext)
 	var ranUeNgapIDVal, amfUeNgapIDVal int64
 	var gnbId string
+	ue.RanUeMu.RLock()
 	if ue.RanUe != nil && ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
 		gnbId = ue.RanUe[models.AccessType__3_GPP_ACCESS].Ran.GnbId
 		if ue.RanUe[models.AccessType__3_GPP_ACCESS] != nil {
@@ -233,6 +236,7 @@ func (ue *AmfUe) MarshalJSON() ([]byte, error) {
 			amfUeNgapIDVal = ue.RanUe[models.AccessType__3_GPP_ACCESS].AmfUeNgapId
 		}
 	}
+	ue.RanUeMu.RUnlock()
 	ue.StateMu.RLock()
 	for access, state := range ue.State {
 		stateVal[access] = string(state.Current())
@@ -316,7 +320,8 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 	if !ok {
 		logger.ContextLog.Warnln("Ran Connection is not Exist with GnbID: ", aux.RanId)
 	}
-	ue.StateMu.RLock()
+	ue.StateMu.Lock()
+	ue.RanUeMu.Lock()
 	for index, states := range aux.State {
 		ue.State[index] = fsm.NewState(fsm.StateType(states))
 		if ue.RanUe[index] == nil {
@@ -330,7 +335,8 @@ func (ue *AmfUe) UnmarshalJSON(data []byte) error {
 			ue.RanUe[index].Ran = ran
 		}
 	}
-	ue.StateMu.RUnlock()
+	ue.RanUeMu.Unlock()
+	ue.StateMu.Unlock()
 	for key, val := range aux.SmCtxList {
 		keyVal, err := strconv.ParseInt(key, 10, 32)
 		if err != nil {
@@ -378,6 +384,7 @@ type NgapMsg struct {
 	SctplbMsg *sdcoreAmfServer.SctplbMessage
 	NgapMsg   *ngapType.NGAPPDU
 	Ran       *AmfRan
+	Sqn       int
 }
 
 type SbiResponseMsg struct {
