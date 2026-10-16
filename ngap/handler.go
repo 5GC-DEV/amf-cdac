@@ -801,7 +801,7 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 			return true
 		})
 		metrics.SetNoOfActiveGnbStats(uint64(count))
-		metrics.IncrementGnbConnStats(ran.GnbId, ran.GnbIp, ran.Name)
+		metrics.IncrementGnbConnStats()
 		// send nf(gnb) status notification
 		gnbStatus := mi.MetricEvent{
 			EventType: mi.CNfStatusEvt,
@@ -1149,9 +1149,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
 		return
 	}
@@ -1273,11 +1273,10 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
-
 		amfUe.PublishUeCtxtInfo()
 		context.StoreContextInDB(amfUe)
 	case context.UeContextReleaseUeContext:
@@ -1285,9 +1284,9 @@ func HandleUEContextReleaseComplete(ran *context.AmfRan, message *ngapType.NGAPP
 		err := ranUe.Remove()
 		if err != nil {
 			ran.Log.Errorln(err.Error())
-			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "failure")
 		} else {
 			metrics.IncrementUeConnRelStats(context.AMF_Self().NfId, strconv.FormatInt(ranUe.RanUeNgapId, 10), "in", "success")
+			metrics.IncrementUeConnRelStatsTotal()
 		}
 
 		// Valid Security is not exist for this UE then only delete AMfUe Context
@@ -3431,9 +3430,11 @@ func HandlePathSwitchRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value,
 			&pduSessionResourceReleasedListPSFail, nil)
 		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+		metrics.IncrementXnHandoverFailStatsTotal()
 	} else {
 		ngap_message.SendPathSwitchRequestFailure(ran, sourceAMFUENGAPID.Value, rANUENGAPID.Value, nil, nil)
 		metrics.IncrementXnHandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+		metrics.IncrementXnHandoverFailStatsTotal()
 	}
 }
 
@@ -3600,6 +3601,7 @@ func HandleHandoverRequestAcknowledge(ran *context.AmfRan, message *ngapType.NGA
 			}
 			ngap_message.SendHandoverPreparationFailure(sourceUe, *cause, nil)
 			metrics.IncrementN2HandoverFailStats(context.AMF_Self().NfId, amfUe.Suci, ran.GnbIp, "success")
+			metrics.IncrementN2HandoverFailStatsTotal()
 			return
 		}
 		ngap_message.SendHandoverCommand(sourceUe, pduSessionResourceHandoverList, pduSessionResourceToReleaseList,

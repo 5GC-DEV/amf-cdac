@@ -695,6 +695,7 @@ func SendPaging(ue *context.AmfUe, ngapBuf []byte) {
 			ue.GmmLog.Warnf("T3513 expires %d times, abort paging procedure", cfg.MaxRetryTimes)
 			ue.T3513 = nil // clear the timer
 			metrics.IncrementUePagingFailStats(context.AMF_Self().NfId, ue.Suci, "success")
+			metrics.IncrementUePagingFailStatsTotal()
 			if ue.GetOnGoing(models.AccessType__3_GPP_ACCESS).Procedure != context.OnGoingProcedureN2Handover {
 				callback.SendN1N2TransferFailureNotification(ue, models.N1N2MessageTransferCause_UE_NOT_RESPONDING)
 			}
