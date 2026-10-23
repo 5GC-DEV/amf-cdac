@@ -132,10 +132,11 @@ func Dispatch(conn net.Conn, msg []byte) {
 	if !ok {
 		if ra := conn.RemoteAddr(); ra != nil {
 			logger.NgapLog.Infof("Create a new NG connection for: %s", ra.String())
+			ran = amfSelf.NewAmfRan(conn)
 		} else {
-			logger.NgapLog.Info("Create a new NG connection (Remote address received nil)")
+			logger.NgapLog.Warn("Remote address nil, connection dead")
+			return
 		}
-		ran = amfSelf.NewAmfRan(conn)
 	}
 	if ran.Name != "" {
 		logger.NgapLog.Infof("NGAP packet received from gNB=%s", ran.Name)
