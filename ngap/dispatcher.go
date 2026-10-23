@@ -124,13 +124,21 @@ func Dispatch(conn net.Conn, msg []byte) {
 	var nASPDU *ngapType.NASPDU
 	var userLocationInformation *ngapType.UserLocationInformation
 
+	if conn == nil {
+		logger.NgapLog.Info("Connection is nil")
+		return
+	}
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
-		logger.NgapLog.Infof("Create a new NG connection for: %s", conn.RemoteAddr().String())
+		if ra := conn.RemoteAddr(); ra != nil {
+			logger.NgapLog.Infof("Create a new NG connection for: %s", ra.String())
+		} else {
+			logger.NgapLog.Info("Create a new NG connection (Remote address received nil)")
+		}
 		ran = amfSelf.NewAmfRan(conn)
 	}
 	if ran.Name != "" {
-		logger.NgapLog.Info("NGAP packet received from gNB=%s", ran.Name)
+		logger.NgapLog.Infof("NGAP packet received from gNB=%s", ran.Name)
 	}
 
 	if len(msg) == 0 {
