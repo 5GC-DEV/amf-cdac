@@ -25,9 +25,10 @@ func (Writer) SendMessage(_ []byte) error { return nil }
 
 func (Writer) PublishUeCtxtEvent(ctxt mi.CoreSubscriber, op mi.SubscriberOp) error {
 	operation := "modify"
-	if op == mi.SubsOpAdd {
+	switch op {
+	case mi.SubsOpAdd:
 		operation = "add"
-	} else if op == mi.SubsOpDel {
+	case mi.SubsOpDel:
 		operation = "delete"
 	}
 	UpdateCoreSubscriber(ctxt.Imsi, ctxt.IPAddress, ctxt.AmfSubState, operation)

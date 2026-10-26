@@ -73,7 +73,6 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 						if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
 							logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
 						}
-
 					}
 				}
 				ran.Amf2RanMsgChan = Amf2RanMsgChan
