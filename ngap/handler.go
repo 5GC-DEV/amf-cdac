@@ -811,11 +811,10 @@ func HandleNGSetupRequest(ran *context.AmfRan, message *ngapType.NGAPPDU) {
 				NfName:   ran.GnbId,
 			},
 		}
-		if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-			if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-				ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
-			}
+		if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+			ran.Log.Errorf("Could not publish NfStatusEvent: %v", err)
 		}
+
 	} else {
 		ngap_message.SendNGSetupFailure(ran, cause)
 	}

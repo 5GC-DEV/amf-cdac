@@ -13,6 +13,7 @@ package metrics
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/omec-project/amf/logger"
 	"github.com/prometheus/client_golang/prometheus"
@@ -37,6 +38,9 @@ type AmfStats struct {
 	noOfActiveGnb     prometheus.Gauge
 	gnbConnect        *prometheus.CounterVec
 	AuthRequestTotal  *prometheus.CounterVec
+	coreSubscriber    *prometheus.CounterVec
+	nfStatus          *prometheus.GaugeVec
+	amfSvcStats       *prometheus.CounterVec
 }
 
 var amfStats *AmfStats
@@ -122,6 +126,21 @@ func initAmfStats() *AmfStats {
 			Name: "amf_auth_request_total",
 			Help: "Counter of total authentication request send",
 		}, []string{"supi"}),
+
+		coreSubscriber: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "core_subscriber",
+			Help: "Core subscriber information",
+		}, []string{"imsi", "ip_addr", "state", "smf_ip", "dnn", "slice", "upf"}),
+
+		nfStatus: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "nf_status",
+			Help: "NF status up/down",
+		}, []string{"Nfname", "nfType"}),
+
+		amfSvcStats: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "amf_svc_stats",
+			Help: "AMF service stats",
+		}, []string{"amfid", "msgtype"}),
 	}
 }
 
@@ -174,6 +193,15 @@ func (ps *AmfStats) register() error {
 		return err
 	}
 	if err := prometheus.Register(ps.AuthRequestTotal); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.coreSubscriber); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.nfStatus); err != nil {
+		return err
+	}
+	if err := prometheus.Register(ps.amfSvcStats); err != nil {
 		return err
 	}
 	return nil
@@ -273,4 +301,40 @@ func IncrementGnbConnStats(gnbid, gnbip, name string) {
 // IncrementAuthReqStats maintains gnb connection level stats
 func IncrementAuthReqStats(supi string) {
 	amfStats.AuthRequestTotal.WithLabelValues(supi).Inc()
+}
+
+var liveSubscriberStates = struct {
+	sync.Mutex
+	states map[string]string
+}{states: make(map[string]string)}
+
+// UpdateCoreSubscriber keeps the live subscriber series aligned with AMF UE state.
+func UpdateCoreSubscriber(imsi, ipAddr, state, operation string) {
+	const empty = ""
+	liveSubscriberStates.Lock()
+	defer liveSubscriberStates.Unlock()
+	previous, exists := liveSubscriberStates.states[imsi]
+	if exists {
+		amfStats.coreSubscriber.DeleteLabelValues(imsi, ipAddr, previous, empty, empty, empty, empty)
+	}
+	if operation == "delete" {
+		delete(liveSubscriberStates.states, imsi)
+		return
+	}
+	amfStats.coreSubscriber.WithLabelValues(imsi, ipAddr, state, empty, empty, empty, empty).Inc()
+	liveSubscriberStates.states[imsi] = state
+}
+
+// SetNfStatus updates the NF availability metric used by the SMO dashboard.
+func SetNfStatus(name, nfType string, connected bool) {
+	value := 0.0
+	if connected {
+		value = 1
+	}
+	amfStats.nfStatus.WithLabelValues(name, nfType).Set(value)
+}
+
+// IncrementAmfSvcStats increments AMF service message counters.
+func IncrementAmfSvcStats(amfID, messageType string) {
+	amfStats.amfSvcStats.WithLabelValues(amfID, messageType).Inc()
 }

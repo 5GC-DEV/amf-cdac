@@ -16,7 +16,6 @@ import (
 	"github.com/5GC-DEV/ngap-cdac/ngapType"
 	"github.com/5GC-DEV/openapi-cdac/models"
 	mi "github.com/5GC-DEV/util-cdac/metricinfo"
-	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
@@ -74,10 +73,8 @@ func (ran *AmfRan) Remove() {
 			NfStatus: mi.NfStatusDisconnected, NfName: ran.GnbId,
 		},
 	}
-	if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-		if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-			ran.Log.Errorf("could not publish NfStatusEvent: %v", err)
-		}
+	if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+		ran.Log.Errorf("could not publish NfStatusEvent: %v", err)
 	}
 
 	ran.SetRanStats(RanDisconnected)

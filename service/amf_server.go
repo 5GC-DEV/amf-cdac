@@ -12,7 +12,6 @@ import (
 
 	mi "github.com/5GC-DEV/util-cdac/metricinfo"
 	"github.com/omec-project/amf/context"
-	"github.com/omec-project/amf/factory"
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/ngap"
@@ -71,11 +70,10 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 							},
 						}
 
-						if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-							if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-								logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
-							}
+						if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+							logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
 						}
+
 					}
 				}
 				ran.Amf2RanMsgChan = Amf2RanMsgChan
@@ -93,11 +91,10 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 						NfStatus: mi.NfStatusDisconnected, NfName: req.GnbId,
 					},
 				}
-				if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-					if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-						logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
-					}
+				if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+					logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
 				}
+
 			case sdcoreAmfServer.MsgType_GNB_CONN:
 				logger.GrpcLog.Infoln("new gNB Connected")
 				// send nf(gnb) status notification
@@ -108,11 +105,10 @@ func (s *Server) HandleMessage(srv sdcoreAmfServer.NgapService_HandleMessageServ
 						NfStatus: mi.NfStatusConnected, NfName: req.GnbId,
 					},
 				}
-				if *factory.AmfConfig.Configuration.KafkaInfo.EnableKafka {
-					if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
-						logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
-					}
+				if err := metrics.StatWriter.PublishNfStatusEvent(gnbStatus); err != nil {
+					logger.GrpcLog.Errorf("error publishing NfStatusEvent: %v", err)
 				}
+
 			default:
 				ngap.DispatchLb(req, Amf2RanMsgChan)
 			}
