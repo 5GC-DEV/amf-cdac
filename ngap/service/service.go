@@ -578,11 +578,24 @@ func MarkClosed(conn net.Conn) {
 	closedConns.Store(conn, struct{}{})
 }
 
-// IsActive reports whether packets from this conn should still be processed.
+// // IsActive reports whether packets from this conn should still be processed.
+// func IsActive(conn net.Conn) bool {
+// 	if _, closed := closedConns.Load(conn); closed {
+// 		return false
+// 	}
+// 	_, ok := connections.Load(conn)
+// 	return ok
+// }
+
 func IsActive(conn net.Conn) bool {
 	if _, closed := closedConns.Load(conn); closed {
 		return false
 	}
-	_, ok := connections.Load(conn)
-	return ok
+	// Only real SCTP conns are tracked in `connections`.
+	// Other net.Conn implementations (e.g. test doubles) are not registered there.
+	if _, isSCTP := conn.(*sctp.SCTPConn); isSCTP {
+		_, ok := connections.Load(conn)
+		return ok
+	}
+	return true
 }
