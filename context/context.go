@@ -374,6 +374,7 @@ func (context *AMFContext) AmfUeDeleteBySuci(suci string) (ue *AmfUe, ok bool) {
 }
 
 func (context *AMFContext) NewAmfRan(conn net.Conn) *AmfRan {
+	logger.ContextLog.Info("creating new amfran")
 	ran := AmfRan{}
 	ran.SupportedTAList = NewSupportedTAIList()
 	ran.Conn = conn

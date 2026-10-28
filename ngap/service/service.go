@@ -63,6 +63,7 @@ type RingBuffer struct {
 }
 
 var ringBuffer *RingBuffer
+var closedConns sync.Map // conn -> struct{}
 
 type NGAPHandler struct {
 	HandleMessage      func(conn net.Conn, msg []byte)
@@ -310,6 +311,7 @@ func handleConnection(conn *sctp.SCTPConn, bufsize uint32, handler NGAPHandler) 
 			logger.NgapLog.Errorf("close connection error: %+v", err)
 		}
 		connections.Delete(conn)
+		closedConns.Delete(conn)
 	}()
 
 	for {
@@ -569,4 +571,18 @@ func backoff(spins *int) {
 	default:
 		time.Sleep(1 * time.Millisecond)
 	}
+}
+
+// MarkClosed is called as soon as we learn the association is ending.
+func MarkClosed(conn net.Conn) {
+	closedConns.Store(conn, struct{}{})
+}
+
+// IsActive reports whether packets from this conn should still be processed.
+func IsActive(conn net.Conn) bool {
+	if _, closed := closedConns.Load(conn); closed {
+		return false
+	}
+	_, ok := connections.Load(conn)
+	return ok
 }

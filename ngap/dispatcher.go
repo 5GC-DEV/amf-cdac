@@ -21,6 +21,7 @@ import (
 	"github.com/omec-project/amf/logger"
 	"github.com/omec-project/amf/metrics"
 	"github.com/omec-project/amf/msgtypes/ngapmsgtypes"
+	ngap_service "github.com/omec-project/amf/ngap/service"
 	"github.com/omec-project/amf/protos/sdcoreAmfServer"
 )
 
@@ -128,16 +129,31 @@ func Dispatch(conn net.Conn, msg []byte) {
 		logger.NgapLog.Info("Connection is nil")
 		return
 	}
+
 	ran, ok := amfSelf.AmfRanFindByConn(conn)
 	if !ok {
-		if ra := conn.RemoteAddr(); ra != nil {
-			logger.NgapLog.Infof("Create a new NG connection for: %s", ra.String())
-			ran = amfSelf.NewAmfRan(conn)
-		} else {
-			logger.NgapLog.Warn("Remote address nil, connection dead")
+		if !ngap_service.IsActive(conn) {
+			logger.NgapLog.Warn("connection closed, discarding packet")
 			return
 		}
+		ra := conn.RemoteAddr()
+		if ra == nil {
+			logger.NgapLog.Warn("remote address nil, discarding packet")
+			return
+		}
+		logger.NgapLog.Infof("Create a new NG connection for: %s", ra)
+		ran = amfSelf.NewAmfRan(conn)
 	}
+	// ran, ok := amfSelf.AmfRanFindByConn(conn)
+	// if !ok {
+	// 	if ra := conn.RemoteAddr(); ra != nil {
+	// 		logger.NgapLog.Infof("Create a new NG connection for: %s", ra.String())
+	// 		ran = amfSelf.NewAmfRan(conn)
+	// 	} else {
+	// 		logger.NgapLog.Warn("Remote address nil, connection dead")
+	// 		return
+	// 	}
+	// }
 	if ran.Name != "" {
 		logger.NgapLog.Infof("NGAP packet received from gNB=%s", ran.Name)
 	}
@@ -468,15 +484,18 @@ func HandleSCTPNotification(conn net.Conn, notification sctp.Notification) {
 		switch event.State() {
 		case sctp.SCTP_COMM_LOST:
 			ran.Log.Infoln("SCTP state is SCTP_COMM_LOST, close the connection")
+			ngap_service.MarkClosed(conn) // first
 			ran.Remove()
 		case sctp.SCTP_SHUTDOWN_COMP:
 			ran.Log.Infoln("SCTP state is SCTP_SHUTDOWN_COMP, close the connection")
+			ngap_service.MarkClosed(conn) // first
 			ran.Remove()
 		default:
 			ran.Log.Warnf("SCTP state[%+v] is not handled", event.State())
 		}
 	case sctp.SCTP_SHUTDOWN_EVENT:
 		ran.Log.Infoln("SCTP_SHUTDOWN_EVENT notification, close the connection")
+		ngap_service.MarkClosed(conn) // first
 		ran.Remove()
 	default:
 		ran.Log.Warnf("Non handled notification type: 0x%x", notification.Type())
