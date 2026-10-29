@@ -104,17 +104,6 @@ func (ranUe *RanUe) Remove() error {
 		}
 		ranUe.DetachAmfUe()
 	}
-
-	// waitStart := time.Now()
-	// logger.ContextLog.Infof("Attempting to acquire Write Lock at %s", waitStart.Format(time.RFC3339Nano))
-	// lockAcquired := time.Now()
-	// logger.ContextLog.Infof("Write Lock acquired at %s (waited %v)", lockAcquired.Format(time.RFC3339Nano), lockAcquired.Sub(waitStart))
-	// defer func() {
-	// 	// releaseTime := time.Now()
-	// 	// logger.ContextLog.Infof("Releasing Write Lock at %s (held for %v)", releaseTime.Format(time.RFC3339Nano), releaseTime.Sub(lockAcquired))
-	// 	ran.RanUeListLock.Unlock()
-	// }()
-	// defer ran.RanUeListLock.Unlock()
 	ran.RanUeListLock.Lock()
 	for index, ranUe1 := range ran.RanUeList {
 		if ranUe1 == ranUe {
